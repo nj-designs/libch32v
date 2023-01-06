@@ -10,7 +10,7 @@ Currently only supports CH32V003 devices.
 
 FYI, the development board I have looks like this:
 
-![Dev Board][./pics/ch32v003-dev-board.png "Dev Board"]
+![Dev Board](/pics/ch32v003-dev-board.png)
 
 This whole project is really early days, so the general layout etc. could and most probably will change as bugs are fixed, and support for other devices is added.
 
@@ -232,9 +232,9 @@ pc             0x192    0x192 <main>
 
 In no particular order and just off the top of my head.
 
-[ ] - Add examples for USART, I2C etc
-[ ] - Investigate adding support for libc. [picolib](https://github.com/picolibc/picolibc) looks promising
-[ ] - General bug fixes and tidy up
-[ ] - Support other variants of WCH's CH32V range of uControllers
-[ ] - Understand what changes WCH added to openocd to work with their devices
-[ ] - Better documentaion
+- [ ] Add examples for USART, I2C etc
+- [ ] Investigate adding support for libc. [picolib](https://github.com/picolibc/picolibc) looks promising
+- [ ] General bug fixes and tidy up
+- [ ] Support other variants of WCH's CH32V range of uControllers
+- [ ] Understand what changes WCH added to openocd to work with their devices
+- [ ] Better documentaion
