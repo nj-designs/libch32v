@@ -14,7 +14,7 @@ FYI, the development board I have looks like this:
 
 This whole project is really early days, so the general layout etc. could and most probably will change as bugs are fixed, and support for other devices is added.
 
-Also PRs are always welcomed.
+Also PRs are always welcome.
 
 ## TOOLS SETUP
 
