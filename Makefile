@@ -2,12 +2,12 @@ TARGET = ch32vtst
 
 APP_DIR = app
 
-APP_C_SRCS := $(wildcard $(APP_DIR)/*.c) 
+APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 
-MARCH  = rv32ec
+MARCH  = rv32ec_zicsr
 MABI = ilp32e
 
-# Need gnuXX to allow __asm 
+# Need gnuXX to allow __asm
 CSTD = gnu11
 
 # All build artifacts go here
@@ -22,7 +22,7 @@ OPTIMIZE = s
 TOOL_CHAIN_PREFIX ?= riscv32-unknown-elf
 
 # Include all WCH lib files and let linker drop unused code etc.
-LIB_C_SRC = $(wildcard libch32v/lib/src/*.c) 
+LIB_C_SRC = $(wildcard libch32v/lib/src/*.c)
 LIB_A_SRC = libch32v/lib/src/startup.S libch32v/lib/src/vector_ch32v003.S
 
 CSRC = $(APP_C_SRCS) $(LIB_C_SRC)
@@ -93,7 +93,7 @@ size: $(BUILD)/$(TARGET).elf
 
 $(COBJ) : $(BUILD)/%.o : %.c
 	@mkdir -p `dirname $@`
-	@echo 
+	@echo
 	$(CC) -c $(CFLAGS) $< -o $@
 
 $(AOBJ) : $(BUILD)/%.o : %.S

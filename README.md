@@ -22,7 +22,13 @@ Only tested on **Ubuntu 22.04**, but should work on any recent linux.
 
 ### GCC COMPILER
 
-The following will install to ```${HOME}/opt/riscv``` ensure ```${HOME}/opt/riscv/bin``` is in ```${PATH}``` before running.
+Add the following to your ```.bashrc``` or equivalent (don't forget to reload your shell).
+
+```bash
+export CH32_RISCV=${HOME}/opt/ch32-riscv
+export PATH=${PATH}:${CH32_RISCV}/bin
+```
+
 
 ```bash
 # Prereqs
@@ -35,7 +41,7 @@ cd ~/github.com
 git clone https://github.com/riscv/riscv-gnu-toolchain riscv/riscv-gnu-toolchain
 cd riscv/riscv-gnu-toolchain
 # Confure build
-./configure --prefix=${HOME}/opt/riscv --with-arch=rv32g --with-abi=ilp32
+./configure --prefix=${CH32_RISCV} --with-arch=rv32g --with-abi=ilp32
 # build
 make -j$(nproc)
 ```
