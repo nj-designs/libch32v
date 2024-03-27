@@ -45,18 +45,25 @@ endif
 
 LD_SCRIPT=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) ld_script)
 ifeq ($(LD_SCRIPT),)
-$(error Can't find value for $(DEVICE).LD_SCRIPT)
+$(error Can't find value for $(DEVICE).ld_script)
 endif
 
 MARCH=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) march)
 ifeq ($(MARCH),)
-$(error Can't find value for $(DEVICE).MARCH)
+$(error Can't find value for $(DEVICE).march)
 endif
 
 MABI=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) mabi)
 ifeq ($(MABI),)
-$(error Can't find value for $(DEVICE).MABI)
+$(error Can't find value for $(DEVICE).mabi)
 endif
+
+FLASH_PROG_ADDR=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) flash_prog_addr)
+ifeq ($(FLASH_PROG_ADDR),)
+$(error Can't find value for $(DEVICE).flash_prog_addr)
+endif
+
+
 
 $(info $$FAMILY: '${FAMILY}')
 $(info $$HAL: '${HAL}')
@@ -66,7 +73,7 @@ $(info $$SRAM_START: '${SRAM_START}')
 $(info $$SRAM_SIZE: '${SRAM_SIZE}' KiB)
 $(info $$LD_SCRIPT: '${LD_SCRIPT}')
 $(info $$MARCH: '${MARCH}')
-$(info $$MABI: '${MABI}')
+$(info $$FLASH_PROG_ADDR: '${FLASH_PROG_ADDR}')
 
 APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 
@@ -96,6 +103,7 @@ OBJCOPY = $(TOOL_CHAIN_PREFIX)-objcopy
 OBJDUMP = $(TOOL_CHAIN_PREFIX)-objdump
 SIZE    = $(TOOL_CHAIN_PREFIX)-size
 NM      = $(TOOL_CHAIN_PREFIX)-nm
+FLASH_TOOL   = wlink
 
 CFLAGS += -std=$(CSTD) -march=$(MARCH) -mabi=$(MABI) -ffreestanding -fno-pic
 CFLAGS += -O$(OPTIMIZE)
@@ -119,7 +127,7 @@ LDFLAGS +=-Wl,--defsym=RAM_ORIGIN=$(SRAM_START) -Wl,--defsym=RAM_LENGTH=$(SRAM_S
 LDFLAGS +=-Wl,--defsym=FLASH_ORIGIN=$(FLASH_START) -Wl,--defsym=FLASH_LENGTH=$(FLASH_SIZE)
 LDFLAGS +=-Wl,-Tlibch32/$(HAL)/ld/link.ld
 
-all: $(BUILD)/device_config.h elf lst sym
+all: $(BUILD)/device_config.h elf lst sym bin
 
 elf: $(BUILD)/$(APP).elf
 lst: $(BUILD)/$(APP).lst
@@ -140,6 +148,7 @@ hex: $(BUILD)/$(APP).hex
 size: $(BUILD)/$(APP).elf
 	@echo
 	$(SIZE) -A -x $<
+	$(SIZE) $<
 
 %.sym: %.elf
 	@echo
@@ -167,8 +176,13 @@ $(BUILD)/device_config.h: $(DEVICE_CFG_FILE)
 	@mkdir -p `dirname $@`
 	@python3 scripts/gen_cfg2.py $< $(DEVICE) $@
 
+flash: $(BUILD)/$(APP).bin
+	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<
+
 clean:
 	@rm -rfv $(BUILD)
+
+.PHONY: all clean size flash
 
 # Include the dependency files.
 -include $(wildcard $(BUILD)/*.d)

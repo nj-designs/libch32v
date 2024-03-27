@@ -51,8 +51,8 @@ int main(void) {
 
   while (1) {
     GPIO_WriteBit(GPIOD, GPIO_Pin_4, Bit_RESET);
-    Delay_Ms(750);
+    Delay_Ms(5000);
     GPIO_WriteBit(GPIOD, GPIO_Pin_4, Bit_SET);
-    Delay_Ms(250);
+    Delay_Ms(5000);
   }
 }

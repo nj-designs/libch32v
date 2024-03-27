@@ -45,10 +45,13 @@ cd riscv/riscv-gnu-toolchain
 # build
 make -j$(nproc)
 ```
+### WLINK
+
+Following the instructions [here](https://github.com/ch32-rs/wlink) to install/get wlink. Just make sure it's installed somewhere in your $PATH.
 
 ### OPENOCD
 
-WCH seems to need a modifed openocd. I've been uable to find the source code for it, but a "working binary" is provided in the **run** directory.
+WCH seems to need a modified openocd. I've been unable to find the source code for it, but a "working binary" is provided in the **run** directory.
 
 I found the easiest setup is to install the following packages first.
 
@@ -69,7 +72,7 @@ Once all of the tools above are install/configured, you can build and test a ver
 
 To build, simply run **make** in the root of this repo.
 
-If all goes well, the last few lines of output shoud look something like this:
+If all goes well, the last few lines of output should look something like this:
 ```
 Linking...
 riscv32-unknown-elf-gcc -std=gnu11 -march=rv32ec -mabi=ilp32e -ffreestanding -fno-pic -Os -Werror -g -Ilibch32v/include/libch32v -DPRINTF_INCLUDE_CONFIG_H -Wp,-M,-MP,-MT,build/ch32vtst.o,-MF,build/ch32vtst.d -ffunction-sections -fdata-sections build/libch32v/lib/src/startup.o build/libch32v/lib/src/vector_ch32v003.o build/app/main.o build/libch32v/lib/src/ch32v00x_adc.o build/libch32v/lib/src/ch32v00x_dbgmcu.o build/libch32v/lib/src/ch32v00x_dma.o build/libch32v/lib/src/ch32v00x_exti.o build/libch32v/lib/src/ch32v00x_flash.o build/libch32v/lib/src/ch32v00x_gpio.o build/libch32v/lib/src/ch32v00x_i2c.o build/libch32v/lib/src/ch32v00x_it.o build/libch32v/lib/src/ch32v00x_iwdg.o build/libch32v/lib/src/ch32v00x_misc.o build/libch32v/lib/src/ch32v00x_opa.o build/libch32v/lib/src/ch32v00x_pwr.o build/libch32v/lib/src/ch32v00x_rcc.o build/libch32v/lib/src/ch32v00x_spi.o build/libch32v/lib/src/ch32v00x_tim.o build/libch32v/lib/src/ch32v00x_usart.o build/libch32v/lib/src/ch32v00x_wwdg.o build/libch32v/lib/src/debug.o build/libch32v/lib/src/system_ch32v00x.o -Wl,-Map,build/ch32vtst.map -nostdlib -Wl,--no-relax -Wl,--gc-sections -Wl,-Tlibch32v/linker/ch32v003.ld --output build/ch32vtst.elf
@@ -106,7 +109,15 @@ riscv32-unknown-elf-nm -n build/ch32vtst.elf > build/ch32vtst.sym
 
 ### PROGRAM
 
-To program what's just been built, run the following:
+To program what's just been built, choose one of the following methopds:
+
+#### Using wlink
+
+```
+make flash
+```
+
+#### Using openocd
 
 ```
 ➜  libch32v git:(main) ✗ ./run/openocd -f run/wch-riscv.cfg  -c init -c halt  -c "program build/ch32vtst.elf" -c exit

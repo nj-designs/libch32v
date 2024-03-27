@@ -32,3 +32,10 @@ https://github.com/nothings/single_file_libs
 
 
 https://sourceware.org/binutils/docs-2.31/as/RISC_002dV_002dDirectives.html#RISC_002dV_002dDirectives
+
+
+https://www.wch-ic.com/products/WCH-Link.html
+
+https://github.com/ch32-rs/wlink
+
+https://github.com/ch32-rs/wchisp
