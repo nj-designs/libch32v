@@ -13,8 +13,4 @@
 
 #include "device_config.h"
 
-void init_system(void) {
-  rcc_init();
-
-  rcc_cfg_clock_tree(LIBCH32_HSE_FREQ, LIBCH32_SYSCLK_FREQ);
-}
+void init_system(void) { rcc_init(); }

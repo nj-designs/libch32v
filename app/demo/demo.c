@@ -13,11 +13,15 @@
 #include "core.h"
 #include "gpio.h"
 
+#include "device_config.h"
+
 // All interrupt handlers can be "naked" as we are using HPE
 void int_handler_nmi(void) __attribute__((naked));
 void int_handler_hard_fault(void) __attribute__((naked));
 
 void main(void) {
+  rcc_cfg_clock_tree(LIBCH32_HSE_FREQ, LIBCH32_SYSCLK_FREQ);
+
   // Setup LED
   rcc_set_peripheral_clk(RCC_IOPA_ID, 1);
   GPIOPinSetCache ledCache;
