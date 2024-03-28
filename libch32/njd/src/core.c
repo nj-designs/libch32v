@@ -24,7 +24,7 @@ static uint32_t _ms_tick_count;  // systicks per ms
 
 void core_delay_us(uint32_t duration) {
   if (_us_tick_count == 0) {
-    const RCCCfgValues* clk = get_clk_values();
+    const struct RCCCfgValues* clk = get_clk_values();
     _us_tick_count = clk->hclk_freq / 8000000;  // 8... as STCLK=HCLK/8
     _ms_tick_count = _us_tick_count * 1000;
   }

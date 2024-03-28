@@ -170,16 +170,20 @@ typedef enum {
 
 } RCCPeripheralId;
 
-typedef struct {
-  uint32_t hse_freq;
-  uint32_t sysclk_freq;
+/**
+ * @brief
+ *
+ */
+struct RCCCfgValues {
+  uint32_t hse_freq;     // HSE osc freq, or zero if using HSI
+  uint32_t sysclk_freq;  // Wanted sysclk freq
   uint32_t hclk_freq;
   uint32_t usbclk_freq;
   uint32_t pclk1_freq;
   uint32_t pclk2_freq;
   uint32_t adcclk_freq;
   uint32_t cfgr0;
-} RCCCfgValues;
+};
 
 /**
  * @brief Set RCC block to a safe init values
@@ -209,4 +213,4 @@ void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on);
  *
  * @return const RCCCfgValues*
  */
-const RCCCfgValues* get_clk_values(void);
+const struct RCCCfgValues* get_clk_values(void);

@@ -19,7 +19,7 @@ RCCRegMap __attribute__((section(".rcc"))) rcc;
 static volatile uint32_t* const clk_enable_reg_look_up[] = {
     &rcc.ahbpcenr, &rcc.apb1pcenr, &rcc.apb2pcenr};
 
-static const RCCCfgValues cfg_table[] = {
+static const struct RCCCfgValues cfg_table[] = {
     {.hse_freq = 8'000'000,
      .sysclk_freq = 144'000'000,
      .hclk_freq = 144'000'000,   // RCC_CFGR0_HPRE_DIV_1
@@ -34,11 +34,11 @@ static const RCCCfgValues cfg_table[] = {
 };
 static const uint16_t CFG_TABLE_SIZE = sizeof(cfg_table) / sizeof(cfg_table[0]);
 
-static const RCCCfgValues* current_cfg;
+static const struct RCCCfgValues* current_cfg;
 
 void rcc_cfg_clock_tree(uint32_t hse_freq, uint32_t sysclk_freq) {
   for (uint16_t i = 0; i < CFG_TABLE_SIZE; i++) {
-    const RCCCfgValues* ptr = &cfg_table[i];
+    const struct RCCCfgValues* ptr = &cfg_table[i];
     if (ptr->hse_freq == hse_freq && ptr->sysclk_freq == sysclk_freq) {
       // Found supported combination of hse/sysclk
       if (hse_freq) {
@@ -97,4 +97,4 @@ void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on) {
   }
 }
 
-const RCCCfgValues* get_clk_values(void) { return current_cfg; }
+const struct RCCCfgValues* get_clk_values(void) { return current_cfg; }
