@@ -165,68 +165,68 @@ SECTIONS
 
 	/* Peripherals ordered by address*/
 
-	.usart2 0x40004400 :
+	.usart2 0x40004400 (NOLOAD):
 	{
 		KEEP(*(.usart2))
 	} >PERIPHERALS
 
-	.gpio_a 0x40010800 :
+	.gpio_a 0x40010800 (NOLOAD):
 	{
 		KEEP(*(.gpio_a))
 	} > PERIPHERALS
 
-	.gpio_b 0x40010C00 :
+	.gpio_b 0x40010C00 (NOLOAD):
 	{
 		KEEP(*(.gpio_b))
 	}
 
-	.gpio_c 0x40011000 :
+	.gpio_c 0x40011000 (NOLOAD):
 	{
 		KEEP(*(.gpio_c))
 	}
 
-	.gpio_d 0x40011400 :
+	.gpio_d 0x40011400 (NOLOAD):
 	{
 		KEEP(*(.gpio_d))
 	}
 
-	.adc1 0x40012400 :
+	.adc1 0x40012400 (NOLOAD):
 	{
 		KEEP(*(.adc1))
 	}
 
-	.adc2 0x40012800 :
+	.adc2 0x40012800 (NOLOAD):
 	{
 		KEEP(*(.adc2))
 	}
 
-	.spi1 0x40013000 :
+	.spi1 0x40013000 (NOLOAD):
 	{
 		KEEP(*(.spi1))
 	} >PERIPHERALS
 
-	.usart1 0x40013800 :
+	.usart1 0x40013800 (NOLOAD):
 	{
 		KEEP(*(.usart1))
 	} >PERIPHERALS
 
-	.dma1 0x40020000 :
+	.dma1 0x40020000 (NOLOAD):
 	{
 		KEEP(*(.dma1))
 	} > PERIPHERALS
 
-	.rcc 0x40021000 :
+	.rcc 0x40021000 (NOLOAD) :
 	{
 		KEEP(*(.rcc))
 	} >PERIPHERALS
 
 	/* Core Peripherals ordered by address*/
-	.pfic 0xE000E000 :
+	.pfic 0xE000E000 (NOLOAD) :
 	{
 		KEEP(*(.pfic))
 	} >CORE_PERIPHERALS
 
-	.systick 0xE000F000 :
+	.systick 0xE000F000 (NOLOAD) :
 	{
 		KEEP(*(.systick))
 	} >CORE_PERIPHERALS
