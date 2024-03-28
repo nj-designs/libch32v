@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2024
  *
  */
+
 	.section	.init,"ax",@progbits
 	.global	_start
 	.align	1

@@ -83,7 +83,7 @@ enum PFICIntNum {
   PFIC_USART1_INT_NUM = 53,    // Addr: 0x000000D4
 };
 #else
-#erorr "unsupported device"
+#error "unsupported device"
 #endif
 /**
  * Prototypes from here down
