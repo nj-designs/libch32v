@@ -23,11 +23,11 @@ void int_handler_hard_fault(void) __attribute__((naked));
 static GPIOPinSetCache ledCache;
 
 static const struct UsartCfgValues usart_cfg_values = {
-    .baud_rate = 19200,
+    .baud_rate = 115200,
     .word_len = USART_WORD_LEN_8_BITS,
     .parity = USART_PARITY_NONE,
     .stop_bits = USART_STOP_BITS_1_0,
-    .mode = USART_DATA_MODE_TX_ONY,
+    .mode = USART_DATA_MODE_RX_AND_TX,
 };
 
 static const char *message =
