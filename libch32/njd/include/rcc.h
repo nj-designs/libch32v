@@ -26,7 +26,7 @@ typedef struct {
   volatile uint32_t ahbpcenr;
   volatile uint32_t apb2pcenr;
   volatile uint32_t apb1pcenr;
-  volatile uint32_t reserved0;
+  volatile uint32_t bdctlr;
   volatile uint32_t rstsckr;
   volatile uint32_t ahbrstr;
   volatile uint32_t cfgr2;
