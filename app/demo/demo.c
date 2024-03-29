@@ -32,7 +32,7 @@ static const struct UsartCfgValues usart_cfg_values = {
 
 static const char *message =
     "Parity error flag. In the receiving mode, if a parity error occurs, this bit can be set by hardware.This bit can be reset by "
-    "reading the bit and then reading the data register\n\r";
+    "reading the bit and then reading the data register\n";
 
 static void setup_led(void) {
   // Setup LED

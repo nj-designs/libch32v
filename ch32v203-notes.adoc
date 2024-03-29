@@ -39,3 +39,6 @@ https://www.wch-ic.com/products/WCH-Link.html
 https://github.com/ch32-rs/wlink
 
 https://github.com/ch32-rs/wchisp
+
+
+clear && picocom -b 115200 --imap lfcrlf /dev/ttyUSB0
