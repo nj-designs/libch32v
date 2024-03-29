@@ -38,7 +38,7 @@ static USARTRegMap* const reg_lookup[] = {
 #erorr "unsupported device"
 #endif
 
-void usart_cfg(UsartId id, const UsartCfgValues* cfg) {
+void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
   USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
     reg->ctlr1 = cfg->word_len | cfg->parity | cfg->mode;
@@ -55,5 +55,14 @@ void usart_cfg(UsartId id, const UsartCfgValues* cfg) {
     uint32_t fractionaldivider = integerdivider - (100 * (tmpreg >> 4));
     tmpreg |= ((((fractionaldivider * 16) + 50) / 100)) & ((uint8_t)0x0F);
     reg->brr = (tmpreg & 0xFFFF);
+  }
+}
+
+void usart_send_byte(UsartId id, uint8_t value) {
+  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  if (reg != NULL) {
+    reg->datar = value;
+    while ((reg->statr & RCC_STATR_TC) == 0) {
+    }
   }
 }

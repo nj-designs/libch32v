@@ -26,6 +26,8 @@ typedef struct {
 
 // STATR
 //------
+// TXE[7]
+static const uint32_t RCC_STATR_TXE = (1 << 7);
 // TC[6]
 static const uint32_t RCC_STATR_TC = (1 << 6);
 
@@ -103,13 +105,13 @@ typedef enum {
   USART_STOP_BITS_1_5 = (0b11 << 12),
 } UsartStopBits;
 
-typedef struct {
+struct UsartCfgValues {
   uint32_t baud_rate;
-  UsartParityMode parity;
   UsartWordLen word_len;
-  UsartMode mode;
+  UsartParityMode parity;
   UsartStopBits stop_bits;
-} UsartCfgValues;
+  UsartMode mode;
+};
 
 /**
  * @brief Configure the specified usart
@@ -117,4 +119,14 @@ typedef struct {
  * @param id Which uart
  * @param cfg Config values
  */
-void usart_cfg(UsartId id, const UsartCfgValues* cfg);
+void usart_cfg(UsartId id, const struct UsartCfgValues* cfg);
+
+/**
+ * @brief Send supplied byte via specified usart
+ *
+ * Note: Blocks until byte can be sent
+ *
+ * @param id
+ * @param value
+ */
+void usart_send_byte(UsartId id, uint8_t value);
