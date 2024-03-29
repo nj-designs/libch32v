@@ -58,6 +58,8 @@ I found the easiest setup is to install the following packages first.
 ```bash
 # Prereqs. for openocd
 sudo apt install libjaylink-dev libjaylink0 libhidapi-dev libhidapi-hidraw0 libhidapi-libusb0 openocd
+# Remove conflicting package
+sudo apt remove brltty
 # udev rule for programmer
 sudo cp run/60-libch32v.rules /etc/udev/rules.d/60-libch32v.rules
 # reload rules

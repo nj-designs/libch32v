@@ -24,6 +24,23 @@ typedef struct {
   volatile uint32_t gpr;
 } USARTRegMap;
 
+// typedef struct {
+//   volatile uint16_t statr;
+//   volatile uint16_t rsvd0;
+//   volatile uint16_t datar;
+//   volatile uint16_t rsvd1;
+//   volatile uint16_t brr;
+//   volatile uint16_t rsvd2;
+//   volatile uint16_t ctlr1;
+//   volatile uint16_t rsvd3;
+//   volatile uint16_t ctlr2;
+//   volatile uint16_t rsvd4;
+//   volatile uint16_t ctlr3;
+//   volatile uint16_t rsvd5;
+//   volatile uint16_t gpr;
+//   volatile uint16_t rsvd6;
+// } USARTRegMap;
+
 // STATR
 //------
 // TXE[7]

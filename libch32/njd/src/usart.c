@@ -41,17 +41,30 @@ static USARTRegMap* const reg_lookup[] = {
 void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
   USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
-    reg->ctlr1 = cfg->word_len | cfg->parity | cfg->mode;
+    uint32_t tmpreg;
 
-    reg->ctlr2 = cfg->stop_bits;
+    // rcc.apb2prstr = (1 << 14);
 
-    reg->ctlr3 = 0;
+    tmpreg = reg->ctlr2;
+    tmpreg &= 0xCFFF;
+    tmpreg |= cfg->stop_bits;
+    reg->ctlr2 = tmpreg;
+
+    tmpreg = reg->ctlr1;
+    tmpreg &= 0xE9F3;
+    tmpreg |= cfg->word_len | cfg->parity | cfg->mode;
+    reg->ctlr1 = tmpreg;
+
+    tmpreg = reg->ctlr3;
+    tmpreg &= 0xFCFF;
+    tmpreg |= 0;
+    reg->ctlr3 = tmpreg;
 
     const struct RCCCfgValues* clk = get_clk_values();
     uint32_t pclk = id == USART1_ID ? clk->pclk2_freq : clk->pclk1_freq;
     // Taken from USART_Init() in ch32v20x_usart.c
     uint32_t integerdivider = ((25 * pclk) / (4 * (cfg->baud_rate)));
-    uint32_t tmpreg = (integerdivider / 100) << 4;
+    tmpreg = (integerdivider / 100) << 4;
     uint32_t fractionaldivider = integerdivider - (100 * (tmpreg >> 4));
     tmpreg |= ((((fractionaldivider * 16) + 50) / 100)) & ((uint8_t)0x0F);
     reg->brr = (tmpreg & 0xFFFF);
@@ -63,8 +76,8 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
 void usart_send_byte(UsartId id, uint16_t value) {
   USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
-    reg->datar = value;
-    while ((reg->statr & RCC_STATR_TC) == 0) {
+    while ((reg->statr & RCC_STATR_TXE) == 0) {
     }
+    reg->datar = value;
   }
 }

@@ -32,7 +32,7 @@ static const struct UsartCfgValues usart_cfg_values = {
 
 static const char *message =
     "Parity error flag. In the receiving mode, if a parity error occurs, this bit can be set by hardware.This bit can be reset by "
-    "reading the bit and then reading the data register ";
+    "reading the bit and then reading the data register\n\r";
 
 static void setup_led(void) {
   // Setup LED
@@ -42,8 +42,9 @@ static void setup_led(void) {
   gpio_pin_cache(led_pin, &ledCache);
 }
 
-static void set_usart1(void) {
+static void setup_usart1(void) {
   rcc_set_peripheral_clk(RCC_USART1_ID, 1);
+  rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
 
   gpio_pin_init(PIN_PA9, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
@@ -54,23 +55,25 @@ void main(void) {
   rcc_cfg_clock_tree(LIBCH32_HSE_FREQ, LIBCH32_SYSCLK_FREQ);
 
   setup_led();
-  set_usart1();
+  setup_usart1();
 
   uint32_t cursor = 0;
 
   while (1) {
     gpio_pin_set_fast(&ledCache, 1);
-    core_delay_ms(500);
+    core_delay_ms(1000);
     gpio_pin_set_fast(&ledCache, 0);
-    core_delay_ms(500);
+    core_delay_ms(1000);
 
-    uint8_t ch = message[cursor];
-    if (ch == '\0') {
-      cursor = 0;
-      ch = message[cursor];
+    cursor = 0;
+    while (true) {
+      uint8_t ch = message[cursor];
+      if (ch == '\0') {
+        break;
+      }
+      usart_send_byte(USART1_ID, ch);
+      cursor++;
     }
-    cursor++;
-    usart_send_byte(USART1_ID, ch);
   }
 }
 
