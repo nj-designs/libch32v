@@ -33,6 +33,8 @@ static const uint32_t RCC_STATR_TC = (1 << 6);
 
 // CTLR1
 //------
+// UE[13]
+static const uint32_t RCC_CTRL1_UE = (1 << 13);
 // M[12]
 static const uint32_t RCC_CTRL1_M = (1 << 12);
 // PCE[10]
@@ -129,4 +131,4 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg);
  * @param id
  * @param value
  */
-void usart_send_byte(UsartId id, uint8_t value);
+void usart_send_byte(UsartId id, uint16_t value);

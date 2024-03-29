@@ -55,10 +55,12 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
     uint32_t fractionaldivider = integerdivider - (100 * (tmpreg >> 4));
     tmpreg |= ((((fractionaldivider * 16) + 50) / 100)) & ((uint8_t)0x0F);
     reg->brr = (tmpreg & 0xFFFF);
+
+    reg->ctlr1 |= RCC_CTRL1_UE;
   }
 }
 
-void usart_send_byte(UsartId id, uint8_t value) {
+void usart_send_byte(UsartId id, uint16_t value) {
   USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
     reg->datar = value;
