@@ -49,6 +49,8 @@ static void setup_usart1(void) {
   gpio_pin_init(PIN_PA9, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
   usart_cfg(USART1_ID, &usart_cfg_values);
+
+  usart_enable(USART1_ID, 1);
 }
 
 void main(void) {
@@ -71,7 +73,7 @@ void main(void) {
       if (ch == '\0') {
         break;
       }
-      usart_send_byte(USART1_ID, ch);
+      usart_send_byte(USART1_ID, ch, true);
       cursor++;
     }
   }

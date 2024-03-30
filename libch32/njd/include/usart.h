@@ -141,6 +141,14 @@ struct UsartCfgValues {
 void usart_cfg(UsartId id, const struct UsartCfgValues* cfg);
 
 /**
+ * @brief Enable en > 0 or disable en == 0 specified port
+ *
+ * @param id
+ * @param en
+ */
+void usart_enable(UsartId id, uint32_t en);
+
+/**
  * @brief Send supplied byte via specified usart
  *
  * Note: Blocks until byte can be sent
@@ -148,4 +156,4 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg);
  * @param id
  * @param value
  */
-void usart_send_byte(UsartId id, uint16_t value);
+void usart_send_byte(UsartId id, uint16_t value, const bool block);

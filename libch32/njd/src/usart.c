@@ -41,7 +41,7 @@ static USARTRegMap* const reg_lookup[] = {
 void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
   USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
-    reg->ctlr1 = cfg->word_len | cfg->parity | cfg->mode | RCC_CTRL1_UE;
+    reg->ctlr1 = cfg->word_len | cfg->parity | cfg->mode;
 
     reg->ctlr2 = cfg->stop_bits;
 
@@ -58,10 +58,21 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
   }
 }
 
-void usart_send_byte(UsartId id, uint16_t value) {
+void usart_enable(UsartId id, uint32_t en) {
   USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
-    while ((reg->statr & RCC_STATR_TXE) == 0) {
+    if (en) {
+      reg->ctlr1 |= RCC_CTRL1_UE;
+    } else {
+      reg->ctlr1 &= ~(RCC_CTRL1_UE);
+    }
+  }
+}
+
+void usart_send_byte(UsartId id, uint16_t value, const bool block) {
+  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  if (reg != NULL) {
+    while (block && (reg->statr & RCC_STATR_TXE) == 0) {
     }
     reg->datar = value;
   }
