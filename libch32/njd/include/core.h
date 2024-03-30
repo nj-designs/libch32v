@@ -14,6 +14,8 @@
 
 #include "device_config.h"
 
+#define NJD_IRQ_ATTRIBUTE __attribute__((interrupt))
+
 /**
  * @brief System Tick Register Map
  *
@@ -107,24 +109,19 @@ void core_delay_ms(uint32_t duration);
  * @brief Enable global interrupts
  *
  */
-__attribute__((always_inline)) inline void core_enable_irq() {
-  __asm volatile("csrs 0x800, %0" : : "r"(0x88));
-}
+__attribute__((always_inline)) inline void core_enable_irq() { __asm volatile("csrs 0x800, %0" : : "r"(0x88)); }
 
 /**
  * @brief Disable global interrupts
  *
  */
-__attribute__((always_inline)) inline void core_disable_irq() {
-  __asm volatile("csrc 0x800, %0" : : "r"(0x88));
-}
+__attribute__((always_inline)) inline void core_disable_irq() { __asm volatile("csrc 0x800, %0" : : "r"(0x88)); }
 
 /**
  * @brief Enable selected PFIC interrupt
  *
  */
-__attribute__((always_inline)) inline void core_enable_pfic_irq(
-    enum PFICIntNum in) {
+__attribute__((always_inline)) inline void core_enable_pfic_irq(enum PFICIntNum in) {
   pfic.ienr[(uint32_t)in / 32] = 1 << ((uint32_t)in & 0x1F);
 }
 
@@ -132,8 +129,7 @@ __attribute__((always_inline)) inline void core_enable_pfic_irq(
  * @brief Disable selected PFIC interrupt
  *
  */
-__attribute__((always_inline)) inline void core_disable_pfic_irq(
-    enum PFICIntNum in) {
+__attribute__((always_inline)) inline void core_disable_pfic_irq(enum PFICIntNum in) {
   pfic.irer[(uint32_t)in / 32] = 1 << ((uint32_t)in & 0x1F);
 }
 
@@ -141,8 +137,7 @@ __attribute__((always_inline)) inline void core_disable_pfic_irq(
  * @brief Sets selected PFIC interrupt pending flag
  *
  */
-__attribute__((always_inline)) inline void core_set_pending_pfic_irq(
-    enum PFICIntNum in) {
+__attribute__((always_inline)) inline void core_set_pending_pfic_irq(enum PFICIntNum in) {
   pfic.ipsr[(uint32_t)in / 32] = 1 << ((uint32_t)in & 0x1F);
 }
 
@@ -150,8 +145,7 @@ __attribute__((always_inline)) inline void core_set_pending_pfic_irq(
  * @brief Clears selected PFIC interrupt pending flag
  *
  */
-__attribute__((always_inline)) inline void core_clear_pending_pfic_irq(
-    enum PFICIntNum in) {
+__attribute__((always_inline)) inline void core_clear_pending_pfic_irq(enum PFICIntNum in) {
   pfic.iprr[(uint32_t)in / 32] = 1 << ((uint32_t)in & 0x1F);
 }
 
@@ -159,8 +153,7 @@ __attribute__((always_inline)) inline void core_clear_pending_pfic_irq(
  * @brief Activates (triggers) selected PFIC interrupt
  *
  */
-__attribute__((always_inline)) inline void core_activate_pfic_irq(
-    enum PFICIntNum in) {
+__attribute__((always_inline)) inline void core_activate_pfic_irq(enum PFICIntNum in) {
   pfic.iactr[(uint32_t)in / 32] = 1 << ((uint32_t)in & 0x1F);
 }
 
@@ -169,7 +162,6 @@ __attribute__((always_inline)) inline void core_activate_pfic_irq(
  *
  * @return uint32_t None zero values means set
  */
-__attribute__((always_inline)) inline uint32_t core_check_pfic_irq(
-    enum PFICIntNum in) {
+__attribute__((always_inline)) inline uint32_t core_check_pfic_irq(enum PFICIntNum in) {
   return pfic.isr[(uint32_t)in / 32] &= ~(1 << ((uint32_t)in & 0x1F));
 }

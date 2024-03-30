@@ -43,12 +43,9 @@ static const struct DMAPeripheralLookup peripheral_lookup[] = {
     // DMA_PERIPHERAL_ID_USART1_TX,
     {
         .reg_addr = (uint32_t)&usart1.datar,
-        .cfgr = DMA_CHANNEL_CFGR_MSIZE_8_BITS | DMA_CHANNEL_CFGR_PSIZE_8_BITS |
-                DMA_CHANNEL_CFGR_MINC | DMA_CHANNEL_CFGR_DIR |
-                DMA_CHANNEL_CFGR_TEIE | DMA_CHANNEL_CFGR_TCIE |
-                DMA_CHANNEL_CFGR_EN,
-        .intfcr = DMA_INTFCR_CTEIF4 | DMA_INTFCR_HTIF4 | DMA_INTFCR_TCIF4 |
-                  DMA_INTFCR_GIF4,
+        .cfgr = DMA_CHANNEL_CFGR_MSIZE_8_BITS | DMA_CHANNEL_CFGR_PSIZE_8_BITS | DMA_CHANNEL_CFGR_MINC | DMA_CHANNEL_CFGR_DIR |
+                DMA_CHANNEL_CFGR_TEIE | DMA_CHANNEL_CFGR_TCIE | DMA_CHANNEL_CFGR_EN,
+        .intfcr = DMA_INTFCR_CTEIF4 | DMA_INTFCR_HTIF4 | DMA_INTFCR_TCIF4 | DMA_INTFCR_GIF4,
         .chan_idx = 3,  // Idx = channel number - 1
         .pfic_int_num = PFIC_DMA1_CH4_INT_NUM,
     },
@@ -93,7 +90,7 @@ void dma_queue_xfer_request(struct DMAXferRequest* req) {
  * @brief Interrupt handler for DMA1 channel 4
  *
  */
-void int_handler_dma1_chan4(void) __attribute__((naked));
+void int_handler_dma1_chan4(void) NJD_IRQ_ATTRIBUTE;
 void int_handler_dma1_chan4(void) {
   struct list_head* req_list = &per_channel_dma_req_q[3];
 
@@ -110,5 +107,4 @@ void int_handler_dma1_chan4(void) {
       }
     }
   }
-  asm volatile("mret");
 }

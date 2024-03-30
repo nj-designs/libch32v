@@ -16,10 +16,6 @@
 
 #include "device_config.h"
 
-// All interrupt handlers can be "naked" as we are using HPE
-void int_handler_nmi(void) __attribute__((naked));
-void int_handler_hard_fault(void) __attribute__((naked));
-
 static GPIOPinSetCache ledCache;
 
 static const struct UsartCfgValues usart_cfg_values = {
@@ -77,6 +73,7 @@ void main(void) {
   }
 }
 
+void int_handler_nmi(void) NJD_IRQ_ATTRIBUTE;
 void int_handler_nmi(void) {
   while (1) {
     asm volatile("nop");
@@ -84,6 +81,7 @@ void int_handler_nmi(void) {
   }
 }
 
+void int_handler_hard_fault(void) NJD_IRQ_ATTRIBUTE;
 void int_handler_hard_fault(void) {
   while (1) {
     asm volatile("nop");

@@ -34,8 +34,9 @@ handle_reset:
     li t0, 0x1f
     csrw 0xbc0, t0
 /* Enable interrupt nesting and hardware stack */
-	li t0, 0x3
-	csrw 0x804, t0
+	// li t0, 0x3
+	// csrw 0x804, t0
+	csrw 0x804, zero
 /* Enable global interrupt and configure privileged mode */
    	li t0, 0x88
    	csrw mstatus, t0
