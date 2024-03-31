@@ -55,6 +55,8 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
     uint32_t fractionaldivider = integerdivider - (100 * (tmpreg >> 4));
     tmpreg |= ((((fractionaldivider * 16) + 50) / 100)) & ((uint8_t)0x0F);
     reg->brr = (tmpreg & 0xFFFF);
+
+    reg->statr = 0;  // Clear any interrupts
   }
 }
 
@@ -75,5 +77,45 @@ void usart_send_byte(UsartId id, uint16_t value, const bool block) {
     while (block && (reg->statr & RCC_STATR_TXE) == 0) {
     }
     reg->datar = value;
+  }
+}
+
+void usart_enable_interrupts(UsartId id, uint32_t ints, uint32_t en) {
+  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  if (reg != NULL) {
+    if (en) {
+      reg->ctlr1 |= ints;
+    } else {
+      reg->ctlr1 &= ~ints;
+    }
+  }
+}
+
+void usart_tx_buffer_request_start(struct UsartTxBufferRequest* req) {
+  USARTRegMap* reg = reg_lookup[(uint32_t)req->usart_id];
+  if (reg != NULL) {
+    reg->statr = 0;  // Clear any interrupts
+    usart_enable_interrupts(req->usart_id, RCC_CTRL1_TCIE, 1);
+    req->_idx = 0;
+    reg->datar = *req->base;
+  }
+}
+
+void usart_tx_buffer_request_handle_int(struct UsartTxBufferRequest* req) {
+  USARTRegMap* reg = reg_lookup[(uint32_t)req->usart_id];
+  if (reg != NULL) {
+    req->_idx++;
+    req->len--;
+    reg->statr = 0;  // Clear any interrupts
+    if (req->len == 0) {
+      if (req->cb) {
+        req->cb(req);  // cb can call usart_tx_buffer_request_start to restart tx
+      }
+      if (req->len == 0) {
+        usart_enable_interrupts(req->usart_id, RCC_CTRL1_TCIE, 0);
+      }
+    } else {
+      reg->datar = req->base[req->_idx];  // Writing to datar will clear TC int
+    }
   }
 }

@@ -58,6 +58,8 @@ static const uint32_t RCC_CTRL1_M = (1 << 12);
 static const uint32_t RCC_CTRL1_PCE = (1 << 10);
 // PS[9]
 static const uint32_t RCC_CTRL1_PS = (1 << 9);
+// TCIE[6]
+static const uint32_t RCC_CTRL1_TCIE = (1 << 6);
 // TE[3]
 static const uint32_t RCC_CTRL1_TE = (1 << 3);
 // RE[2]
@@ -132,6 +134,40 @@ struct UsartCfgValues {
   UsartMode mode;
 };
 
+struct UsartTxBufferRequest;  // Forward dec...
+
+/**
+ * @brief Define signature of a callback function upon all bytes being sent
+ *
+ */
+typedef void (*UsartTxBufferCB)(struct UsartTxBufferRequest* req);
+
+/**
+ * @brief Define parameters required for a usart tx request
+ *
+ */
+struct UsartTxBufferRequest {
+  UsartTxBufferCB cb;
+  const uint8_t* base;
+  uint32_t len;
+  uint32_t _idx;
+  UsartId usart_id;
+};
+
+/**
+ * @brief Start a new usart tx request
+ *
+ * @param req
+ */
+void usart_tx_buffer_request_start(struct UsartTxBufferRequest* req);
+
+/**
+ * @brief Update request based on usart interrupt
+ *
+ * @param req
+ */
+void usart_tx_buffer_request_handle_int(struct UsartTxBufferRequest* req);
+
 /**
  * @brief Configure the specified usart
  *
@@ -157,3 +193,12 @@ void usart_enable(UsartId id, uint32_t en);
  * @param value
  */
 void usart_send_byte(UsartId id, uint16_t value, const bool block);
+
+/**
+ * @brief Enable/Disable specified interrupts
+ *
+ * @param id Which usart
+ * @param ints Which ints to set. See RCC_CTRL1_*
+ * @param en 0 disable, else enable
+ */
+void usart_enable_interrupts(UsartId id, uint32_t ints, uint32_t en);
