@@ -74,6 +74,13 @@ static const uint32_t RCC_CTRL2_STOP_05_BIT = (0b01 << 12);
 static const uint32_t RCC_CTRL2_STOP_2_BITS = (0b10 << 12);
 static const uint32_t RCC_CTRL2_STOP_15_BITS = (0b11 << 12);
 
+// CTLR3
+//------
+// DMAT[7]
+static const uint32_t RCC_CTRL3_DMAT = (1 << 7);
+// DMAR[6]
+static const uint32_t RCC_CTRL3_DMAR = (1 << 6);
+
 #ifdef LIBCH32_HAS_USART1
 extern USARTRegMap usart1;
 #endif
@@ -132,6 +139,7 @@ struct UsartCfgValues {
   UsartParityMode parity;
   UsartStopBits stop_bits;
   UsartMode mode;
+  bool dma;
 };
 
 struct UsartTxBufferRequest;  // Forward dec...

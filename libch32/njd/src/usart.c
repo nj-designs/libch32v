@@ -45,7 +45,26 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
 
     reg->ctlr2 = cfg->stop_bits;
 
-    reg->ctlr3 = 0;
+    if (cfg->dma) {
+      switch (cfg->mode) {
+        case USART_DATA_MODE_RX_ONY: {
+          reg->ctlr3 = RCC_CTRL3_DMAR;
+          break;
+        }
+
+        case USART_DATA_MODE_TX_ONY: {
+          reg->ctlr3 = RCC_CTRL3_DMAT;
+          break;
+        }
+
+        default: {
+          reg->ctlr3 = RCC_CTRL3_DMAT | RCC_CTRL3_DMAR;
+          break;
+        }
+      }
+    } else {
+      reg->ctlr3 = 0;
+    }
 
     const struct RCCCfgValues* clk = get_clk_values();
     uint32_t pclk = id == USART1_ID ? clk->pclk2_freq : clk->pclk1_freq;

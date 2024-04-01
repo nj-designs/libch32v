@@ -43,8 +43,8 @@ static const struct DMAPeripheralLookup peripheral_lookup[] = {
     // DMA_PERIPHERAL_ID_USART1_TX,
     {
         .reg_addr = (uint32_t)&usart1.datar,
-        .cfgr = DMA_CHANNEL_CFGR_MSIZE_8_BITS | DMA_CHANNEL_CFGR_PSIZE_8_BITS | DMA_CHANNEL_CFGR_MINC | DMA_CHANNEL_CFGR_DIR |
-                DMA_CHANNEL_CFGR_TEIE | DMA_CHANNEL_CFGR_TCIE | DMA_CHANNEL_CFGR_EN,
+        .cfgr = DMA_CHANNEL_CFGR_MSIZE_8_BITS | DMA_CHANNEL_CFGR_PSIZE_16_BITS | DMA_CHANNEL_CFGR_MINC | DMA_CHANNEL_CFGR_DIR |
+                DMA_CHANNEL_CFGR_TEIE | DMA_CHANNEL_CFGR_TCIE,
         .intfcr = DMA_INTFCR_CTEIF4 | DMA_INTFCR_HTIF4 | DMA_INTFCR_TCIF4 | DMA_INTFCR_GIF4,
         .chan_idx = 3,  // Idx = channel number - 1
         .pfic_int_num = PFIC_DMA1_CH4_INT_NUM,
@@ -61,10 +61,11 @@ static const struct DMAPeripheralLookup peripheral_lookup[] = {
 static void program_dma_request(struct DMAXferRequest* req) {
   struct DMAChanelRegMap* creg = &dma1.channel[req->_chan_idx];
   dma1.intfcr = req->_intfcr;
+  creg->cfgr = req->_cfgr;
   creg->paddr = req->_peripheral_addr;
   creg->maddr = (uint32_t)req->memory_address;
   creg->cntr = req->xfter_len;
-  creg->cfgr = req->_cfgr;
+  creg->cfgr |= DMA_CHANNEL_CFGR_EN;
 }
 
 void dma_queue_xfer_request(struct DMAXferRequest* req) {

@@ -23,6 +23,7 @@ struct DMAChanelRegMap {
   volatile uint32_t cntr;
   volatile uint32_t paddr;
   volatile uint32_t maddr;
+  uint32_t rsvd1;
 };
 
 // CFGR
@@ -41,10 +42,10 @@ static const uint32_t DMA_CHANNEL_CFGR_MSIZE_8_BITS = (0b00 << 10);
 static const uint32_t DMA_CHANNEL_CFGR_MSIZE_16_BITS = (0b01 << 10);
 static const uint32_t DMA_CHANNEL_CFGR_MSIZE_32_BITS = (0b10 << 10);
 // PSIZE[9:8]
-static const uint32_t DMA_CHANNEL_CFGR_PSIZE_MASK = (0b11 << 9);
-static const uint32_t DMA_CHANNEL_CFGR_PSIZE_8_BITS = (0b00 << 9);
-static const uint32_t DMA_CHANNEL_CFGR_PSIZE_16_BITS = (0b01 << 9);
-static const uint32_t DMA_CHANNEL_CFGR_PSIZE_32_BITS = (0b10 << 9);
+static const uint32_t DMA_CHANNEL_CFGR_PSIZE_MASK = (0b11 << 8);
+static const uint32_t DMA_CHANNEL_CFGR_PSIZE_8_BITS = (0b00 << 8);
+static const uint32_t DMA_CHANNEL_CFGR_PSIZE_16_BITS = (0b01 << 8);
+static const uint32_t DMA_CHANNEL_CFGR_PSIZE_32_BITS = (0b10 << 8);
 // MINC[7]
 static const uint32_t DMA_CHANNEL_CFGR_MINC = (1 << 7);
 // PINC[6]
@@ -240,18 +241,18 @@ enum DMAPeripheralId {
  *
  */
 struct DMAXferRequest {
-  struct list_node _node; /**< Must be first item*/
-  uint32_t arg;           /**< Caller supplied and used argument*/
-  DMAXferCompleteCB cb;   /**< completion cb, or NULL for not required*/
-  void* memory_address;   /**> Start of memory to wr to/read from*/
-  uint32_t _cfgr; /**> Precalculated value to write to cfgr reg (dma engine
-                     private)*/
+  struct list_node _node;    /**< Must be first item*/
+  uint32_t arg;              /**< Caller supplied and used argument*/
+  DMAXferCompleteCB cb;      /**< completion cb, or NULL for not required*/
+  void* memory_address;      /**> Start of memory to wr to/read from*/
+  uint32_t _cfgr;            /**> Precalculated value to write to cfgr reg (dma engine
+                                private)*/
   uint32_t _peripheral_addr; /**> Pecalculated address of paddr (dma engine
                                 private)*/
-  uint32_t _intfcr;        /**> Pecalculated intfcr value (dma engine private)*/
-  uint16_t xfter_len;      /**> Xfer size in bytes*/
-  uint32_t _chan_idx;      /**> Stored chan idx (dma engine private)*/
-  enum DMAPeripheralId id; /**> Which peripheral to wr to/read from*/
+  uint32_t _intfcr;          /**> Pecalculated intfcr value (dma engine private)*/
+  uint16_t xfter_len;        /**> Xfer size in bytes*/
+  uint32_t _chan_idx;        /**> Stored chan idx (dma engine private)*/
+  enum DMAPeripheralId id;   /**> Which peripheral to wr to/read from*/
 };
 
 /**
