@@ -96,6 +96,8 @@ void int_handler_dma1_chan4(void) {
   struct list_head* req_list = &per_channel_dma_req_q[3];
 
   if (dma1.intfr && DMA_INTFR_GIF4) {
+    // TODO(njohn) : Check for dma errors?
+    dma1.intfcr |= DMA_INTFR_TEIF4 | DMA_INTFR_HTIF4 | DMA_INTFR_TCIF4 | DMA_INTFR_GIF4;
     struct DMAXferRequest* req = (struct DMAXferRequest*)list_head(req_list);
     if (req != NULL) {
       if (req->cb != NULL) {
