@@ -157,6 +157,7 @@ SECTIONS
     .stack ORIGIN(RAM) + LENGTH(RAM) - __stack_size :
     {
         PROVIDE( _heap_end = . );
+        PROVIDE( _susrstack = . );
         . = ALIGN(4);
         PROVIDE(_susrstack = . );
         . = . + __stack_size;
@@ -168,6 +169,16 @@ SECTIONS
 	.usart2 0x40004400 (NOLOAD):
 	{
 		KEEP(*(.usart2))
+	} >PERIPHERALS
+
+	.i2c1 0x40005400 (NOLOAD):
+	{
+		KEEP(*(.i2c1))
+	} >PERIPHERALS
+
+	.i2c2 0x40005800 (NOLOAD):
+	{
+		KEEP(*(.i2c2))
 	} >PERIPHERALS
 
 	.gpio_a 0x40010800 (NOLOAD):

@@ -16,15 +16,15 @@
 #include "device_config.h"
 
 #ifdef LIBCH32_HAS_USART1
-USARTRegMap __attribute__((section(".usart1"))) usart1;
+struct USARTRegMap __attribute__((section(".usart1"))) usart1;
 #endif
 
 #ifdef LIBCH32_HAS_USART2
-USARTRegMap __attribute__((section(".usart2"))) usart2;
+struct USARTRegMap __attribute__((section(".usart2"))) usart2;
 #endif
 
 #if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
-static USARTRegMap* const reg_lookup[] = {
+static struct USARTRegMap* const reg_lookup[] = {
     &usart1,  // USART1_ID
     &usart2,  // USART2_ID
     NULL,     // USART3_ID
@@ -39,7 +39,7 @@ static USARTRegMap* const reg_lookup[] = {
 #endif
 
 void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
-  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  struct USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
     reg->ctlr1 = cfg->word_len | cfg->parity | cfg->mode;
 
@@ -80,7 +80,7 @@ void usart_cfg(UsartId id, const struct UsartCfgValues* cfg) {
 }
 
 void usart_enable(UsartId id, uint32_t en) {
-  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  struct USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
     if (en) {
       reg->ctlr1 |= RCC_CTRL1_UE;
@@ -91,7 +91,7 @@ void usart_enable(UsartId id, uint32_t en) {
 }
 
 void usart_send_byte(UsartId id, uint16_t value, const bool block) {
-  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  struct USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
     while (block && (reg->statr & RCC_STATR_TXE) == 0) {
     }
@@ -100,7 +100,7 @@ void usart_send_byte(UsartId id, uint16_t value, const bool block) {
 }
 
 void usart_enable_interrupts(UsartId id, uint32_t ints, uint32_t en) {
-  USARTRegMap* reg = reg_lookup[(uint32_t)id];
+  struct USARTRegMap* reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
     if (en) {
       reg->ctlr1 |= ints;
@@ -111,7 +111,7 @@ void usart_enable_interrupts(UsartId id, uint32_t ints, uint32_t en) {
 }
 
 void usart_tx_buffer_request_start(struct UsartTxBufferRequest* req) {
-  USARTRegMap* reg = reg_lookup[(uint32_t)req->usart_id];
+  struct USARTRegMap* reg = reg_lookup[(uint32_t)req->usart_id];
   if (reg != NULL) {
     reg->statr = 0;  // Clear any interrupts
     usart_enable_interrupts(req->usart_id, RCC_CTRL1_TCIE, 1);
@@ -121,7 +121,7 @@ void usart_tx_buffer_request_start(struct UsartTxBufferRequest* req) {
 }
 
 void usart_tx_buffer_request_handle_int(struct UsartTxBufferRequest* req) {
-  USARTRegMap* reg = reg_lookup[(uint32_t)req->usart_id];
+  struct USARTRegMap* reg = reg_lookup[(uint32_t)req->usart_id];
   if (reg != NULL) {
     req->_idx++;
     req->len--;

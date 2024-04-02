@@ -8,6 +8,15 @@ handle_reset:
 .option	pop
 1:
 	la sp, _eusrstack
+	/*init stack contents*/
+	li a2, 0xDEAD
+	la a0, _susrstack
+	la a1, _eusrstack
+	bgeu a0, a1, 2f
+1:
+	sw a2, (a0)
+	addi a0, a0, 4
+	bltu a0, a1, 1b
 2:
 /* Load data section from flash to RAM */
 	la a0, _data_lma

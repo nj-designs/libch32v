@@ -81,8 +81,6 @@ static void setup_usart1(void) {
 }
 
 void main(void) {
-  rcc_cfg_clock_tree(LIBCH32_HSE_FREQ, LIBCH32_SYSCLK_FREQ);
-
   setup_led();
   setup_usart1();
 

@@ -42,3 +42,15 @@ https://github.com/ch32-rs/wchisp
 
 
 clear && picocom -b 115200 --imap lfcrlf /dev/ttyUSB0
+
+
+ x /512xw 0x20002000
+
+ https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+
+ https://learn.adafruit.com/i2c-addresses/the-list
+
+ == TODO
+
+* [ ] - Investigate issue with smaller stdout buffer sizes
+* [ ] - Add application level configuration file for now HW related config

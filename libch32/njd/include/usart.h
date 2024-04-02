@@ -14,7 +14,7 @@
 
 #include "device_config.h"
 
-typedef struct {
+struct USARTRegMap {
   volatile uint32_t statr;
   volatile uint32_t datar;
   volatile uint32_t brr;
@@ -22,7 +22,7 @@ typedef struct {
   volatile uint32_t ctlr2;
   volatile uint32_t ctlr3;
   volatile uint32_t gpr;
-} USARTRegMap;
+};
 
 // typedef struct {
 //   volatile uint16_t statr;
@@ -82,11 +82,11 @@ static const uint32_t RCC_CTRL3_DMAT = (1 << 7);
 static const uint32_t RCC_CTRL3_DMAR = (1 << 6);
 
 #ifdef LIBCH32_HAS_USART1
-extern USARTRegMap usart1;
+extern struct USARTRegMap usart1;
 #endif
 
 #ifdef LIBCH32_HAS_USART2
-extern USARTRegMap usart2;
+extern struct USARTRegMap usart2;
 #endif
 
 /**

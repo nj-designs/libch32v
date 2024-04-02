@@ -12,8 +12,13 @@
 #include "rcc.h"
 #include "core.h"
 #include "gpio.h"
+#include "usart.h"
 
 #include "device_config.h"
+
+#include "printf.h"
+
+void _putchar(char ch);
 
 static GPIOPinSetCache ledCache;
 
@@ -26,13 +31,22 @@ static void setup_led(void) {
 }
 
 void main(void) {
+  printf("Hello\n");
+
   setup_led();
 
+  uint32_t idx = 0;
+  char ch = '0';
   while (1) {
+    printf("Loop: %d\n", idx++);
     gpio_pin_set_fast(&ledCache, 1);
-    core_delay_ms(1000);
+    core_delay_ms(100);
     gpio_pin_set_fast(&ledCache, 0);
-    core_delay_ms(1000);
+    core_delay_ms(100);
+    ch++;
+    if (ch > '9') {
+      ch = '0';
+    }
   }
 }
 
