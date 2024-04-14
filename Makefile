@@ -11,54 +11,60 @@ CFG_INI_FILE = cfg/app_cfg.ini
 
 DEVICE_CFG_FILE = libch32/cfg/devices.ini
 
+APP_CFG_FILE = $(APP_DIR)/app.ini
+
+DEVICE_CFG_TOOL = scripts/get_device_cfg.py
+DEVICE_HEADER_TOOL = scripts/gen_device_header.py
+APP_HEADER_TOOL = scripts/gen_app_header.py
+
 # Read in required values from $(CFG_INI_FILE)
-FAMILY=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) family)
+FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
 ifeq ($(FAMILY),)
 $(error Can't find value for $(DEVICE).FAMILY)
 endif
 
-HAL=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) hal)
+HAL=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) hal)
 ifeq ($(HAL),)
 HAL = $(FAMILY)
 endif
 
-#  python3 scripts/get_device_cfg.py libch32/cfg/devices.ini ch32v003f4p6 flash2
-FLASH_SIZE=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) flash_size)
+#  python3 $(DEVICE_CFG_TOOL) libch32/cfg/devices.ini ch32v003f4p6 flash2
+FLASH_SIZE=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_size)
 ifeq ($(FLASH_SIZE),)
 $(error Can't find value for $(DEVICE).flash_size)
 endif
 
-FLASH_START=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) flash_start)
+FLASH_START=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_start)
 ifeq ($(FLASH_START),)
 $(error Can't find value for $(DEVICE).flash_start)
 endif
 
-SRAM_SIZE=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) sram_size)
+SRAM_SIZE=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) sram_size)
 ifeq ($(SRAM_SIZE),)
 $(error Can't find value for $(DEVICE).sram_size)
 endif
 
-SRAM_START=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) sram_start)
+SRAM_START=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) sram_start)
 ifeq ($(SRAM_START),)
 $(error Can't find value for $(DEVICE).sram_start)
 endif
 
-LD_SCRIPT=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) ld_script)
+LD_SCRIPT=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) ld_script)
 ifeq ($(LD_SCRIPT),)
 $(error Can't find value for $(DEVICE).ld_script)
 endif
 
-MARCH=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) march)
+MARCH=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) march)
 ifeq ($(MARCH),)
 $(error Can't find value for $(DEVICE).march)
 endif
 
-MABI=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) mabi)
+MABI=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) mabi)
 ifeq ($(MABI),)
 $(error Can't find value for $(DEVICE).mabi)
 endif
 
-FLASH_PROG_ADDR=$(shell python3 scripts/get_device_cfg.py $(DEVICE_CFG_FILE) $(DEVICE) flash_prog_addr)
+FLASH_PROG_ADDR=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_prog_addr)
 ifeq ($(FLASH_PROG_ADDR),)
 $(error Can't find value for $(DEVICE).flash_prog_addr)
 endif
@@ -127,7 +133,7 @@ LDFLAGS +=-Wl,--defsym=RAM_ORIGIN=$(SRAM_START) -Wl,--defsym=RAM_LENGTH=$(SRAM_S
 LDFLAGS +=-Wl,--defsym=FLASH_ORIGIN=$(FLASH_START) -Wl,--defsym=FLASH_LENGTH=$(FLASH_SIZE)
 LDFLAGS +=-Wl,-Tlibch32/$(HAL)/ld/link.ld
 
-all: $(BUILD)/device_config.h elf lst sym bin
+all: $(BUILD)/device_config.h $(BUILD)/device_config.h elf lst sym bin
 
 elf: $(BUILD)/$(APP).elf
 lst: $(BUILD)/$(APP).lst
@@ -162,19 +168,23 @@ size: $(BUILD)/$(APP).elf
 	@echo
 	$(OBJCOPY) -O ihex $< $@
 
-$(COBJ) : $(BUILD)/%.o : %.c $(BUILD)/device_config.h
+$(COBJ) : $(BUILD)/%.o : %.c $(BUILD)/device_config.h $(BUILD)/app_config.h
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(CFLAGS) -Wp,-MP,-M,-MT,$@,-MF,$(BUILD)/$(*F).d  $< -o $@
 
-$(AOBJ) : $(BUILD)/%.o : %.S $(BUILD)/device_config.h
+$(AOBJ) : $(BUILD)/%.o : %.S $(BUILD)/device_config.h $(BUILD)/app_config.h
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
 $(BUILD)/device_config.h: $(DEVICE_CFG_FILE)
 	@mkdir -p `dirname $@`
-	@python3 scripts/gen_cfg2.py $< $(DEVICE) $@
+	@python3 $(DEVICE_HEADER_TOOL) $< $(DEVICE) $@
+
+$(BUILD)/app_config.h: $(APP_CFG_FILE)
+	@mkdir -p `dirname $@`
+	@python3 $(APP_HEADER_TOOL) $< $@
 
 flash: $(BUILD)/$(APP).bin
 	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<

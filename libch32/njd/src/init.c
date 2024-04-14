@@ -13,13 +13,14 @@
 #include "stdout.h"
 
 #include "device_config.h"
+#include "app_config.h"
 
 void init_system(void) {
   rcc_init();
 
   rcc_cfg_clock_tree(LIBCH32_HSE_FREQ, LIBCH32_SYSCLK_FREQ);
 
-#ifdef LIBCH32_STDOUT_BUFFER_SIZE
+#ifdef STDOUT_BUFFER_SIZE
   stdout_init();
 #endif
 }

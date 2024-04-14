@@ -16,6 +16,7 @@
 #include "i2c.h"
 
 #include "device_config.h"
+#include "app_config.h"
 
 #include "printf.h"
 

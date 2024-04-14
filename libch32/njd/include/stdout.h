@@ -11,8 +11,9 @@
 #pragma once
 
 #include "device_config.h"
+#include "app_config.h"
 
-#ifdef LIBCH32_STDOUT_BUFFER_SIZE
+#ifdef STDOUT_BUFFER_SIZE
 
 /**
  * @brief
