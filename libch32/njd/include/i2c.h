@@ -72,6 +72,8 @@ static const uint16_t I2C_OADDR1_ADDMODE = (1 << 15);
 static const uint16_t I2C_STAR1_AF = (1 << 10);
 // TxE[7]
 static const uint16_t I2C_STAR1_TxE = (1 << 7);
+// RxNE[6]
+static const uint16_t I2C_STAR1_RxNE = (1 << 6);
 // ADDR[1]
 static const uint16_t I2C_STAR1_ADDR = (1 << 1);
 // SB[0]
@@ -113,6 +115,8 @@ struct I2CCfgValues {
   enum I2CAckAddr ack_addr;
 };
 
+enum I2CXferType { I2C_XFER_WRITE, I2C_XFER_READ };
+
 void i2c_cfg(enum I2CId id, const struct I2CCfgValues* cfg);
 
 void i2c_start(enum I2CId id);
@@ -122,8 +126,28 @@ void i2c_start(enum I2CId id);
  *
  * @param id
  * @param target_address
+ * @param xfer_type
+ *
  */
-int32_t i2c_connect(enum I2CId id, uint16_t target_address);
+int32_t i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfer_type);
+
+/**
+ * @brief
+ *
+ * @param id
+ * @param buffer
+ * @param max_read_len
+ * @return int32_t
+ */
+int32_t i2c_read(enum I2CId id, uint8_t* buffer, uint16_t max_read_len);
+
+int32_t i2c_write(enum I2CId id, const uint8_t* buffer, uint16_t wr_len);
+
+/**
+ * @brief
+ *
+ * @param id
+ */
 void i2c_disconnect(enum I2CId id);
 
 void i2c_enable(enum I2CId id, uint32_t en);
