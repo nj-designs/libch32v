@@ -96,6 +96,13 @@ loop:
     core_delay_ms(500);
     gpio_pin_set_fast(&ledCache, 0);
     core_delay_ms(500);
+
+    res = ds3231_get_date_time(&ds3231, &dt, true);
+    if (res != 0) {
+      printf("ds3231 get date/time failed: %d\n", res);
+    } else {
+      printf("Time: %02d:%02d:%02d\n", dt.hours, dt.mins, dt.secs);
+    }
   }
 }
 
