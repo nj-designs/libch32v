@@ -18,9 +18,11 @@
 void init_system(void) {
   rcc_init();
 
+#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
   rcc_cfg_clock_tree(LIBCH32_HSE_FREQ, LIBCH32_SYSCLK_FREQ);
+#endif
 
-#ifdef STDOUT_BUFFER_SIZE
+#ifdef APP_STDOUT_BUFFER_SIZE
   stdout_init();
 #endif
 }

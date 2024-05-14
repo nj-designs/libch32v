@@ -173,7 +173,8 @@ typedef enum {
 } RCCPeripheralId;
 
 /**
- * @brief
+ * @brief Super set of all of the clock doamins across all products.
+ *        Not all will be valid for all products.
  *
  */
 struct RCCCfgValues {
@@ -184,6 +185,10 @@ struct RCCCfgValues {
   uint32_t pclk1_freq;
   uint32_t pclk2_freq;
   uint32_t adcclk_freq;
+  uint32_t fclk;
+  uint32_t tim2;
+  uint32_t tim1;
+  uint32_t ahb;
   uint32_t cfgr0;
 };
 
@@ -223,3 +228,10 @@ const struct RCCCfgValues* get_clk_values(void);
  * @param id
  */
 void rcc_reset_peripherial(RCCPeripheralId id);
+
+/**
+ * @brief Cfg clock to explicitly supplied values
+ *
+ * @param rcc
+ */
+void rcc_cfg_clock_tree_ex(const struct RCCCfgValues* ctv);

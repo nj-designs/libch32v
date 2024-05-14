@@ -34,6 +34,17 @@ static struct USARTRegMap* const reg_lookup[] = {
     NULL,     // USART7_ID
     NULL,     // USART8_ID
 };
+#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+static struct USARTRegMap* const reg_lookup[] = {
+    &usart1,  // USART1_ID
+    NULL,     // USART2_ID
+    NULL,     // USART3_ID
+    NULL,     // USART4_ID
+    NULL,     // USART5_ID
+    NULL,     // USART6_ID
+    NULL,     // USART7_ID
+    NULL,     // USART8_ID
+};
 #else
 #erorr "unsupported device"
 #endif

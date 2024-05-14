@@ -28,6 +28,11 @@ static struct I2CRegMap* const i2c_reg_lookup[] = {
     &i2c1,  // I2C_ID_1
     NULL,   // I2C_ID_2
 };
+#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+static struct I2CRegMap* const i2c_reg_lookup[] = {
+    &i2c1,  // I2C_ID_1
+    NULL,   // I2C_ID_2
+};
 #else
 #erorr "unsupported device"
 #endif

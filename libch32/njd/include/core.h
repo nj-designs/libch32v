@@ -84,6 +84,10 @@ enum PFICIntNum {
   PFIC_DMA1_CH4_INT_NUM = 30,  // Addr: 0x00000078
   PFIC_USART1_INT_NUM = 53,    // Addr: 0x000000D4
 };
+#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+enum PFICIntNum {
+  PFIC_DMA1_CH4_INT_NUM = 25,  // Addr: 0x00000064
+};
 #else
 #error "unsupported device"
 #endif

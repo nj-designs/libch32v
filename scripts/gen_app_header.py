@@ -35,13 +35,13 @@ def bld_cfg_header(ini_file: str):
 
     for k, v in all_device_cfg.defaults().items():
             if v is None:
-                 op.write('#define {0}\n'.format(k.upper()))
+                 op.write('#define APP_{0}\n'.format(k.upper()))
             else:
                 try:
                     _ = int(v, 16)
-                    op.write('#define {0} {1}\n'.format(k.upper(), v))
+                    op.write('#define APP_{0} {1}\n'.format(k.upper(), v))
                 except ValueError:
-                    op.write('#define {0} "{1}"\n'.format(k.upper(), v))
+                    op.write('#define APP_{0} "{1}"\n'.format(k.upper(), v))
 
     str = op.getvalue()
     op.close()

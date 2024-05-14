@@ -13,7 +13,7 @@
 
 #include "app_config.h"
 
-#ifdef STDOUT_BUFFER_SIZE
+#ifdef APP_STDOUT_BUFFER_SIZE
 
 #include "dma.h"
 #include "usart.h"
@@ -21,6 +21,14 @@
 #include "gpio.h"
 
 static void dma_cb(struct DMAXferRequest* req);
+
+#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
+static const enum GPIOPinId USART1_TX_PIN = PIN_PA9;
+#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+static const enum GPIOPinId USART1_TX_PIN = PIN_PD5;
+#else
+#error "unsupported device"
+#endif
 
 static const struct UsartCfgValues usart_cfg_values = {
     .baud_rate = 115200,
@@ -31,7 +39,7 @@ static const struct UsartCfgValues usart_cfg_values = {
     .dma = true,
 };
 
-static uint8_t op_buffer[STDOUT_BUFFER_SIZE];
+static uint8_t op_buffer[APP_STDOUT_BUFFER_SIZE];
 static uint64_t wr_idx;
 static uint64_t rd_idx;
 static struct DMAXferRequest dma_req = {
@@ -56,7 +64,7 @@ void stdout_init(void) {
   rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
   rcc_set_peripheral_clk(RCC_DMA1_ID, 1);
 
-  gpio_pin_init(PIN_PA9, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
+  gpio_pin_init(USART1_TX_PIN, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
   usart_cfg(USART1_ID, &usart_cfg_values);
 
@@ -67,11 +75,11 @@ static void drain_buffer(uint32_t count) {
   while (count) {
     while (dma_in_progress) {
     }
-    uint32_t head_room = STDOUT_BUFFER_SIZE - (rd_idx & (STDOUT_BUFFER_SIZE - 1));
+    uint32_t head_room = APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
     uint32_t xfter_len = count > head_room ? count - head_room : count;
     count -= xfter_len;
     dma_req.xfter_len = xfter_len;
-    dma_req.memory_address = &op_buffer[rd_idx & (STDOUT_BUFFER_SIZE - 1)];
+    dma_req.memory_address = &op_buffer[rd_idx & (APP_STDOUT_BUFFER_SIZE - 1)];
     dma_in_progress = true;
     dma_queue_xfer_request(&dma_req);
   }
@@ -79,7 +87,7 @@ static void drain_buffer(uint32_t count) {
 
 void _putchar(char ch) {
   bool flush = ch == '\n' ? true : false;
-  op_buffer[wr_idx & (STDOUT_BUFFER_SIZE - 1)] = (uint8_t)ch;
+  op_buffer[wr_idx & (APP_STDOUT_BUFFER_SIZE - 1)] = (uint8_t)ch;
   wr_idx++;
   if (dma_in_progress) {
     if (flush) {
@@ -90,7 +98,7 @@ void _putchar(char ch) {
     }
   } else {
     uint32_t count = (uint32_t)(wr_idx - rd_idx);
-    if (flush || count >= STDOUT_BUFFER_SIZE / 4) {
+    if (flush || count >= APP_STDOUT_BUFFER_SIZE / 4) {
       drain_buffer(count);
     }
   }

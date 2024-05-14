@@ -36,7 +36,7 @@
 #include "device_config.h"
 #include "app_config.h"
 
-#ifdef PROVIDE_PRINTF
+#ifdef APP_PROVIDE_PRINTF
 
 #include "printf.h"
 
@@ -56,13 +56,13 @@
 
 // support for the floating point type (%f)
 // default: activated
-#ifndef PRINTF_DISABLE_SUPPORT_FLOAT
+#ifndef APP_PRINTF_DISABLE_SUPPORT_FLOAT
 #define PRINTF_SUPPORT_FLOAT
 #endif
 
 // support for exponential floating point notation (%e/%g)
 // default: activated
-#ifndef PRINTF_DISABLE_SUPPORT_EXPONENTIAL
+#ifndef APP_PRINTF_DISABLE_SUPPORT_EXPONENTIAL
 #define PRINTF_SUPPORT_EXPONENTIAL
 #endif
 
@@ -80,7 +80,7 @@
 
 // support for the long long types (%llu or %p)
 // default: activated
-#ifndef PRINTF_DISABLE_SUPPORT_LONG_LONG
+#ifndef APP_PRINTF_DISABLE_SUPPORT_LONG_LONG
 #define PRINTF_SUPPORT_LONG_LONG
 #endif
 
@@ -160,8 +160,7 @@ static inline void _out_fct(char character, void* buffer, size_t idx, size_t max
 // \return The length of the string (excluding the terminating 0) limited by 'maxsize'
 static inline unsigned int _strnlen_s(const char* str, size_t maxsize) {
   const char* s;
-  for (s = str; *s && maxsize--; ++s)
-    ;
+  for (s = str; *s && maxsize--; ++s);
   return (unsigned int)(s - str);
 }
 

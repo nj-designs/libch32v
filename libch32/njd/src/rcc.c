@@ -50,34 +50,38 @@ static const uint16_t CFG_TABLE_SIZE = sizeof(cfg_table) / sizeof(cfg_table[0]);
 
 void rcc_cfg_clock_tree(uint32_t hse_freq, uint32_t sysclk_freq) {
   for (uint16_t i = 0; i < CFG_TABLE_SIZE; i++) {
-    const struct RCCCfgValues* ptr = &cfg_table[i];
-    if (ptr->hse_freq == hse_freq && ptr->sysclk_freq == sysclk_freq) {
+    const struct RCCCfgValues* ctv = &cfg_table[i];
+    if (ctv->hse_freq == hse_freq && ctv->sysclk_freq == sysclk_freq) {
       // Found supported combination of hse/sysclk
-      if (hse_freq) {
-        rcc.ctlr |= RCC_CTLR_HSEON;
-        // Wait HSE Ready
-        while (1) {
-          if (rcc.ctlr & RCC_CTLR_HSERDY) {
-            break;
-          }
-        }
-      }
-      rcc.cfgr0 = ptr->cfgr0;
-      rcc.ctlr |= RCC_CTLR_PLLON;
-      while (1) {
-        if (rcc.ctlr & RCC_CTLR_PLLRDY) {
-          break;
-        }
-      }
-      rcc.cfgr0 |= RCC_CFGR0_SW_PLL;
-      while (1) {
-        if ((rcc.cfgr0 & RCC_CFGR0_SWS_MASK) == RCC_CFGR0_SWS_PLL) {
-          break;
-        }
-      }
-      current_cfg = ptr;
+      rcc_cfg_clock_tree_ex(ctv);
     }
   }
+}
+
+void rcc_cfg_clock_tree_ex(const struct RCCCfgValues* ctv) {
+  if (ctv->hse_freq) {
+    rcc.ctlr |= RCC_CTLR_HSEON;
+    // Wait HSE Ready
+    while (1) {
+      if (rcc.ctlr & RCC_CTLR_HSERDY) {
+        break;
+      }
+    }
+  }
+  rcc.cfgr0 = ctv->cfgr0;
+  rcc.ctlr |= RCC_CTLR_PLLON;
+  while (1) {
+    if (rcc.ctlr & RCC_CTLR_PLLRDY) {
+      break;
+    }
+  }
+  rcc.cfgr0 |= RCC_CFGR0_SW_PLL;
+  while (1) {
+    if ((rcc.cfgr0 & RCC_CFGR0_SWS_MASK) == RCC_CFGR0_SWS_PLL) {
+      break;
+    }
+  }
+  current_cfg = ctv;
 }
 
 void rcc_init(void) {

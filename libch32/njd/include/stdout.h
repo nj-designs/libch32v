@@ -13,7 +13,7 @@
 #include "device_config.h"
 #include "app_config.h"
 
-#ifdef STDOUT_BUFFER_SIZE
+#ifdef APP_STDOUT_BUFFER_SIZE
 
 /**
  * @brief

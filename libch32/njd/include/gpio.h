@@ -14,7 +14,7 @@
 
 #include "device_config.h"
 
-typedef struct {
+struct GPIORegMap {
   volatile uint32_t cfglr;
   volatile uint32_t cfghr;
   volatile uint32_t indr;
@@ -22,26 +22,26 @@ typedef struct {
   volatile uint32_t bshr;
   volatile uint32_t bcr;
   volatile uint32_t lckr;
-} GPIORegMap;
+};
 
 #ifdef LIBCH32_HAS_GPIOA
-extern GPIORegMap gpio_a;
+extern struct GPIORegMap gpio_a;
 #endif
 
 #ifdef LIBCH32_HAS_GPIOB
-extern GPIORegMap gpio_b;
+extern struct GPIORegMap gpio_b;
 #endif
 
 #ifdef LIBCH32_HAS_GPIOC
-extern GPIORegMap gpio_c;
+extern struct GPIORegMap gpio_c;
 #endif
 
 #ifdef LIBCH32_HAS_GPIOD
-extern GPIORegMap gpio_d;
+extern struct GPIORegMap gpio_d;
 #endif
 
 #ifdef LIBCH32_HAS_GPIOE
-extern GPIORegMap gpio_e;
+extern struct GPIORegMap gpio_e;
 #endif
 
 #define CREATE_PIN_NUMBER(GPIO_IDX, PIN_IDX) ((GPIO_IDX) << 16 | PIN_IDX)
@@ -58,7 +58,7 @@ extern GPIORegMap gpio_e;
  * Port idx & pin number are encoded in values
  */
 #if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
-typedef enum {
+enum GPIOPinId {
   PIN_PA0 = CREATE_PIN_NUMBER(GPIO_A_IDX, 0),
   PIN_PA1 = CREATE_PIN_NUMBER(GPIO_A_IDX, 1),
   PIN_PA2 = CREATE_PIN_NUMBER(GPIO_A_IDX, 2),
@@ -85,7 +85,27 @@ typedef enum {
   PIN_PD0 = CREATE_PIN_NUMBER(GPIO_D_IDX, 0),
   PIN_PD1 = CREATE_PIN_NUMBER(GPIO_D_IDX, 1),
 
-} GPIOPinId;
+};
+#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+enum GPIOPinId {
+  PIN_PA1 = CREATE_PIN_NUMBER(GPIO_A_IDX, 1),
+  PIN_PA2 = CREATE_PIN_NUMBER(GPIO_A_IDX, 2),
+  PIN_PC1 = CREATE_PIN_NUMBER(GPIO_C_IDX, 1),
+  PIN_PC2 = CREATE_PIN_NUMBER(GPIO_C_IDX, 2),
+  PIN_PC3 = CREATE_PIN_NUMBER(GPIO_C_IDX, 3),
+  PIN_PC4 = CREATE_PIN_NUMBER(GPIO_C_IDX, 4),
+  PIN_PC5 = CREATE_PIN_NUMBER(GPIO_C_IDX, 5),
+  PIN_PC6 = CREATE_PIN_NUMBER(GPIO_C_IDX, 6),
+  PIN_PC7 = CREATE_PIN_NUMBER(GPIO_C_IDX, 7),
+  PIN_PD0 = CREATE_PIN_NUMBER(GPIO_D_IDX, 0),
+  PIN_PD1 = CREATE_PIN_NUMBER(GPIO_D_IDX, 1),
+  PIN_PD2 = CREATE_PIN_NUMBER(GPIO_D_IDX, 2),
+  PIN_PD3 = CREATE_PIN_NUMBER(GPIO_D_IDX, 3),
+  PIN_PD4 = CREATE_PIN_NUMBER(GPIO_D_IDX, 4),
+  PIN_PD5 = CREATE_PIN_NUMBER(GPIO_D_IDX, 5),
+  PIN_PD6 = CREATE_PIN_NUMBER(GPIO_D_IDX, 6),
+  PIN_PD7 = CREATE_PIN_NUMBER(GPIO_D_IDX, 7),
+};
 #else
 #erorr "unsupported device"
 #endif
@@ -125,11 +145,11 @@ typedef enum {
  * @brief Cache to hold a set of values to allow fast GPIO pin set/reset
  *
  */
-typedef struct {
+struct GPIOPinSetCache {
   volatile uint32_t* bshr;
   volatile uint32_t* bcr;
   uint16_t pin_bit_map;
-} GPIOPinSetCache;
+};
 
 /** Prototypes */
 
@@ -139,7 +159,7 @@ typedef struct {
  * @param pin_id Which pin
  * @param mode Mode to enable for pin
  */
-extern void gpio_pin_init(GPIOPinId pin_id, GPIOPinMode mode);
+extern void gpio_pin_init(enum GPIOPinId pin_id, GPIOPinMode mode);
 
 /**
  * @brief Set the specified pin to val
@@ -147,7 +167,7 @@ extern void gpio_pin_init(GPIOPinId pin_id, GPIOPinMode mode);
  * @param pin_id Which pin
  * @param val 1 or 0
  */
-extern void gpio_pin_set(GPIOPinId pin_id, uint8_t val);
+extern void gpio_pin_set(enum GPIOPinId pin_id, uint8_t val);
 
 /**
  * @brief Cache the address and bit mask of a pin within a port
@@ -155,7 +175,7 @@ extern void gpio_pin_set(GPIOPinId pin_id, uint8_t val);
  * @param pin_id Which pin
  * @param cache Which to cache
  */
-extern void gpio_pin_cache(GPIOPinId pin_id, GPIOPinSetCache* cache);
+extern void gpio_pin_cache(enum GPIOPinId pin_id, struct GPIOPinSetCache* cache);
 
 /**
  * @brief Set the specified pin to val using a cached pin set
@@ -163,7 +183,7 @@ extern void gpio_pin_cache(GPIOPinId pin_id, GPIOPinSetCache* cache);
  * @param cache Cached pin set info
  * @param val 1 or 0
  */
-inline void gpio_pin_set_fast(GPIOPinSetCache* cache, uint8_t val) {
+inline void gpio_pin_set_fast(struct GPIOPinSetCache* cache, uint8_t val) {
   if (val) {
     *cache->bshr = cache->pin_bit_map;
   } else {
