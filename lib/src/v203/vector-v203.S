@@ -1,15 +1,13 @@
-;/********************************** (C) COPYRIGHT *******************************
-;* File Name          : startup_ch32v20x_D6.s
-;* Author             : WCH
-;* Version            : V1.0.1
-;* Date               : 2024/01/31
-;* Description        :  CH32V203F6-CH32V203F8-CH32V203G6-CH32V203G8-CH32V203K6-CH32V203K8-CH32V203C6-CH32V203C8-CH32V203G8
-;*                    vector table for eclipse toolchain.
-;*********************************************************************************
-;* Copyright (c) 2021 Nanjing Qinheng Microelectronics Co., Ltd.
-;* Attention: This software (modified or not) and binary are used for 
-;* microcontroller manufactured by Nanjing Qinheng Microelectronics.
-*******************************************************************************/
+/**
+ * @file vector.S
+ * @author Neil Johnson (nj.designs@protonmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2024-03-24
+ *
+ * @copyright Copyright (c) 2024
+ *
+ */
 
 	.section	.init,"ax",@progbits
 	.global	_start
@@ -18,18 +16,20 @@ _start:
 	j	handle_reset
 
     .section    .vector,"ax",@progbits
+    .global _vector_base
     .align  1
+/* See Table 9-2 of CH32FV2x_V3xRM.PDF*/
 _vector_base:
-    .option norvc;
-    .word   _start
-    .word   0
-    .word   NMI_Handler                /* NMI */
-    .word   HardFault_Handler          /* Hard Fault */
-    .word   0
-    .word   Ecall_M_Mode_Handler       /* Ecall M Mode */
-    .word   0
-    .word   0
-    .word   Ecall_U_Mode_Handler       /* Ecall U Mode */
+    .option norvc;                     // We don't want compressed instructions here (Don't think needed!!)
+    .word   _start                     // 0x00000000 #0  Not used
+    .word   0                          // 0x00000004 #1  Not used
+    .word   int_handler_nmi            // 0x00000008 #2  NMI
+    .word   int_handler_hard_fault     // 0x0000000C #3  HardFault
+    .word   0                          // 0x00000010 #4  Reserved
+    .word   int_handler_ecall_m        // 0x00000014 #5  Ecall-M
+    .word   0                          // 0x00000018 #6  Reserved
+    .word   0                          // 0x0000001C #7  Reserved
+    .word   int_handler_ecall_u        // 0x00000020 #8  Ecall-U
     .word   Break_Point_Handler        /* Break Point */
     .word   0
     .word   0
@@ -52,7 +52,7 @@ _vector_base:
     .word   DMA1_Channel1_IRQHandler   /* DMA1 Channel 1 */
     .word   DMA1_Channel2_IRQHandler   /* DMA1 Channel 2 */
     .word   DMA1_Channel3_IRQHandler   /* DMA1 Channel 3 */
-    .word   DMA1_Channel4_IRQHandler   /* DMA1 Channel 4 */
+    .word   int_handler_dma1_chan4     // 0x00000078 #30  DMA1_CH4
     .word   DMA1_Channel5_IRQHandler   /* DMA1 Channel 5 */
     .word   DMA1_Channel6_IRQHandler   /* DMA1 Channel 6 */
     .word   DMA1_Channel7_IRQHandler   /* DMA1 Channel 7 */
@@ -75,7 +75,7 @@ _vector_base:
     .word   I2C2_ER_IRQHandler         /* I2C2 Error */
     .word   SPI1_IRQHandler            /* SPI1 */
     .word   SPI2_IRQHandler            /* SPI2 */
-    .word   USART1_IRQHandler          /* USART1 */
+    .word   int_handler_usart1         // 0x000000D4 #53 USART1
     .word   USART2_IRQHandler          /* USART2 */
     .word   USART3_IRQHandler          /* USART3 */
     .word   EXTI15_10_IRQHandler       /* EXTI Line 15..10 */
@@ -86,12 +86,12 @@ _vector_base:
     .word   UART4_IRQHandler           /* UART4 */
     .word   DMA1_Channel8_IRQHandler   /* DMA1 Channel8 */
 
-    .option rvc;
+    .option rvc;                        // Enable ompressed instructions
     .section    .text.vector_handler, "ax", @progbits
-    .weak   NMI_Handler                /* NMI */
-    .weak   HardFault_Handler          /* Hard Fault */
-    .weak   Ecall_M_Mode_Handler       /* Ecall M Mode */
-    .weak   Ecall_U_Mode_Handler       /* Ecall U Mode */
+    .weak   int_handler_nmi               // 0x00000008 #2  NMI
+    .weak   int_handler_hard_fault          /* Hard Fault */
+    .weak   int_handler_ecall_m       /* Ecall M Mode */
+    .weak   int_handler_ecall_u       /* Ecall U Mode */
     .weak   Break_Point_Handler        /* Break Point */
     .weak   SysTick_Handler            /* SysTick */
     .weak   SW_Handler                 /* SW */
@@ -109,7 +109,7 @@ _vector_base:
     .weak   DMA1_Channel1_IRQHandler   /* DMA1 Channel 1 */
     .weak   DMA1_Channel2_IRQHandler   /* DMA1 Channel 2 */
     .weak   DMA1_Channel3_IRQHandler   /* DMA1 Channel 3 */
-    .weak   DMA1_Channel4_IRQHandler   /* DMA1 Channel 4 */
+    .weak   int_handler_dma1_chan4   /* DMA1 Channel 4 */
     .weak   DMA1_Channel5_IRQHandler   /* DMA1 Channel 5 */
     .weak   DMA1_Channel6_IRQHandler   /* DMA1 Channel 6 */
     .weak   DMA1_Channel7_IRQHandler   /* DMA1 Channel 7 */
@@ -132,7 +132,7 @@ _vector_base:
     .weak   I2C2_ER_IRQHandler         /* I2C2 Error */
     .weak   SPI1_IRQHandler            /* SPI1 */
     .weak   SPI2_IRQHandler            /* SPI2 */
-    .weak   USART1_IRQHandler          /* USART1 */
+    .weak   int_handler_usart1          /* USART1 */
     .weak   USART2_IRQHandler          /* USART2 */
     .weak   USART3_IRQHandler          /* USART3 */
     .weak   EXTI15_10_IRQHandler       /* EXTI Line 15..10 */
@@ -144,9 +144,9 @@ _vector_base:
     .weak   DMA1_Channel8_IRQHandler   /* DMA1 Channel8 */
 
 NMI_Handler:
-HardFault_Handler:
-Ecall_M_Mode_Handler:
-Ecall_U_Mode_Handler:
+int_handler_hard_fault:
+int_handler_ecall_m:
+int_handler_ecall_u:
 Break_Point_Handler:
 SysTick_Handler:
 SW_Handler:
@@ -164,7 +164,7 @@ EXTI4_IRQHandler:
 DMA1_Channel1_IRQHandler:
 DMA1_Channel2_IRQHandler:
 DMA1_Channel3_IRQHandler:
-DMA1_Channel4_IRQHandler:
+int_handler_dma1_chan4:
 DMA1_Channel5_IRQHandler:
 DMA1_Channel6_IRQHandler:
 DMA1_Channel7_IRQHandler:
@@ -187,7 +187,7 @@ I2C2_EV_IRQHandler:
 I2C2_ER_IRQHandler:
 SPI1_IRQHandler:
 SPI2_IRQHandler:
-USART1_IRQHandler:
+int_handler_usart1:
 USART2_IRQHandler:
 USART3_IRQHandler:
 EXTI15_10_IRQHandler:
@@ -199,56 +199,3 @@ UART4_IRQHandler:
 DMA1_Channel8_IRQHandler:
 1:
 	j 1b
-
-	.section	.text.handle_reset,"ax",@progbits
-	.weak	handle_reset
-	.align	1
-handle_reset:
-.option push 
-.option	norelax 
-	la gp, __global_pointer$
-.option	pop 
-1:
-	la sp, _eusrstack 
-2:
-/* Load data section from flash to RAM */
-	la a0, _data_lma
-	la a1, _data_vma
-	la a2, _edata
-	bgeu a1, a2, 2f
-1:
-	lw t0, (a0)
-	sw t0, (a1)
-	addi a0, a0, 4
-	addi a1, a1, 4
-	bltu a1, a2, 1b
-2:
-/* Clear bss section */
-	la a0, _sbss
-	la a1, _ebss
-	bgeu a0, a1, 2f
-1:
-	sw zero, (a0)
-	addi a0, a0, 4
-	bltu a0, a1, 1b
-2:
-/* Configure pipelining and instruction prediction */
-    li t0, 0x1f
-    csrw 0xbc0, t0
-/* Enable interrupt nesting and hardware stack */
-	li t0, 0x3
-	csrw 0x804, t0
-/* Enable global interrupt and configure privileged mode */
-   	li t0, 0x88           
-   	csrw mstatus, t0
-/* Configure the interrupt vector table recognition mode and entry address mode */
- 	la t0, _vector_base
-    ori t0, t0, 3           
-	csrw mtvec, t0
-
-    jal  SystemInit
-	la t0, main
-	csrw mepc, t0
-	mret
-
-

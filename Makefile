@@ -1,6 +1,6 @@
 APP ?= blinky
 
-DEVICE ?= ch32v003f4p6
+DEVICE ?= ch32v203g6u6
 
 # Need gnuXX to allow __asm
 CSTD = gnu2x
@@ -9,7 +9,7 @@ APP_DIR = app/$(APP)
 
 CFG_INI_FILE = cfg/app_cfg.ini
 
-DEVICE_CFG_FILE = libch32/cfg/devices.ini
+DEVICE_CFG_FILE = lib/cfg/devices.ini
 
 APP_CFG_FILE = $(APP_DIR)/app.ini
 
@@ -23,12 +23,8 @@ ifeq ($(FAMILY),)
 $(error Can't find value for $(DEVICE).FAMILY)
 endif
 
-HAL=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) hal)
-ifeq ($(HAL),)
-HAL = $(FAMILY)
-endif
 
-#  python3 $(DEVICE_CFG_TOOL) libch32/cfg/devices.ini ch32v003f4p6 flash2
+#  python3 $(DEVICE_CFG_TOOL) lib/cfg/devices.ini ch32v203g6u6 flash2
 FLASH_SIZE=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_size)
 ifeq ($(FLASH_SIZE),)
 $(error Can't find value for $(DEVICE).flash_size)
@@ -72,7 +68,6 @@ endif
 
 
 $(info $$FAMILY: '${FAMILY}')
-$(info $$HAL: '${HAL}')
 $(info $$FLASH_START: '${FLASH_START}')
 $(info $$FLASH_SIZE: '${FLASH_SIZE}' KiB)
 $(info $$SRAM_START: '${SRAM_START}')
@@ -86,8 +81,9 @@ APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 # All build artifacts go here
 BUILD = build
 
-LIB_INC_DIR	= libch32/$(HAL)/include
-LIB_SRC_DIR = libch32/$(HAL)/src
+LIB_INC_DIR	= lib/include
+LIB_BASE_SRC_DIR = lib/src
+LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
 DEFS = APP_PRINTF_DISABLE_SUPPORT_FLOAT APP_PRINTF_DISABLE_SUPPORT_EXPONENTIAL APP_PRINTF_DISABLE_SUPPORT_LONG_LONG
 
@@ -96,8 +92,13 @@ OPTIMIZE = s
 TOOL_CHAIN_PREFIX ?= riscv32-unknown-elf
 
 # Include all WCH lib files and let linker drop unused code etc.
-LIB_C_SRC = $(wildcard $(LIB_SRC_DIR)/*.c)
-LIB_A_SRC = $(wildcard $(LIB_SRC_DIR)/*.S)
+LIB_C_SRC = $(wildcard $(LIB_BASE_SRC_DIR)/*.c) $(wildcard $(LIB_FAMILY_SRC_DIR)/*.c)
+LIB_A_SRC = $(wildcard $(LIB_BASE_SRC_DIR)/*.S) $(wildcard $(LIB_FAMILY_SRC_DIR)/*.S)
+
+
+$(info $$LIB_C_SRC: '${LIB_C_SRC}')
+$(info $$LIB_A_SRC: '${LIB_A_SRC}')
+$(info $$LIB_FAMILY_SRC_DIR: '${LIB_FAMILY_SRC_DIR}')
 
 CSRC = $(APP_C_SRCS) $(LIB_C_SRC)
 ASRC = $(APP_A_SRCS) $(LIB_A_SRC)
@@ -131,7 +132,7 @@ LDFLAGS += -Wl,-Map,$(BUILD)/$(APP).map -nostdlib -nodefaultlibs -nolibc -nostar
 LDFLAGS +=-Wl,--no-relax -Wl,--gc-sections
 LDFLAGS +=-Wl,--defsym=RAM_ORIGIN=$(SRAM_START) -Wl,--defsym=RAM_LENGTH=$(SRAM_SIZE)
 LDFLAGS +=-Wl,--defsym=FLASH_ORIGIN=$(FLASH_START) -Wl,--defsym=FLASH_LENGTH=$(FLASH_SIZE)
-LDFLAGS +=-Wl,-Tlibch32/$(HAL)/ld/link.ld
+LDFLAGS +=-Wl,-Tlib/ld/link.ld
 
 all: $(BUILD)/device_config.h $(BUILD)/device_config.h elf lst sym bin
 

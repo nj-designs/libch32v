@@ -30,17 +30,23 @@ static const struct RCCCfgValues ctv = {.hse_freq = 16'000'000,
 
 static struct GPIOPinSetCache ledCache;
 
+#if LIBCH32_DEVICE_ID == WCH_CH32V003F4
+const enum GPIOPinId LED_PIN = PIN_PD7;
+#else
+const enum GPIOPinId LED_PIN = PIN_PA3;
+#endif
+
 static void setup_led(void) {
   // Setup LED
   rcc_set_peripheral_clk(RCC_IOPA_ID, 1);
-  const enum GPIOPinId led_pin = PIN_PD7;
-  gpio_pin_init(led_pin, PIN_MODE_OUTPUT_PUSH_PULL_50MHZ);
-  gpio_pin_cache(led_pin, &ledCache);
+  gpio_pin_init(LED_PIN, PIN_MODE_OUTPUT_PUSH_PULL_50MHZ);
+  gpio_pin_cache(LED_PIN, &ledCache);
 }
 
 void main(void) {
+#if LIBCH32_DEVICE_ID == WCH_CH32V003F4
   rcc_cfg_clock_tree_ex(&ctv);
-
+#endif
   setup_led();
 
   while (1) {
