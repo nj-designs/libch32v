@@ -11,8 +11,6 @@
 
 #include "stdout.h"
 
-#include "app_config.h"
-
 #ifdef APP_STDOUT_BUFFER_SIZE
 
 #include "dma.h"

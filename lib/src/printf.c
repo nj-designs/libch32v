@@ -34,7 +34,6 @@
 #include <stdint.h>
 
 #include "device_config.h"
-#include "app_config.h"
 
 #ifdef APP_PROVIDE_PRINTF
 

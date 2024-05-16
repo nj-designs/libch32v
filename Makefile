@@ -1,4 +1,4 @@
-APP ?= blinky
+APP ?= led-flash
 
 DEVICE ?= ch32v203g6u6
 
@@ -16,6 +16,7 @@ APP_CFG_FILE = $(APP_DIR)/app.ini
 DEVICE_CFG_TOOL = scripts/get_device_cfg.py
 DEVICE_HEADER_TOOL = scripts/gen_device_header.py
 APP_HEADER_TOOL = scripts/gen_app_header.py
+APP_DEF_TOOL = scripts/gen_app_defines.py
 
 # Read in required values from $(CFG_INI_FILE)
 FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
@@ -65,16 +66,20 @@ ifeq ($(FLASH_PROG_ADDR),)
 $(error Can't find value for $(DEVICE).flash_prog_addr)
 endif
 
+APP_DEFS=$(shell python3 $(APP_DEF_TOOL) $(APP_CFG_FILE))
+ifeq ($(APP_DEFS),)
+$(error Failed to generate app defines from $(APP_CFG_FILE))
+endif
 
-
-$(info $$FAMILY: '${FAMILY}')
-$(info $$FLASH_START: '${FLASH_START}')
-$(info $$FLASH_SIZE: '${FLASH_SIZE}' KiB)
-$(info $$SRAM_START: '${SRAM_START}')
-$(info $$SRAM_SIZE: '${SRAM_SIZE}' KiB)
-$(info $$LD_SCRIPT: '${LD_SCRIPT}')
-$(info $$MARCH: '${MARCH}')
-$(info $$FLASH_PROG_ADDR: '${FLASH_PROG_ADDR}')
+# $(info $$FAMILY: '${FAMILY}')
+# $(info $$FLASH_START: '${FLASH_START}')
+# $(info $$FLASH_SIZE: '${FLASH_SIZE}' KiB)
+# $(info $$SRAM_START: '${SRAM_START}')
+# $(info $$SRAM_SIZE: '${SRAM_SIZE}' KiB)
+# $(info $$LD_SCRIPT: '${LD_SCRIPT}')
+# $(info $$MARCH: '${MARCH}')
+# $(info $$FLASH_PROG_ADDR: '${FLASH_PROG_ADDR}')
+# $(info $$APP_DEFS: '${APP_DEFS}')
 
 APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 
@@ -85,7 +90,7 @@ LIB_INC_DIR	= lib/include
 LIB_BASE_SRC_DIR = lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
-DEFS = APP_PRINTF_DISABLE_SUPPORT_FLOAT APP_PRINTF_DISABLE_SUPPORT_EXPONENTIAL APP_PRINTF_DISABLE_SUPPORT_LONG_LONG
+DEFS = $(APP_DEFS)
 
 OPTIMIZE = s
 
@@ -96,9 +101,9 @@ LIB_C_SRC = $(wildcard $(LIB_BASE_SRC_DIR)/*.c) $(wildcard $(LIB_FAMILY_SRC_DIR)
 LIB_A_SRC = $(wildcard $(LIB_BASE_SRC_DIR)/*.S) $(wildcard $(LIB_FAMILY_SRC_DIR)/*.S)
 
 
-$(info $$LIB_C_SRC: '${LIB_C_SRC}')
-$(info $$LIB_A_SRC: '${LIB_A_SRC}')
-$(info $$LIB_FAMILY_SRC_DIR: '${LIB_FAMILY_SRC_DIR}')
+# $(info $$LIB_C_SRC: '${LIB_C_SRC}')
+# $(info $$LIB_A_SRC: '${LIB_A_SRC}')
+# $(info $$LIB_FAMILY_SRC_DIR: '${LIB_FAMILY_SRC_DIR}')
 
 CSRC = $(APP_C_SRCS) $(LIB_C_SRC)
 ASRC = $(APP_A_SRCS) $(LIB_A_SRC)
@@ -169,12 +174,12 @@ size: $(BUILD)/$(APP).elf
 	@echo
 	$(OBJCOPY) -O ihex $< $@
 
-$(COBJ) : $(BUILD)/%.o : %.c $(BUILD)/device_config.h $(BUILD)/app_config.h
+$(COBJ) : $(BUILD)/%.o : %.c $(BUILD)/device_config.h
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(CFLAGS) -Wp,-MP,-M,-MT,$@,-MF,$(BUILD)/$(*F).d  $< -o $@
 
-$(AOBJ) : $(BUILD)/%.o : %.S $(BUILD)/device_config.h $(BUILD)/app_config.h
+$(AOBJ) : $(BUILD)/%.o : %.S $(BUILD)/device_config.h
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
@@ -182,10 +187,6 @@ $(AOBJ) : $(BUILD)/%.o : %.S $(BUILD)/device_config.h $(BUILD)/app_config.h
 $(BUILD)/device_config.h: $(DEVICE_CFG_FILE)
 	@mkdir -p `dirname $@`
 	@python3 $(DEVICE_HEADER_TOOL) $< $(DEVICE) $@
-
-$(BUILD)/app_config.h: $(APP_CFG_FILE)
-	@mkdir -p `dirname $@`
-	@python3 $(APP_HEADER_TOOL) $< $@
 
 flash: $(BUILD)/$(APP).bin
 	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<

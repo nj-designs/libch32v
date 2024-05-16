@@ -11,7 +11,6 @@
 #pragma once
 
 #include "device_config.h"
-#include "app_config.h"
 
 #ifdef APP_STDOUT_BUFFER_SIZE
 

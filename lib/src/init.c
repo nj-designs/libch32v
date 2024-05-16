@@ -13,7 +13,6 @@
 #include "stdout.h"
 
 #include "device_config.h"
-#include "app_config.h"
 
 void init_system(void) {
   rcc_init();
