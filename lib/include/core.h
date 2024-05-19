@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-#include "device_config.h"
-
 #define NJD_IRQ_ATTRIBUTE __attribute__((interrupt))
 
 /**

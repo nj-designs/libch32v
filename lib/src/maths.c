@@ -8,8 +8,6 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include "device_config.h"
-
 #if LIBCH32_DEVICE_ID == WCH_CH32V003F4
 
 /**

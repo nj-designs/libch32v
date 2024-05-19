@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-#include "device_config.h"
-
 struct ADCRegMap {
   volatile uint32_t statr;
   volatile uint32_t ctlr1;
@@ -71,17 +69,10 @@ static const uint32_t ADC_CTLR1_JAWDEN = (1 << 22);
 // DUALMOD[19:16]
 static const uint32_t ADC_CTLR1_DUALMOD_MASK = (0b1111 << 16);
 static const uint32_t ADC_CTLR1_DUALMOD_INDEPENDENT = (0b0000 << 16);
-static const uint32_t
-    ADC_CTLR1_DUALMOD_REGULAT_SIMULTANEOUS_PLUS_INJECTED_SIMULTANEOUS =
-        (0b0001 << 16);
-static const uint32_t ADC_CTLR1_DUALMOD_REGULAT_SIMULTANEOUS_PLUS_ALT_TRIG =
-    (0b0010 << 16);
-static const uint32_t
-    ADC_CTLR1_DUALMOD_INJECTED_SIMULTANEOUS_PLUS_FAST_INTERLEAVED =
-        (0b0011 << 16);
-static const uint32_t
-    ADC_CTLR1_DUALMOD_INJECTED_SIMULTANEOUS_PLUS_SLOW_INTERLEAVED =
-        (0b0100 << 16);
+static const uint32_t ADC_CTLR1_DUALMOD_REGULAT_SIMULTANEOUS_PLUS_INJECTED_SIMULTANEOUS = (0b0001 << 16);
+static const uint32_t ADC_CTLR1_DUALMOD_REGULAT_SIMULTANEOUS_PLUS_ALT_TRIG = (0b0010 << 16);
+static const uint32_t ADC_CTLR1_DUALMOD_INJECTED_SIMULTANEOUS_PLUS_FAST_INTERLEAVED = (0b0011 << 16);
+static const uint32_t ADC_CTLR1_DUALMOD_INJECTED_SIMULTANEOUS_PLUS_SLOW_INTERLEAVED = (0b0100 << 16);
 static const uint32_t ADC_CTLR1_DUALMOD_INJECTED_SIMULTANEOUS = (0b0101 << 16);
 static const uint32_t ADC_CTLR1_DUALMOD_REGULAT_SIMULTANEOUS = (0b0110 << 16);
 static const uint32_t ADC_CTLR1_DUALMOD_FAST_INTERLEAVED = (0b0111 << 16);
@@ -153,8 +144,7 @@ static const uint32_t ADC_CTLR2_EXTSEL_CC2_EVT_TIMR_2 = (0b011 << 17);
 static const uint32_t ADC_CTLR2_EXTSEL_TRGO_EVT_TIMR_3 = (0b100 << 17);
 static const uint32_t ADC_CTLR2_EXTSEL_CC4_EVT_TIMR_4 = (0b101 << 17);
 static const uint32_t ADC_CTLR2_EXTSEL_EXTI_LINE_11 = (0b110 << 17);
-static const uint32_t ADC_CTLR2_EXTSEL_TRGO_EVT_TIMR_8 =
-    (0b110 << 17);  // Not a mistake
+static const uint32_t ADC_CTLR2_EXTSEL_TRGO_EVT_TIMR_8 = (0b110 << 17);  // Not a mistake
 static const uint32_t ADC_CTLR2_EXTSEL_SWSTART_SW_TRIG = (0b111 << 17);
 // JEXTTRIG[15]
 static const uint32_t ADC_CTLR2_JEXTTRIG = (1 << 15);
@@ -167,8 +157,7 @@ static const uint32_t ADC_CTLR2_JEXTSEL_CC1_EVT_TIMR_2 = (0b011 << 12);
 static const uint32_t ADC_CTLR2_JEXTSEL_CC4_EVT_TIMR_3 = (0b100 << 12);
 static const uint32_t ADC_CTLR2_JEXTSEL_TRG0_EVT_TIMR_4 = (0b101 << 12);
 static const uint32_t ADC_CTLR2_JEXTSEL_EXTI_LINE_15 = (0b110 << 12);
-static const uint32_t ADC_CTLR2_JEXTSEL_CC4_EVT_TIME_8 =
-    (0b110 << 12);  // Not a mistake
+static const uint32_t ADC_CTLR2_JEXTSEL_CC4_EVT_TIME_8 = (0b110 << 12);  // Not a mistake
 static const uint32_t ADC_CTLR2_JEXTSEL_JSWSTART_SW_TRIG = (0b111 << 12);
 // ALIGN[11]
 static const uint32_t ADC_CTLR2_ALIGN = (1 << 11);

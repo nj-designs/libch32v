@@ -13,8 +13,6 @@
 #include "usart.h"
 #include "rcc.h"
 
-#include "device_config.h"
-
 #ifdef LIBCH32_HAS_USART1
 struct USARTRegMap __attribute__((section(".usart1"))) usart1;
 #endif

@@ -10,8 +10,6 @@
  */
 #pragma once
 
-#include "device_config.h"
-
 #ifdef APP_STDOUT_BUFFER_SIZE
 
 /**

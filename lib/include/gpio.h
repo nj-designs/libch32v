@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-#include "device_config.h"
-
 struct GPIORegMap {
   volatile uint32_t cfglr;
   volatile uint32_t cfghr;

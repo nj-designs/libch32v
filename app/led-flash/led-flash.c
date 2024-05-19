@@ -13,8 +13,6 @@
 #include "core.h"
 #include "gpio.h"
 
-#include "device_config.h"
-
 #if LIBCH32_DEVICE_ID == WCH_CH32V003F4
 static const struct RCCCfgValues ctv = {.hse_freq = 16'000'000,
                                         .sysclk_freq = 32'000'000,  // PLL is 2 * hse

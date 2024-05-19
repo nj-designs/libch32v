@@ -13,8 +13,6 @@
 #include "rcc.h"
 #include "core.h"
 
-#include "device_config.h"
-
 struct SysTickRegMap __attribute__((section(".systick"))) systick;
 
 struct PFICRegMap __attribute__((section(".pfic"))) pfic;

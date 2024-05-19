@@ -33,8 +33,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "device_config.h"
-
 #ifdef APP_PROVIDE_PRINTF
 
 #include "printf.h"

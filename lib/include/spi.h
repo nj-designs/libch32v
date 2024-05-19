@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-#include "device_config.h"
-
 struct SPIRegMap {
   volatile uint16_t ctlr1;  // 0x00
   uint16_t rsvd1;

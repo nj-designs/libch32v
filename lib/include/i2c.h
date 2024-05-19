@@ -13,8 +13,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "device_config.h"
-
 struct I2CRegMap {
   volatile uint16_t ctlr1;
   uint16_t rsvd1;

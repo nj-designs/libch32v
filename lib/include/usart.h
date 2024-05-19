@@ -12,8 +12,6 @@
 
 #include <stdint.h>
 
-#include "device_config.h"
-
 struct USARTRegMap {
   volatile uint32_t statr;
   volatile uint32_t datar;

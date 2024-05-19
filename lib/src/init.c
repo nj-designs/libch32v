@@ -12,8 +12,6 @@
 #include "rcc.h"
 #include "stdout.h"
 
-#include "device_config.h"
-
 void init_system(void) {
   rcc_init();
 

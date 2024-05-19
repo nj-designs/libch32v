@@ -17,6 +17,7 @@ DEVICE_CFG_TOOL = scripts/get_device_cfg.py
 DEVICE_HEADER_TOOL = scripts/gen_device_header.py
 APP_HEADER_TOOL = scripts/gen_app_header.py
 APP_DEF_TOOL = scripts/gen_app_defines.py
+DEV_DEF_TOOL = scripts/gen_device_defines.py
 
 # Read in required values from $(CFG_INI_FILE)
 FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
@@ -71,6 +72,12 @@ ifeq ($(APP_DEFS),)
 $(error Failed to generate app defines from $(APP_CFG_FILE))
 endif
 
+DEV_DEFS=$(shell python3 $(DEV_DEF_TOOL) $(DEVICE_CFG_FILE) $(DEVICE))
+ifeq ($(DEV_DEFS),)
+$(error Failed to generate app defines from $(DEVICE_CFG_FILE))
+endif
+
+
 # $(info $$FAMILY: '${FAMILY}')
 # $(info $$FLASH_START: '${FLASH_START}')
 # $(info $$FLASH_SIZE: '${FLASH_SIZE}' KiB)
@@ -80,6 +87,7 @@ endif
 # $(info $$MARCH: '${MARCH}')
 # $(info $$FLASH_PROG_ADDR: '${FLASH_PROG_ADDR}')
 # $(info $$APP_DEFS: '${APP_DEFS}')
+$(info $$DEV_DEFS: '${DEV_DEFS}')
 
 APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 
@@ -90,7 +98,7 @@ LIB_INC_DIR	= lib/include
 LIB_BASE_SRC_DIR = lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
-DEFS = $(APP_DEFS)
+DEFS = $(APP_DEFS) $(DEV_DEFS)
 
 OPTIMIZE = s
 
@@ -139,7 +147,7 @@ LDFLAGS +=-Wl,--defsym=RAM_ORIGIN=$(SRAM_START) -Wl,--defsym=RAM_LENGTH=$(SRAM_S
 LDFLAGS +=-Wl,--defsym=FLASH_ORIGIN=$(FLASH_START) -Wl,--defsym=FLASH_LENGTH=$(FLASH_SIZE)
 LDFLAGS +=-Wl,-Tlib/ld/link.ld
 
-all: $(BUILD)/device_config.h $(BUILD)/device_config.h elf lst sym bin
+all: elf lst sym bin
 
 elf: $(BUILD)/$(APP).elf
 lst: $(BUILD)/$(APP).lst
@@ -174,19 +182,15 @@ size: $(BUILD)/$(APP).elf
 	@echo
 	$(OBJCOPY) -O ihex $< $@
 
-$(COBJ) : $(BUILD)/%.o : %.c $(BUILD)/device_config.h
+$(COBJ) : $(BUILD)/%.o : %.c
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(CFLAGS) -Wp,-MP,-M,-MT,$@,-MF,$(BUILD)/$(*F).d  $< -o $@
 
-$(AOBJ) : $(BUILD)/%.o : %.S $(BUILD)/device_config.h
+$(AOBJ) : $(BUILD)/%.o : %.S
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
-
-$(BUILD)/device_config.h: $(DEVICE_CFG_FILE)
-	@mkdir -p `dirname $@`
-	@python3 $(DEVICE_HEADER_TOOL) $< $(DEVICE) $@
 
 flash: $(BUILD)/$(APP).bin
 	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<
