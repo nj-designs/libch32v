@@ -29,7 +29,7 @@ SECTIONS
   .vector :
   {
       *(.vector);
-	  . = ALIGN(64);
+	  . = ALIGN(4); /* Used to be 64 */
   } >FLASH AT>FLASH
 
 	.text :
