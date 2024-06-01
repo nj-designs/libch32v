@@ -14,6 +14,11 @@
 
 #define NJD_IRQ_ATTRIBUTE __attribute__((interrupt))
 
+#if LIBCH32_SYS_TICK_WIDTH == 32
+typedef uint32_t sys_tick_width_t;
+#else
+typedef uint64_t sys_tick_width_t;
+#endif
 /**
  * @brief System Tick Register Map
  *
@@ -21,8 +26,15 @@
 struct SysTickRegMap {
   volatile uint32_t ctrl;
   volatile uint32_t sr;
-  volatile uint64_t cnt;
-  volatile uint64_t cmp;
+#if LIBCH32_SYS_TICK_WIDTH == 32
+  volatile sys_tick_width_t cnt;
+  volatile uint32_t rsvd_0c;
+  volatile sys_tick_width_t cmp;
+  volatile uint32_t rsvd_14;
+#else
+  volatile sys_tick_width_t cnt;
+  volatile sys_tick_width_t cmp;
+#endif
 };
 
 extern struct SysTickRegMap systick;

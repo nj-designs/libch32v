@@ -29,7 +29,7 @@ void core_delay_us(uint32_t duration) {
 
   systick.sr &= ~(STK_SR_CNTIF);  // Clear compare flag
   systick.ctrl |= STK_CTLR_MODE;  // Downcount
-  systick.cmp = (uint64_t)duration * (uint64_t)_us_tick_count;
+  systick.cmp = (sys_tick_width_t)duration * (sys_tick_width_t)_us_tick_count;
   systick.ctrl |= STK_CTLR_INIT | STK_CTLR_STE;
   while (1) {
     if (systick.sr & STK_SR_CNTIF) {

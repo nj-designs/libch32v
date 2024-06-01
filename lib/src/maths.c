@@ -17,7 +17,7 @@
  * @param b
  * @return unsigned
  */
-unsigned int __udivsi3(unsigned int a, unsigned int b);
+unsigned int __attribute__((noinline)) __udivsi3(unsigned int a, unsigned int b);
 unsigned int __udivsi3(unsigned int a, unsigned int b) {
   unsigned int res = 0;
 
@@ -38,7 +38,7 @@ unsigned int __udivsi3(unsigned int a, unsigned int b) {
  * @param b
  * @return unsigned
  */
-unsigned int __umodsi3(unsigned int a, unsigned int b);
+unsigned int __attribute__((noinline)) __umodsi3(unsigned int a, unsigned int b);
 unsigned int __umodsi3(unsigned int a, unsigned int b) {
   unsigned int r = 0, oa = a;
 
@@ -59,7 +59,7 @@ unsigned int __umodsi3(unsigned int a, unsigned int b) {
  * @param b
  * @return long
  */
-long __muldi3(long a, long b);
+long __attribute__((noinline)) __muldi3(long a, long b);
 long __muldi3(long a, long b) {
   long i;
   long res = 0;
@@ -83,9 +83,9 @@ long __muldi3(long a, long b) {
  * @param b
  * @return int
  */
-int __mulsi3(int a, int b);
-int __mulsi3(int a, int b) {
-  int i, res = 0;
+unsigned int __attribute__((noinline)) __mulsi3(unsigned int a, unsigned int b);
+unsigned int __mulsi3(unsigned int a, unsigned int b) {
+  unsigned int i, res = 0;
 
   if (a > b) {
     for (i = 0; i < b; i++) {

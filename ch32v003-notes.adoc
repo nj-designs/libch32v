@@ -1,3 +1,9 @@
 = CH32V003
 
 C5299908 - CH32V003F4U6
+
+.Clean up compile_commands.json
+[source,bash]
+----
+grep -v "\-Wp" compile_commands.json > temp && mv temp compile_commands.json
+----
