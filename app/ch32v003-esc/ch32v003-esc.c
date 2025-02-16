@@ -12,6 +12,7 @@
 #include "rcc.h"
 #include "core.h"
 #include "gpio.h"
+#include "afio.h"
 
 static const struct RCCCfgValues ctv = {.hse_freq = 16'000'000,
                                         .sysclk_freq = 32'000'000,  // PLL is 2 * hse
@@ -26,19 +27,21 @@ static const struct RCCCfgValues ctv = {.hse_freq = 16'000'000,
 
 static struct GPIOPinSetCache ledCache;
 
-const enum GPIOPinId LED_PIN = PIN_PD7;
+const enum GPIOPinId LED_PIN = PIN_PD2;
 
 static void setup_led(void) {
   // Setup LED
-  rcc_set_peripheral_clk(RCC_IOPA_ID, 1);
+  rcc_set_peripheral_clk(RCC_IOPD_ID, 1);
+
+  afio.pcfr1 = AFIO_PCFR1_TIM1RM_PARTIAL_01;
+
   gpio_pin_init(LED_PIN, PIN_MODE_OUTPUT_PUSH_PULL_50MHZ);
   gpio_pin_cache(LED_PIN, &ledCache);
 }
 
 void main(void) {
-#if LIBCH32_DEVICE_ID == WCH_CH32V003F4
   rcc_cfg_clock_tree_ex(&ctv);
-#endif
+
   setup_led();
 
   while (1) {

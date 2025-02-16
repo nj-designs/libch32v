@@ -181,6 +181,11 @@ SECTIONS
 		KEEP(*(.i2c2))
 	} >PERIPHERALS
 
+  .afio 0x40010000 (NOLOAD):
+	{
+		KEEP(*(.afio))
+	} > PERIPHERALS
+
 	.gpio_a 0x40010800 (NOLOAD):
 	{
 		KEEP(*(.gpio_a))

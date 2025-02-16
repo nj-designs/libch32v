@@ -12,7 +12,7 @@
 #include <stddef.h>
 
 #include "rcc.h"
-
+#include "afio.h"
 RCCRegMap __attribute__((section(".rcc"))) rcc;
 
 // Must match RCCPeripheralBlockIdx
@@ -60,6 +60,10 @@ void rcc_cfg_clock_tree(uint32_t hse_freq, uint32_t sysclk_freq) {
 
 void rcc_cfg_clock_tree_ex(const struct RCCCfgValues* ctv) {
   if (ctv->hse_freq) {
+#if LIBCH32_DEVICE_ID == WCH_CH32V003F4
+    rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
+    afio.pcfr1 |= AFIO_PCFR1_PA12_RM;
+#endif
     rcc.ctlr |= RCC_CTLR_HSEON;
     // Wait HSE Ready
     while (1) {

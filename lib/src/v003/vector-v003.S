@@ -11,7 +11,9 @@
 
     .section    .init,"ax",@progbits
     .global _vector_base
+    .global _start
     .align  1
+_start:
 _vector_base:
     .option norvc;                   // We don't want compressed instructions here (Don't think needed!!)
 	  j	handle_reset
