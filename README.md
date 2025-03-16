@@ -32,13 +32,23 @@ export PATH=${PATH}:${CH32_RISCV}/bin
 
 ```bash
 # Prereqs
+
+## Debian/Ubuntu
+```
 sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev \
 	libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils \
 	bc zlib1g-dev libexpat-dev
+```
+
+## Arch Linux (incomplete?)
+```
+sudo pacman -S autoconf automake curl libudev0-shim libusb
+```
+
 # Get toolchain source
 mkdir ~/github.com
 cd ~/github.com
-git clone https://github.com/riscv/riscv-gnu-toolchain riscv/riscv-gnu-toolchain
+git clone --recursive https://github.com/riscv/riscv-gnu-toolchain riscv/riscv-gnu-toolchain
 cd riscv/riscv-gnu-toolchain
 # Confure build
 ./configure --prefix=${CH32_RISCV} --with-arch=rv32g --with-abi=ilp32
@@ -49,17 +59,47 @@ make -j$(nproc)
 
 Following the instructions [here](https://github.com/ch32-rs/wlink) to install/get wlink. Just make sure it's installed somewhere in your $PATH.
 
+```bash
+
+```
+
 ### OPENOCD
 
 WCH seems to need a modified openocd. I've been unable to find the source code for it, but a "working binary" is provided in the **run** directory.
 
 I found the easiest setup is to install the following packages first.
 
+https://nc-pin.com/index.php/2022/04/25/openocd-for-ch32v-series/
+
+https://github.com/kprasadvnsi/riscv-openocd-wch
+
+https://aur.archlinux.org/packages/riscv-openocd-wch
+
 ```bash
-# Prereqs. for openocd
+## Prereqs. for openocd
+
+## Debian/Ubuntu
 sudo apt install libjaylink-dev libjaylink0 libhidapi-dev libhidapi-hidraw0 libhidapi-libusb0 openocd
-# Remove conflicting package
+### Remove conflicting package
 sudo apt remove brltty
+
+## Arch Linux
+
+### Compile riscv-openocd-wch from scratch
+
+export WCH_RISCV_OPENOCD=${HOME}/opt/wch-riscv-openocd
+
+```bash
+# Get code
+git clone https://github.com/kprasadvnsi/riscv-openocd-wch ${HOME}/github.com/kprasadvnsi/riscv-openocd-wch
+cd ${HOME}/github.com/kprasadvnsi/riscv-openocd-wch
+# Configure
+./bootstrap
+./configure --prefix=${WCH_RISCV_OPENOCD}
+make -j$(nproc)
+
+```
+
 # udev rule for programmer
 sudo cp run/60-libch32v.rules /etc/udev/rules.d/60-libch32v.rules
 # reload rules
@@ -121,6 +161,9 @@ make flash
 
 #### Using openocd
 
+```
+sudo pacman -S libjaylink
+```
 ```
 ➜  libch32v git:(main) ✗ ./run/openocd -f run/wch-riscv.cfg  -c init -c halt  -c "program build/ch32vtst.elf" -c exit
 

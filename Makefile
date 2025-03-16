@@ -7,8 +7,6 @@ CSTD = gnu2x
 
 APP_DIR = app/$(APP)
 
-CFG_INI_FILE = cfg/app_cfg.ini
-
 DEVICE_CFG_FILE = lib/cfg/devices.ini
 
 APP_CFG_FILE = $(APP_DIR)/app.ini
@@ -19,14 +17,12 @@ APP_HEADER_TOOL = scripts/gen_app_header.py
 APP_DEF_TOOL = scripts/gen_app_defines.py
 DEV_DEF_TOOL = scripts/gen_device_defines.py
 
-# Read in required values from $(CFG_INI_FILE)
 FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
 ifeq ($(FAMILY),)
 $(error Can't find value for $(DEVICE).FAMILY)
 endif
 
 
-#  python3 $(DEVICE_CFG_TOOL) lib/cfg/devices.ini ch32v203g6u6 flash2
 FLASH_SIZE=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_size)
 ifeq ($(FLASH_SIZE),)
 $(error Can't find value for $(DEVICE).flash_size)
@@ -196,7 +192,7 @@ flash: $(BUILD)/$(APP).bin
 	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<
 
 clean:
-	@rm -rfv $(BUILD)
+	@rm -rfv $(BUILD) compile_commands.json
 
 .PHONY: all clean size flash
 
