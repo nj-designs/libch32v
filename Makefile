@@ -1,4 +1,4 @@
-APP ?= led-flash
+APP ?= TB6612FNG-demo
 
 DEVICE ?= ch32v203g6u6
 

@@ -166,6 +166,21 @@ SECTIONS
 
 	/* Peripherals ordered by address*/
 
+	.gptm2 0x40000000 (NOLOAD):
+	{
+		KEEP(*(.gptm2))
+	} >PERIPHERALS
+
+	.gptm3 0x40000400 (NOLOAD):
+	{
+		KEEP(*(.gptm3))
+	} >PERIPHERALS
+
+	.gptm4 0x40000800 (NOLOAD):
+	{
+		KEEP(*(.gptm4))
+	} >PERIPHERALS
+
 	.usart2 0x40004400 (NOLOAD):
 	{
 		KEEP(*(.usart2))
@@ -194,31 +209,39 @@ SECTIONS
 	.gpio_b 0x40010C00 (NOLOAD):
 	{
 		KEEP(*(.gpio_b))
-	}
+	} > PERIPHERALS
+
 
 	.gpio_c 0x40011000 (NOLOAD):
 	{
 		KEEP(*(.gpio_c))
-	}
+	} > PERIPHERALS
+
 
 	.gpio_d 0x40011400 (NOLOAD):
 	{
 		KEEP(*(.gpio_d))
-	}
+	} > PERIPHERALS
+
 
 	.adc1 0x40012400 (NOLOAD):
 	{
 		KEEP(*(.adc1))
-	}
+	} > PERIPHERALS
 
 	.adc2 0x40012800 (NOLOAD):
 	{
 		KEEP(*(.adc2))
-	}
+	} > PERIPHERALS
 
 	.spi1 0x40013000 (NOLOAD):
 	{
 		KEEP(*(.spi1))
+	} >PERIPHERALS
+
+	.adtm1 0x40012C00 (NOLOAD):
+	{
+		KEEP(*(.adtm1))
 	} >PERIPHERALS
 
 	.usart1 0x40013800 (NOLOAD):

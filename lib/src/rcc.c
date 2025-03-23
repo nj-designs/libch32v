@@ -12,7 +12,9 @@
 #include <stddef.h>
 
 #include "rcc.h"
+#if LIBCH32_DEVICE_ID == WCH_CH32V003F4
 #include "afio.h"
+#endif
 RCCRegMap __attribute__((section(".rcc"))) rcc;
 
 // Must match RCCPeripheralBlockIdx
@@ -91,14 +93,14 @@ void rcc_cfg_clock_tree_ex(const struct RCCCfgValues* ctv) {
 void rcc_init(void) {
   rcc.ctlr |= RCC_CTLR_HSION;
 
-  rcc.cfgr0 &= (uint32_t) ~(RCC_CFGR0_MCO_MASK | RCC_CFGR0_ADCPRE_MASK | RCC_CFGR0_PPRE2_MASK | RCC_CFGR0_PPRE1_MASK |
-                            RCC_CFGR0_HPRE_MASK | RCC_CFGR0_SWS_MASK | RCC_CFGR0_SW_MASK);
+  rcc.cfgr0 &= (uint32_t)~(RCC_CFGR0_MCO_MASK | RCC_CFGR0_ADCPRE_MASK | RCC_CFGR0_PPRE2_MASK | RCC_CFGR0_PPRE1_MASK |
+                           RCC_CFGR0_HPRE_MASK | RCC_CFGR0_SWS_MASK | RCC_CFGR0_SW_MASK);
 
-  rcc.ctlr &= (uint32_t) ~(RCC_CTLR_PLLON | RCC_CTLR_CSSON | RCC_CTLR_HSEON);
+  rcc.ctlr &= (uint32_t)~(RCC_CTLR_PLLON | RCC_CTLR_CSSON | RCC_CTLR_HSEON);
 
-  rcc.ctlr &= (uint32_t) ~(RCC_CTLR_HSEBYP);
+  rcc.ctlr &= (uint32_t)~(RCC_CTLR_HSEBYP);
 
-  rcc.cfgr0 &= (uint32_t) ~(RCC_CFGR0_USBPRE_MASK | RCC_CFGR0_PLLMUL_MASK | RCC_CFGR0_PLLXTPRE | RCC_CFGR0_PLLSRC);
+  rcc.cfgr0 &= (uint32_t)~(RCC_CFGR0_USBPRE_MASK | RCC_CFGR0_PLLMUL_MASK | RCC_CFGR0_PLLXTPRE | RCC_CFGR0_PLLSRC);
 
   rcc.intr = RCC_INTR_CSSC | RCC_INTR_PLLRDYC | RCC_INTR_HSERDYC | RCC_INTR_HSIRDYC | RCC_INTR_LSERDYC | RCC_INTR_LSIRDYC;
 
@@ -110,7 +112,7 @@ void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on) {
   if (on) {
     *clk_enable_reg |= 1 << (id & 0xFFFF);
   } else {
-    *clk_enable_reg &= (uint32_t) ~(1 << (id & 0xFFFF));
+    *clk_enable_reg &= (uint32_t)~(1 << (id & 0xFFFF));
   }
 }
 
