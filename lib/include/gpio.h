@@ -50,12 +50,12 @@ extern struct GPIORegMap gpio_e;
 #define GPIO_D_IDX 3
 #define GPIO_E_IDX 4
 
+#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
 /**
  * @brief Enumerate all valid port pins.
  *
  * Port idx & pin number are encoded in values
  */
-#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
 enum GPIOPinId {
   PIN_PA0 = CREATE_PIN_NUMBER(GPIO_A_IDX, 0),
   PIN_PA1 = CREATE_PIN_NUMBER(GPIO_A_IDX, 1),
@@ -85,6 +85,11 @@ enum GPIOPinId {
 
 };
 #elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+/**
+ * @brief Enumerate all valid port pins.
+ *
+ * Port idx & pin number are encoded in values
+ */
 enum GPIOPinId {
   PIN_PA1 = CREATE_PIN_NUMBER(GPIO_A_IDX, 1),
   PIN_PA2 = CREATE_PIN_NUMBER(GPIO_A_IDX, 2),

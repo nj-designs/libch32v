@@ -93,3 +93,22 @@ static const uint16_t GPTM_CHCTLR1_OC1FE = (1 << 2);
 // CCER
 //-----
 static const uint16_t GPTM_CCER_CC1E = (1 << 0);
+
+/**
+ * @breif Defines all possible GPTM instances
+ *
+ * Note: Actually availability based on specific chip
+ */
+enum GptmId {
+  GPTM2_ID,
+  GPTM3_ID,
+  GPTM4_ID,
+};
+
+/**
+ * @brief Setup GPTM instance for PWM
+ *
+ * @param gptm_id Which GPTM
+ */
+extern void gptm_config_for_pwm(enum GptmId gptm_id);
+extern void gptm_set_pwm(enum GptmId gptm_id, uint32_t duty_cycle);
