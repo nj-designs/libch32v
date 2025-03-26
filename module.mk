@@ -3,15 +3,15 @@ CSTD = gnu2x
 
 #APP_DIR = app/$(APP)
 
-DEVICE_CFG_FILE = libch32v/lib/cfg/devices.ini
+DEVICE_CFG_FILE = $(LIBCH32V_DIR)/lib/cfg/devices.ini
 
 APP_CFG_FILE = $(APP_DIR)/app.ini
 
-DEVICE_CFG_TOOL = libch32v/scripts/get_device_cfg.py
-DEVICE_HEADER_TOOL = libch32v/scripts/gen_device_header.py
-APP_HEADER_TOOL = libch32v/scripts/gen_app_header.py
-APP_DEF_TOOL = libch32v/scripts/gen_app_defines.py
-DEV_DEF_TOOL = libch32v/scripts/gen_device_defines.py
+DEVICE_CFG_TOOL = $(LIBCH32V_DIR)/scripts/get_device_cfg.py
+DEVICE_HEADER_TOOL = $(LIBCH32V_DIR)/scripts/gen_device_header.py
+APP_HEADER_TOOL = $(LIBCH32V_DIR)/scripts/gen_app_header.py
+APP_DEF_TOOL = $(LIBCH32V_DIR)/scripts/gen_app_defines.py
+DEV_DEF_TOOL = $(LIBCH32V_DIR)/scripts/gen_device_defines.py
 
 FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
 ifeq ($(FAMILY),)
@@ -86,8 +86,8 @@ APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 # All build artifacts go here
 BUILD = build
 
-LIB_INC_DIR	= libch32v/lib/include
-LIB_BASE_SRC_DIR = libch32v/lib/src
+LIB_INC_DIR	= $(LIBCH32V_DIR)/lib/include
+LIB_BASE_SRC_DIR = $(LIBCH32V_DIR)/lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
 DEFS = $(APP_DEFS) $(DEV_DEFS)
@@ -137,7 +137,7 @@ LDFLAGS += -Wl,-Map,$(BUILD)/$(APP_NAME).map -nostdlib -nodefaultlibs -nolibc -n
 LDFLAGS +=-Wl,--no-relax -Wl,--gc-sections
 LDFLAGS +=-Wl,--defsym=RAM_ORIGIN=$(SRAM_START) -Wl,--defsym=RAM_LENGTH=$(SRAM_SIZE)
 LDFLAGS +=-Wl,--defsym=FLASH_ORIGIN=$(FLASH_START) -Wl,--defsym=FLASH_LENGTH=$(FLASH_SIZE)
-LDFLAGS +=-Wl,-Tlibch32v/lib/ld/link.ld
+LDFLAGS +=-Wl,-T$(LIBCH32V_DIR)/lib/ld/link.ld
 
 all: elf lst sym bin
 
