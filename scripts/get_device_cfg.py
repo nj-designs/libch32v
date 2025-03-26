@@ -15,7 +15,7 @@ def get_device_cfg(cfg_file: str, device_name: str, key: str):
             sdn = device_name[0:i]
             val = all_device_cfg[sdn][key]
             if len(val):
-                print(val)
+                print(val,end="")
                 return
         except KeyError:
             pass
