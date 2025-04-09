@@ -79,6 +79,7 @@ static const uint32_t RCC_CFGR0_PPRE2_MASK = (0b111 << 11);
 static const uint32_t RCC_CFGR0_PPRE2_DIV_1 = (0b000 << 11);
 // PPRE1[10:8]
 static const uint32_t RCC_CFGR0_PPRE1_MASK = (0b111 << 8);
+static const uint32_t RCC_CFGR0_PPRE1_DIV_1 = (0b000 << 8);
 static const uint32_t RCC_CFGR0_PPRE1_DIV_2 = (0b100 << 8);
 static const uint32_t RCC_CFGR0_PPRE1_DIV_4 = (0b101 << 8);
 // HPRE[7:4]
@@ -239,3 +240,9 @@ void rcc_reset_peripherial(RCCPeripheralId id);
  * @param rcc
  */
 void rcc_cfg_clock_tree_ex(const struct RCCCfgValues* ctv);
+
+enum RCCClockId {
+  RCC_CLOCK_ID_TIM2,
+};
+
+uint32_t rcc_get_clk_freq(enum RCCClockId clock_id);

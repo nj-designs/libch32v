@@ -122,3 +122,19 @@ void rcc_reset_peripherial(RCCPeripheralId id) {
   volatile uint32_t* clk_enable_reg = peripheral_reset_reg_look_up[(uint32_t)id >> 16];
   *clk_enable_reg = (id & 0xFFFF);
 }
+
+uint32_t rcc_get_clk_freq(enum RCCClockId clock_id) {
+  uint32_t clock_freq = 0;
+
+  switch (clock_id) {
+    case RCC_CLOCK_ID_TIM2: {
+      clock_freq = current_cfg->pclk1_freq;
+      if ((current_cfg->cfgr0 & RCC_CFGR0_PPRE1_MASK) != RCC_CFGR0_PPRE1_DIV_1) {
+        clock_freq *= 2;
+      }
+      break;
+    }
+  }
+
+  return clock_freq;
+}

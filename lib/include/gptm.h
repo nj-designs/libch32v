@@ -99,10 +99,17 @@ static const uint16_t GPTM_CCER_CC1E = (1 << 0);
  *
  * Note: Actually availability based on specific chip
  */
-enum GptmId {
+enum GptmId : uint8_t {
   GPTM2_ID,
   GPTM3_ID,
   GPTM4_ID,
+};
+
+enum GptmChanNum : uint8_t {
+  GPTM_CHAN_1,
+  GPTM_CHAN_2,
+  GPTM_CHAN_3,
+  GPTM_CHAN_4,
 };
 
 /**
@@ -110,5 +117,5 @@ enum GptmId {
  *
  * @param gptm_id Which GPTM
  */
-extern void gptm_config_for_pwm(enum GptmId gptm_id);
-extern void gptm_set_pwm(enum GptmId gptm_id, uint32_t duty_cycle);
+
+extern void gptm_config_for_pwm(enum GptmId gptm_id, enum GptmChanNum chan_id, uint32_t pwm_freq);
