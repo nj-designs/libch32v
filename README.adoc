@@ -1,0 +1,282 @@
+= LIBCV32V
+
+== OVERVIEW
+
+A simple Makefile based library for WCH's range of CH32Vxxx link:http://www.wch-ic.com/products/categories/47.html?pid=5[RISC-V uControllers].
+
+There's not too much original work here, most of it has been collated from various file dumps etc. from WCH's own site and other pages.
+
+
+== TOOLS SETUP
+
+NOTE: The following assumes you are using some version of linux. It should work on mac with suitable adjustments. Not tried on windows. PRs for different platforms are welcomed.
+
+=== GCC COMPILER
+
+I've yet to find a known good binary build of the *riscv32-unknow-** toolchain, the following shows how to build from source.
+
+Add the following to your _.bashrc_ or equivalent (don't forget to reload your shell).
+
+```bash
+export CH32_RISCV=${HOME}/opt/ch32-riscv
+export PATH=${PATH}:${CH32_RISCV}/bin
+```
+
+==== GCC build prerequisites
+.Debian/Ubuntu
+[source,bash]
+----
+sudo apt-get install autoconf automake autotools-dev curl python3 python3-pip python3-tomli libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat-dev ninja-build git cmake libglib2.0-dev libslirp-dev bear
+----
+
+.Arch Linux (incomplete?)
+[source,bash]
+----
+sudo pacman -Syu curl python3 libmpc mpfr gmp base-devel texinfo gperf patchutils bc zlib expat libslirp bear
+----
+
+.Fedora/Rocky/RHEL
+[source,bash]
+----
+sudo yum install autoconf automake python3 libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel libslirp-devel bear
+----
+
+<<<
+==== Obtain and build gcc
+
+[source,bash]
+----
+# Clone master branch
+git clone --branch master https://github.com/riscv/riscv-gnu-toolchain ~/github.com/riscv/riscv-gnu-toolchain
+cd ~/github.com/riscv/riscv-gnu-toolchain
+# Configure build, the --with-* options seem to be correct for the WCH CH32V range of uControllers
+./configure --prefix=${CH32_RISCV} --with-arch=rv32g --with-abi=ilp32
+# Build and install
+make -j$(nproc)
+# Test
+riscv32-unknown-elf-gcc --version
+# Output should be something like this
+riscv32-unknown-elf-gcc () 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+----
+
+=== WLINK
+
+I use the excellent link:https://github.com/ch32-rs/wlink[wlink] to flash the uController.
+
+At the time of writing, *wlink v0.1.1* was the latest released version. I suggest checking the link:https://github.com/ch32-rs/wlink/releases[release page] to see if that's changed.
+
+.Installtion of wlink v0.1.1
+[source,bash]
+----
+# Get and unpack required version
+cd /tmp
+wget https://github.com/ch32-rs/wlink/releases/download/v0.1.1/wlink-v0.1.1-linux-x64.tar.gz
+# Copy wlink binary to somewhere in your $PATH (I use ${HOME}/.local/bin)
+mkdir -p ${HOME}/.local/bin
+cp wlink-linux-x64/wlink ${HOME}/.local/bin
+# Test
+wlink list
+# You should get something like the following (assuming you have a WCH-Link adapter connected)
+<WCH-Link#0 libusb device> Bus 001 Device 004 ID 1a86:8010(USB-FS 12 Mbps) (RV mode)
+----
+
+
+=== OPENOCD
+
+CAUTION: The openocd instructions are a work in progress...
+
+WCH seems to need a modified openocd. I've been unable to find the source code for it, but a "working binary" is provided in the **run** directory.
+
+I found the easiest setup is to install the following packages first.
+
+https://nc-pin.com/index.php/2022/04/25/openocd-for-ch32v-series/
+
+https://github.com/kprasadvnsi/riscv-openocd-wch
+
+https://aur.archlinux.org/packages/riscv-openocd-wch
+
+[source,bash]
+----
+## Prereqs. for openocd
+
+## Debian/Ubuntu
+sudo apt install libjaylink-dev libjaylink0 libhidapi-dev libhidapi-hidraw0 libhidapi-libusb0 openocd
+### Remove conflicting package
+sudo apt remove brltty
+
+## Arch Linux
+
+### Compile riscv-openocd-wch from scratch
+
+export WCH_RISCV_OPENOCD=${HOME}/opt/wch-riscv-openocd
+----
+
+[source,bash]
+----
+# Get code
+git clone https://github.com/kprasadvnsi/riscv-openocd-wch ${HOME}/github.com/kprasadvnsi/riscv-openocd-wch
+cd ${HOME}/github.com/kprasadvnsi/riscv-openocd-wch
+# Configure
+./bootstrap
+./configure --prefix=${WCH_RISCV_OPENOCD}
+make -j$(nproc)
+
+# udev rule for programmer
+sudo cp run/60-libch32v.rules /etc/udev/rules.d/60-libch32v.rules
+# reload rules
+sudo udevadm control  --reload-rules
+----
+
+== BASIC WORKFLOW
+
+Once all of the tools above are install/configured, you can build and test a version of **blinky** as follows.
+
+
+=== BUILD
+
+To build, simply run **make** in the root of this repo.
+
+If all goes well, the last few lines of output should look something like this:
+[source,bash]
+----
+Linking...
+riscv32-unknown-elf-gcc -std=gnu11 -march=rv32ec -mabi=ilp32e -ffreestanding -fno-pic -Os -Werror -g -Ilibch32v/include/libch32v -DPRINTF_INCLUDE_CONFIG_H -Wp,-M,-MP,-MT,build/ch32vtst.o,-MF,build/ch32vtst.d -ffunction-sections -fdata-sections build/libch32v/lib/src/startup.o build/libch32v/lib/src/vector_ch32v003.o build/app/main.o build/libch32v/lib/src/ch32v00x_adc.o build/libch32v/lib/src/ch32v00x_dbgmcu.o build/libch32v/lib/src/ch32v00x_dma.o build/libch32v/lib/src/ch32v00x_exti.o build/libch32v/lib/src/ch32v00x_flash.o build/libch32v/lib/src/ch32v00x_gpio.o build/libch32v/lib/src/ch32v00x_i2c.o build/libch32v/lib/src/ch32v00x_it.o build/libch32v/lib/src/ch32v00x_iwdg.o build/libch32v/lib/src/ch32v00x_misc.o build/libch32v/lib/src/ch32v00x_opa.o build/libch32v/lib/src/ch32v00x_pwr.o build/libch32v/lib/src/ch32v00x_rcc.o build/libch32v/lib/src/ch32v00x_spi.o build/libch32v/lib/src/ch32v00x_tim.o build/libch32v/lib/src/ch32v00x_usart.o build/libch32v/lib/src/ch32v00x_wwdg.o build/libch32v/lib/src/debug.o build/libch32v/lib/src/system_ch32v00x.o -Wl,-Map,build/ch32vtst.map -nostdlib -Wl,--no-relax -Wl,--gc-sections -Wl,-Tlibch32v/linker/ch32v003.ld --output build/ch32vtst.elf
+riscv32-unknown-elf-size -A -x build/ch32vtst.elf
+build/ch32vtst.elf  :
+section                       size         addr
+.vector                       0xa0          0x0
+.text                        0x410         0xa0
+.data                          0x4   0x20000000
+.sbss.NVIC_Priority_Group      0x4   0x20000004
+.sbss.p_ms                     0x2   0x20000008
+.sbss.p_us                     0x1   0x2000000a
+.stack                       0x200   0x20000600
+.riscv.attributes             0x25          0x0
+.comment                       0xf          0x0
+.debug_line                 0x2796          0x0
+.debug_info                 0x2168          0x0
+.debug_abbrev                0xb57          0x0
+.debug_aranges               0x2b8          0x0
+.debug_str                   0xd88          0x0
+.debug_ranges                 0x20          0x0
+.debug_rnglists              0x2b1          0x0
+.debug_line_str              0x1d1          0x0
+.debug_frame                 0x4d4          0x0
+.debug_loclists              0xd8d          0x0
+Total                       0x8287
+
+
+
+riscv32-unknown-elf-objdump -h -S -C build/ch32vtst.elf > build/ch32vtst.lst
+
+riscv32-unknown-elf-nm -n build/ch32vtst.elf > build/ch32vtst.sym
+----
+
+=== PROGRAM
+
+To program what's just been built, choose one of the following methods:
+
+[source,bash]
+----
+make flash
+----
+
+
+=== DEBUG
+
+If you want to debug your program, first program the device as above.
+
+Run the following
+[source,bash]
+----
+➜  libch32v git:(main) ✗ ./run/openocd -f run/wch-riscv.cfg -c init -c halt -c wlink_reset_resume
+Open On-Chip Debugger 0.11.0+dev-02215-gcc0ecfb6d-dirty (2022-10-10-10:35)
+Licensed under GNU GPL v2
+For bug reports, read
+        http://openocd.org/doc/doxygen/bugs.html
+Info : only one transport option; autoselect 'jtag'
+Ready for Remote Connections
+Info : WCH-LinkE-CH32V307  mod:RV version 2.7
+Info : wlink_init ok
+Info : This adapter doesn't support configurable speed
+Info : JTAG tap: riscv.cpu tap/device found: 0x00000001 (mfg: 0x000 (<invalid>), part: 0x0000, ver: 0x0)
+Warn : Bypassing JTAG setup events due to errors
+Info : [riscv.cpu.0] datacount=2 progbufsize=8
+Info : Examined RISC-V core; found 1 harts
+Info :  hart 0: XLEN=32, misa=0x40800014
+[riscv.cpu.0] Target successfully examined.
+Info : starting gdb server for riscv.cpu.0 on 3333
+Info : Listening on port 3333 for gdb connections
+Info : Listening on port 6666 for tcl connections
+Info : Listening on port 4444 for telnet connections
+Info : Hart 0 unexpectedly reset!
+----
+
+In another terminal, you can connect a gdb session as follows:
+[source,bash]
+----
+➜  libch32v git:(main) ✗ riscv32-unknown-elf-gdb --command run/gdb-init build/ch32vtst.elf
+GNU gdb (GDB) 12.1
+Copyright (C) 2022 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "--host=x86_64-pc-linux-gnu --target=riscv32-unknown-elf".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<https://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from build/ch32vtst.elf...
+_vector_table () at libch32v/lib/src/vector_ch32v003.S:6
+6         j reset_handler                   // No.  0 : Reset Handler
+(gdb) b main
+Breakpoint 1 at 0x192: file app/main.c, line 47.
+Note: automatically using hardware breakpoints for read-only addresses.
+(gdb) c
+Continuing.
+
+Breakpoint 1, main () at app/main.c:47
+47        NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+(gdb) info reg
+ra             0x11e    0x11e <init_data_done+36>
+sp             0x20000800       0x20000800
+gp             0x20000000       0x20000000 <SystemCoreClock>
+tp             0x9848402        0x9848402
+t0             0x80     128
+t1             0x2dc6c00        48000000
+t2             0x80000  524288
+fp             0xe000f000       0xe000f000
+s1             0x4d269250       1294373456
+a0             0x20000004       536870916
+a1             0x20000004       536870916
+a2             0x20000  131072
+a3             0x40021000       1073876992
+a4             0x8      8
+a5             0x8      8
+a6             0x0      0
+a7             0x0      0
+s2             0x0      0
+s3             0x0      0
+s4             0x0      0
+s5             0x0      0
+s6             0x0      0
+s7             0x0      0
+s8             0x0      0
+s9             0x0      0
+s10            0x0      0
+s11            0x0      0
+t3             0x0      0
+t4             0x0      0
+t5             0x0      0
+t6             0x0      0
+pc             0x192    0x192 <main>
+(gdb)
+----
