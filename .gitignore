@@ -3,3 +3,4 @@ build/
 _venv/
 compile_commands.json
 .cache/
+README.pdf

@@ -23,6 +23,7 @@ struct GPTMRegMap __attribute__((section(".gptm3"))) gptm3;
 struct GPTMRegMap __attribute__((section(".gptm4"))) gptm4;
 #endif
 
+#if 0
 #if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
 static struct GPTMRegMap* const reg_lookup[] = {
     &gptm2,  // GPTM2_ID
@@ -63,3 +64,4 @@ void gptm_cfg_pwm(enum GptmId gptm_id, enum GptmChanNum chan_id, uint32_t pwm_fr
     (void)v;
   }
 }
+#endif

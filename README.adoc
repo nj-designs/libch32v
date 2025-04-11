@@ -1,4 +1,4 @@
-= LIBCV32V
+= LIBCH32V
 
 == OVERVIEW
 
@@ -38,7 +38,7 @@ sudo pacman -Syu curl python3 libmpc mpfr gmp base-devel texinfo gperf patchutil
 .Fedora/Rocky/RHEL
 [source,bash]
 ----
-sudo yum install autoconf automake python3 libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel libslirp-devel bear
+sudo yum install autoconf automake python3 libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel libslirp-devel bear libgudev-devel libusb-devel
 ----
 
 <<<
@@ -66,6 +66,32 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 I use the excellent link:https://github.com/ch32-rs/wlink[wlink] to flash the uController.
 
+==== WLINK prerequisites
+
+To get wlink to work as a normal user, you'll need to install the udev rule as shown below.
+
+This rule applies *plugdev* group ownership to the WCH-Link device file that gets created when it's plugged in.
+
+You'll need to make sure that this group exists on your system and your user is a member.
+
+.Example
+[source,bash]
+----
+sudo groupadd --system --users `whoami` plugdev
+----
+
+
+.WCH-Link udev rules
+[source,bash]
+----
+# udev rule for programmer
+sudo cp run/60-libch32v.rules /etc/udev/rules.d/60-libch32v.rules
+# reload rules
+sudo udevadm control  --reload-rules
+----
+
+==== WLINK install
+
 At the time of writing, *wlink v0.1.1* was the latest released version. I suggest checking the link:https://github.com/ch32-rs/wlink/releases[release page] to see if that's changed.
 
 .Installtion of wlink v0.1.1
@@ -74,6 +100,7 @@ At the time of writing, *wlink v0.1.1* was the latest released version. I sugges
 # Get and unpack required version
 cd /tmp
 wget https://github.com/ch32-rs/wlink/releases/download/v0.1.1/wlink-v0.1.1-linux-x64.tar.gz
+tar -xf wlink-v0.1.1-linux-x64.tar.gz
 # Copy wlink binary to somewhere in your $PATH (I use ${HOME}/.local/bin)
 mkdir -p ${HOME}/.local/bin
 cp wlink-linux-x64/wlink ${HOME}/.local/bin
