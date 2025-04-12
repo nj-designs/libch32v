@@ -17,10 +17,12 @@ I've yet to find a known good binary build of the *riscv32-unknow-** toolchain, 
 
 Add the following to your _.bashrc_ or equivalent (don't forget to reload your shell).
 
-```bash
+[source,bash]
+----
 export CH32_RISCV=${HOME}/opt/ch32-riscv
-export PATH=${PATH}:${CH32_RISCV}/bin
-```
+export RISCV_OPENOCD_WCH=${HOME}/opt/riscv-openocd-wch
+export PATH=${PATH}:${CH32_RISCV}/bin:${RISCV_OPENOCD_WCH}/bin
+----
 
 ==== GCC build prerequisites
 .Debian/Ubuntu
@@ -38,7 +40,7 @@ sudo pacman -Syu curl python3 libmpc mpfr gmp base-devel texinfo gperf patchutil
 .Fedora/Rocky/RHEL
 [source,bash]
 ----
-sudo yum install autoconf automake python3 libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel libslirp-devel bear libgudev-devel libusb-devel
+sudo yum install autoconf automake python3 libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel libslirp-devel bear libgudev-devel libusb-devel hidapi hidapi-devel
 ----
 
 <<<
@@ -113,49 +115,19 @@ wlink list
 
 === OPENOCD
 
-CAUTION: The openocd instructions are a work in progress...
+I've forked link:https://github.com/Seneral/riscv-openocd-wch to provide a somewhat stable openocd build.
 
-WCH seems to need a modified openocd. I've been unable to find the source code for it, but a "working binary" is provided in the **run** directory.
-
-I found the easiest setup is to install the following packages first.
-
-https://nc-pin.com/index.php/2022/04/25/openocd-for-ch32v-series/
-
-https://github.com/kprasadvnsi/riscv-openocd-wch
-
-https://aur.archlinux.org/packages/riscv-openocd-wch
-
+==== Obtain and build
 [source,bash]
 ----
-## Prereqs. for openocd
-
-## Debian/Ubuntu
-sudo apt install libjaylink-dev libjaylink0 libhidapi-dev libhidapi-hidraw0 libhidapi-libusb0 openocd
-### Remove conflicting package
-sudo apt remove brltty
-
-## Arch Linux
-
-### Compile riscv-openocd-wch from scratch
-
-export WCH_RISCV_OPENOCD=${HOME}/opt/wch-riscv-openocd
-----
-
-[source,bash]
-----
-# Get code
-git clone https://github.com/kprasadvnsi/riscv-openocd-wch ${HOME}/github.com/kprasadvnsi/riscv-openocd-wch
-cd ${HOME}/github.com/kprasadvnsi/riscv-openocd-wch
-# Configure
+git clone https://github.com/nj-designs/riscv-openocd-wch.git ${HOME}/github.com/nj-designs/riscv-openocd-wch
+cd ${HOME}/github.com/nj-designs/riscv-openocd-wch
 ./bootstrap
-./configure --prefix=${WCH_RISCV_OPENOCD}
+./configure --prefix=${RISCV_OPENOCD_WCH} --program-prefix=wlink- --enable-wlink --disable-werror
 make -j$(nproc)
-
-# udev rule for programmer
-sudo cp run/60-libch32v.rules /etc/udev/rules.d/60-libch32v.rules
-# reload rules
-sudo udevadm control  --reload-rules
+make install
 ----
+
 
 == BASIC WORKFLOW
 
@@ -213,6 +185,17 @@ make flash
 
 
 === DEBUG
+
+----
+wlink-openocd -f run/wch-riscv.cfg -c init -c halt -c wlink_reset_resume
+----
+
+
+----
+riscv32-unknown-elf-gdb --command run/gdb-init build/led-flash.elf
+----
+
+
 
 If you want to debug your program, first program the device as above.
 
@@ -307,3 +290,10 @@ t6             0x0      0
 pc             0x192    0x192 <main>
 (gdb)
 ----
+
+
+== OPENOCD
+
+https://github.com/kprasadvnsi/riscv-openocd-wch
+
+https://github.com/cnlohr/ch32fun
