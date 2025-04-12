@@ -43,7 +43,6 @@ sudo pacman -Syu curl python3 libmpc mpfr gmp base-devel texinfo gperf patchutil
 sudo yum install autoconf automake python3 libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel expat-devel libslirp-devel bear libgudev-devel libusb-devel hidapi hidapi-devel
 ----
 
-<<<
 ==== Obtain and build gcc
 
 [source,bash]
@@ -81,7 +80,6 @@ You'll need to make sure that this group exists on your system and your user is 
 ----
 sudo groupadd --system --users `whoami` plugdev
 ----
-
 
 .WCH-Link udev rules
 [source,bash]
@@ -128,11 +126,11 @@ make -j$(nproc)
 make install
 ----
 
+As an alternative, I've included a a build of *openocd* in the run dir.
 
 == BASIC WORKFLOW
 
 Once all of the tools above are install/configured, you can build and test a version of **blinky** as follows.
-
 
 === BUILD
 
@@ -142,158 +140,83 @@ If all goes well, the last few lines of output should look something like this:
 [source,bash]
 ----
 Linking...
-riscv32-unknown-elf-gcc -std=gnu11 -march=rv32ec -mabi=ilp32e -ffreestanding -fno-pic -Os -Werror -g -Ilibch32v/include/libch32v -DPRINTF_INCLUDE_CONFIG_H -Wp,-M,-MP,-MT,build/ch32vtst.o,-MF,build/ch32vtst.d -ffunction-sections -fdata-sections build/libch32v/lib/src/startup.o build/libch32v/lib/src/vector_ch32v003.o build/app/main.o build/libch32v/lib/src/ch32v00x_adc.o build/libch32v/lib/src/ch32v00x_dbgmcu.o build/libch32v/lib/src/ch32v00x_dma.o build/libch32v/lib/src/ch32v00x_exti.o build/libch32v/lib/src/ch32v00x_flash.o build/libch32v/lib/src/ch32v00x_gpio.o build/libch32v/lib/src/ch32v00x_i2c.o build/libch32v/lib/src/ch32v00x_it.o build/libch32v/lib/src/ch32v00x_iwdg.o build/libch32v/lib/src/ch32v00x_misc.o build/libch32v/lib/src/ch32v00x_opa.o build/libch32v/lib/src/ch32v00x_pwr.o build/libch32v/lib/src/ch32v00x_rcc.o build/libch32v/lib/src/ch32v00x_spi.o build/libch32v/lib/src/ch32v00x_tim.o build/libch32v/lib/src/ch32v00x_usart.o build/libch32v/lib/src/ch32v00x_wwdg.o build/libch32v/lib/src/debug.o build/libch32v/lib/src/system_ch32v00x.o -Wl,-Map,build/ch32vtst.map -nostdlib -Wl,--no-relax -Wl,--gc-sections -Wl,-Tlibch32v/linker/ch32v003.ld --output build/ch32vtst.elf
-riscv32-unknown-elf-size -A -x build/ch32vtst.elf
-build/ch32vtst.elf  :
-section                       size         addr
-.vector                       0xa0          0x0
-.text                        0x410         0xa0
-.data                          0x4   0x20000000
-.sbss.NVIC_Priority_Group      0x4   0x20000004
-.sbss.p_ms                     0x2   0x20000008
-.sbss.p_us                     0x1   0x2000000a
-.stack                       0x200   0x20000600
-.riscv.attributes             0x25          0x0
-.comment                       0xf          0x0
-.debug_line                 0x2796          0x0
-.debug_info                 0x2168          0x0
-.debug_abbrev                0xb57          0x0
-.debug_aranges               0x2b8          0x0
-.debug_str                   0xd88          0x0
-.debug_ranges                 0x20          0x0
-.debug_rnglists              0x2b1          0x0
-.debug_line_str              0x1d1          0x0
-.debug_frame                 0x4d4          0x0
-.debug_loclists              0xd8d          0x0
-Total                       0x8287
+riscv32-unknown-elf-gcc -std=gnu2x -march=rv32imac_zicsr -mabi=ilp32e -ffreestanding -fno-pic -Os -Werror -g -Wall -Wextra -Ilib/include -Ibuild -DAPP_STDOUT_BUFFER_SIZE=1024 -DAPP_PROVIDE_PRINTF=1 -DAPP_PRINTF_DISABLE_SUPPORT_FLOAT -DAPP_PRINTF_DISABLE_SUPPORT_EXPONENTIAL -DAPP_PRINTF_DISABLE_SUPPORT_LONG_LONG -DAPP_HSE_FREQ=16000000 -DAPP_SYSCLK_FREQ=48000000 -DWCH_CH32V203G6U6=0x96ef63e9 -DLIBCH32_DEVICE_ID=WCH_CH32V203G6U6 -DLIBCH32_DEVICE_NAME="CH32V203G6U6" -DLIBCH32_FAMILY="v203" -DLIBCH32_FLASH_PROG_ADDR=0x08000000 -DLIBCH32_FLASH_SIZE=32768 -DLIBCH32_FLASH_START=0x00000000 -DLIBCH32_HAS_ADC1=1 -DLIBCH32_HAS_ADC2=1 -DLIBCH32_HAS_ADTM1=1 -DLIBCH32_HAS_GPIOA=1 -DLIBCH32_HAS_GPIOB=1 -DLIBCH32_HAS_GPIOD=1 -DLIBCH32_HAS_GPTM2=1 -DLIBCH32_HAS_GPTM3=1 -DLIBCH32_HAS_GPTM4=1 -DLIBCH32_HAS_I2C1=1 -DLIBCH32_HAS_SPI1=1 -DLIBCH32_HAS_USART1=1 -DLIBCH32_HAS_USART2=1 -DLIBCH32_LD_SCRIPT="ch32v.ld" -DLIBCH32_MABI="ilp32e" -DLIBCH32_MARCH="rv32imac_zicsr" -DLIBCH32_SRAM_SIZE=10240 -DLIBCH32_SRAM_START=0x20000000 -DLIBCH32_SYS_TICK_WIDTH=64 -ffunction-sections -fdata-sections build/lib/src/reset.o build/lib/src/v203/vector-v203.o build/app/led-flash/led-flash.o build/lib/src/adc.o build/lib/src/adtm.o build/lib/src/afio.o build/lib/src/core.o build/lib/src/dma.o build/lib/src/gpio.o build/lib/src/gptm.o build/lib/src/i2c.o build/lib/src/init.o build/lib/src/list_mgr.o build/lib/src/printf.o build/lib/src/rcc.o build/lib/src/spi.o build/lib/src/stdout-buffered.o build/lib/src/usart.o -Wl,-Map,build/led-flash.map -nostdlib -nodefaultlibs -nolibc -nostartfiles -Wl,--no-relax -Wl,--gc-sections -Wl,--defsym=RAM_ORIGIN=0x20000000 -Wl,--defsym=RAM_LENGTH=10240 -Wl,--defsym=FLASH_ORIGIN=0x00000000 -Wl,--defsym=FLASH_LENGTH=32768 -Wl,-Tlib/ld/link.ld --output build/led-flash.elf
+riscv32-unknown-elf-size -A -x build/led-flash.elf
+build/led-flash.elf  :
+section                size         addr
+.init                   0x4          0x0
+.vector                0xfc          0x4
+.text                 0x69c        0x100
+.fini                   0x0        0x79c
+.dalign                 0x0   0x20000000
+.dlalign                0x0        0x79c
+.data                   0x8   0x20000000
+.bss                   0x30   0x20000008
+.stack                0x800   0x20002000
+.gptm2                 0x50   0x40000000
+.gptm3                 0x50   0x40000400
+.gptm4                 0x50   0x40000800
+.usart2                0x1c   0x40004400
+.i2c1                  0x22   0x40005400
+.afio                   0xc   0x40010000
+.gpio_a                0x1c   0x40010800
+.gpio_b                0x1c   0x40010c00
+.gpio_d                0x1c   0x40011400
+.adc1                  0x50   0x40012400
+.adc2                  0x50   0x40012800
+.spi1                  0x22   0x40013000
+.adtm1                 0x50   0x40012c00
+.usart1                0x1c   0x40013800
+.dma1                  0xa8   0x40020000
+.rcc                   0x30   0x40021000
+.pfic                 0xd14   0xe000e000
+.systick               0x18   0xe000f000
+.riscv.attributes      0x54          0x0
+.comment                0xf          0x0
+.debug_line          0x2835          0x0
+.debug_info          0x66b5          0x0
+.debug_abbrev        0x1885          0x0
+.debug_aranges        0x2f8          0x0
+.debug_str           0x3660          0x0
+.debug_ranges          0x20          0x0
+.debug_loclists       0xa69          0x0
+.debug_rnglists       0x239          0x0
+.debug_line_str       0x1f9          0x0
+.debug_frame          0x4b0          0x0
+Total               0x11529
 
 
 
-riscv32-unknown-elf-objdump -h -S -C build/ch32vtst.elf > build/ch32vtst.lst
+riscv32-unknown-elf-objdump -h -S -C build/led-flash.elf > build/led-flash.lst
 
-riscv32-unknown-elf-nm -n build/ch32vtst.elf > build/ch32vtst.sym
+riscv32-unknown-elf-nm -n build/led-flash.elf > build/led-flash.sym
+
+riscv32-unknown-elf-objcopy -O binary build/led-flash.elf build/led-flash.bin
 ----
 
 === PROGRAM
 
-To program what's just been built, choose one of the following methods:
+To program what's just been built.
 
 [source,bash]
 ----
 make flash
 ----
 
-
 === DEBUG
 
+If you want to debug your program, first flash your code to the device using *make flash*.
+
+.Start the openocd
+[source,bash]
 ----
 wlink-openocd -f run/wch-riscv.cfg -c init -c halt -c wlink_reset_resume
+# or
+./run/openocd -f run/wch-riscv.cfg -c init -c halt -c wlink_reset_resume
 ----
 
-
-----
-riscv32-unknown-elf-gdb --command run/gdb-init build/led-flash.elf
-----
-
-
-
-If you want to debug your program, first program the device as above.
-
-Run the following
+.Start and connect GDB
 [source,bash]
 ----
-➜  libch32v git:(main) ✗ ./run/openocd -f run/wch-riscv.cfg -c init -c halt -c wlink_reset_resume
-Open On-Chip Debugger 0.11.0+dev-02215-gcc0ecfb6d-dirty (2022-10-10-10:35)
-Licensed under GNU GPL v2
-For bug reports, read
-        http://openocd.org/doc/doxygen/bugs.html
-Info : only one transport option; autoselect 'jtag'
-Ready for Remote Connections
-Info : WCH-LinkE-CH32V307  mod:RV version 2.7
-Info : wlink_init ok
-Info : This adapter doesn't support configurable speed
-Info : JTAG tap: riscv.cpu tap/device found: 0x00000001 (mfg: 0x000 (<invalid>), part: 0x0000, ver: 0x0)
-Warn : Bypassing JTAG setup events due to errors
-Info : [riscv.cpu.0] datacount=2 progbufsize=8
-Info : Examined RISC-V core; found 1 harts
-Info :  hart 0: XLEN=32, misa=0x40800014
-[riscv.cpu.0] Target successfully examined.
-Info : starting gdb server for riscv.cpu.0 on 3333
-Info : Listening on port 3333 for gdb connections
-Info : Listening on port 6666 for tcl connections
-Info : Listening on port 4444 for telnet connections
-Info : Hart 0 unexpectedly reset!
+make start-gdb
 ----
-
-In another terminal, you can connect a gdb session as follows:
-[source,bash]
-----
-➜  libch32v git:(main) ✗ riscv32-unknown-elf-gdb --command run/gdb-init build/ch32vtst.elf
-GNU gdb (GDB) 12.1
-Copyright (C) 2022 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
-Type "show copying" and "show warranty" for details.
-This GDB was configured as "--host=x86_64-pc-linux-gnu --target=riscv32-unknown-elf".
-Type "show configuration" for configuration details.
-For bug reporting instructions, please see:
-<https://www.gnu.org/software/gdb/bugs/>.
-Find the GDB manual and other documentation resources online at:
-    <http://www.gnu.org/software/gdb/documentation/>.
-
-For help, type "help".
-Type "apropos word" to search for commands related to "word"...
-Reading symbols from build/ch32vtst.elf...
-_vector_table () at libch32v/lib/src/vector_ch32v003.S:6
-6         j reset_handler                   // No.  0 : Reset Handler
-(gdb) b main
-Breakpoint 1 at 0x192: file app/main.c, line 47.
-Note: automatically using hardware breakpoints for read-only addresses.
-(gdb) c
-Continuing.
-
-Breakpoint 1, main () at app/main.c:47
-47        NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-(gdb) info reg
-ra             0x11e    0x11e <init_data_done+36>
-sp             0x20000800       0x20000800
-gp             0x20000000       0x20000000 <SystemCoreClock>
-tp             0x9848402        0x9848402
-t0             0x80     128
-t1             0x2dc6c00        48000000
-t2             0x80000  524288
-fp             0xe000f000       0xe000f000
-s1             0x4d269250       1294373456
-a0             0x20000004       536870916
-a1             0x20000004       536870916
-a2             0x20000  131072
-a3             0x40021000       1073876992
-a4             0x8      8
-a5             0x8      8
-a6             0x0      0
-a7             0x0      0
-s2             0x0      0
-s3             0x0      0
-s4             0x0      0
-s5             0x0      0
-s6             0x0      0
-s7             0x0      0
-s8             0x0      0
-s9             0x0      0
-s10            0x0      0
-s11            0x0      0
-t3             0x0      0
-t4             0x0      0
-t5             0x0      0
-t6             0x0      0
-pc             0x192    0x192 <main>
-(gdb)
-----
-
-
-== OPENOCD
-
-https://github.com/kprasadvnsi/riscv-openocd-wch
-
-https://github.com/cnlohr/ch32fun
