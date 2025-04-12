@@ -187,10 +187,13 @@ $(AOBJ) : $(BUILD)/%.o : %.S
 flash: $(BUILD)/$(APP_NAME).bin
 	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<
 
+start-gdb: $(BUILD)/$(APP_NAME).elf
+	riscv32-unknown-elf-gdb --command run/gdb-init $<
+
 clean:
 	@rm -rfv $(BUILD) compile_commands.json
 
-.PHONY: all clean size flash
+.PHONY: all clean size flash start-gdb
 
 # Include the dependency files.
 -include $(wildcard $(BUILD)/*.d)
