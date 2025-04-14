@@ -190,7 +190,7 @@ $(AOBJ) : $(BUILD)/%.o : %.S
 	@echo
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
 
-start-gdb: $(BUILD)/$(APP_NAME).elf
+start-gdb: $(BUILD)/$(APP).elf
 	$(GDB) --command run/gdb-init $<
 
 flash: $(BUILD)/$(APP).bin

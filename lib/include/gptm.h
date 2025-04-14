@@ -85,6 +85,7 @@ static const uint16_t GPTM_CHCTLR1_O1CE = (1 << 7);
 // OC1M[6:4]
 static const uint16_t GPTM_CHCTLR1_OC1M_MASK = (0b000 << 4);
 static const uint16_t GPTM_CHCTLR1_OC1M_PWM_MODE1 = (0b110 << 4);
+static const uint16_t GPTM_CHCTLR1_OC1M_PWM_MODE2 = (0b111 << 4);
 // OC1PE[3]
 static const uint16_t GPTM_CHCTLR1_OC1PE = (1 << 3);
 // OC1FE[2]
@@ -115,7 +116,18 @@ enum GptmChanNum : uint8_t {
 /**
  * @brief Setup GPTM instance for PWM
  *
+ * Note: duty cycle will be set to zero
+ *
  * @param gptm_id Which GPTM
+ * @param chan_id Which channel
+ * @param pwm_freq PWM frequency
  */
+void gptm_config_for_pwm(enum GptmId gptm_id, enum GptmChanNum chan_id, uint32_t pwm_freq);
 
-extern void gptm_config_for_pwm(enum GptmId gptm_id, enum GptmChanNum chan_id, uint32_t pwm_freq);
+/**
+ * @brief Set PWM duty cycle
+ * @param gptm_id Which GPTM
+ * @param chan_id Which channel
+ * @param duty_cycle Target duty cycle
+ */
+void gptm_set_pwm_duty(enum GptmId gptm_id, enum GptmChanNum chan_id, uint32_t duty_cycle);
