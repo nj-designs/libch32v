@@ -196,6 +196,21 @@ SECTIONS
 		KEEP(*(.i2c2))
 	} >PERIPHERALS
 
+	.can1 0x40006400 (NOLOAD):
+	{
+		KEEP(*(.can1))
+	} >PERIPHERALS
+
+	.can1_mb 0x40006580 (NOLOAD):
+	{
+		KEEP(*(.can1_mb))
+	} >PERIPHERALS
+
+	.can1_filter 0x40006600 (NOLOAD):
+	{
+		KEEP(*(.can1_filter))
+	} >PERIPHERALS
+
   .afio 0x40010000 (NOLOAD):
 	{
 		KEEP(*(.afio))

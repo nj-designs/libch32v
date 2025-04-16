@@ -9,10 +9,9 @@
  *
  */
 
-#include "gptm.h"
-
 #include <stdint.h>
 
+#include "gptm.h"
 #include "rcc.h"
 
 #ifdef LIBCH32_HAS_GPTM2

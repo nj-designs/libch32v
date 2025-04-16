@@ -318,4 +318,5 @@ WhitespaceSensitiveMacros:
   - PP_STRINGIZE
   - STRINGIZE
 WrapNamespaceBodyWithEmptyLines: Leave
+SortIncludes: false
 ...
