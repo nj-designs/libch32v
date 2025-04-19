@@ -34,7 +34,7 @@ sudo apt-get install autoconf automake autotools-dev curl python3 python3-pip py
 .Arch Linux (incomplete?)
 [source,bash]
 ----
-sudo pacman -Syu curl python3 libmpc mpfr gmp base-devel texinfo gperf patchutils bc zlib expat libslirp bear
+sudo pacman -Syu curl python3 libmpc mpfr gmp base-devel texinfo gperf patchutils bc zlib expat libslirp bear hidapi libjaylink
 ----
 
 .Fedora/Rocky/RHEL
@@ -68,18 +68,6 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 I use the excellent link:https://github.com/ch32-rs/wlink[wlink] to flash the uController.
 
 ==== WLINK prerequisites
-
-To get wlink to work as a normal user, you'll need to install the udev rule as shown below.
-
-This rule applies *plugdev* group ownership to the WCH-Link device file that gets created when it's plugged in.
-
-You'll need to make sure that this group exists on your system and your user is a member.
-
-.Example
-[source,bash]
-----
-sudo groupadd --system --users `whoami` plugdev
-----
 
 .WCH-Link udev rules
 [source,bash]
