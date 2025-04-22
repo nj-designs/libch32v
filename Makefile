@@ -1,4 +1,4 @@
-APP ?= led-flash
+APP ?= can-example
 
 DEVICE ?= ch32v203g6u6
 

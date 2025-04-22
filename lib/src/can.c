@@ -12,10 +12,125 @@
 #include <stdint.h>
 
 #include "can.h"
-
+#include "core.h"
+#include "rcc.h"
 
 #ifdef LIBCH32_HAS_CAN1
-struct CANRegMap __attribute__((section(".can1")))can1;
-struct CANMailboxRegMap __attribute__((section(".can1_mb")))can1_mb;
+struct CANRegMap __attribute__((section(".can1"))) can1;
+struct CANMailboxRegMap __attribute__((section(".can1_mb"))) can1_mb;
 struct CANFilterRegMap __attribute__((section(".can1_filter"))) can1_filter;
 #endif
+
+#ifdef LIBCH32_HAS_CAN2
+struct CANRegMap __attribute__((section(".can1"))) can2;
+struct CANMailboxRegMap __attribute__((section(".can1_mb"))) can2_mb;
+#endif
+
+static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {
+#ifdef LIBCH32_HAS_CAN1
+  if (reg_ptr == &can1) {
+    rcc_set_peripheral_clk(RCCCan1Id, on);
+    rcc_set_peripheral_clk(RCCTimer10Id, on);
+    rcc_reset_peripherial(RCCCan1Id);
+    return;
+  }
+#endif
+#ifdef LIBCH32_HAS_CAN2
+  if (reg_ptr == &can2) {
+    rcc_set_peripheral_clk(RCCCan2Id, on);
+    rcc_reset_peripherial(RCCCan2Id);
+    return;
+  }
+#endif
+}
+
+static void set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
+  uint32_t tmp32;
+  uint32_t btr;
+  const uint32_t ts_val = 3 + 2 + 3; // Assuming ->btimr default values
+
+  btr = rcc_get_clk_freq(RCC_CLOCK_ID_PB1) / (ts_val * bus_speed);
+  btr = 11;
+
+  tmp32 = can_ctrl->btimr & ~CAN_BTIMR_BRP_MASK;
+  tmp32 |= btr;
+
+  can_ctrl->btimr = tmp32;
+}
+
+void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
+
+  enbable_ctrl(can_ctrl, 1);
+  // Can controller enters SLEEP_MODE after reset, need to transition to
+  // INIT_MODE
+  can_ctrl->ctlr = CAN_CTRL_INRQ;
+  while ((can_ctrl->statr & CAN_STATR_INAK) == 0) {
+  };
+  set_brp(can_ctrl, bus_speed);
+
+  // Enter normal mode
+  can_ctrl->ctlr = 0;
+}
+
+void can_filter_init(struct CANRegMap *reg_ptr) {
+
+  (void)reg_ptr;
+  can1_filter.fctlr.finit = 1;
+
+  for (int i = 0; i < 28; i++) {
+    can1_filter.fb[i].fr1 = 0;
+    can1_filter.fb[i].fr2 = 0;
+  }
+
+  can1_filter.fscfgr |= 1;
+  can1_filter.fmcfgr = 0;
+
+  can1_filter.fb[0].fr1 = 0;
+  can1_filter.fb[0].fr2 = 0;
+
+  can1_filter.fafifor = 0;
+  can1_filter.fwr |= 1;
+
+  can1_filter.fctlr.finit = 0;
+}
+
+void can_tx(struct CANRegMap *reg_ptr, uint32_t id, uint32_t data_len,
+            const uint8_t *data_ptr, bool block) {
+  (void)data_ptr;
+
+  uint32_t mb_idx = CAN_TX_MB_INVALID_IDX;
+try_again:
+  if (reg_ptr->tstatr.tme0) {
+    mb_idx = 0;
+  } else if (reg_ptr->tstatr.tme1) {
+    mb_idx = 1;
+  } else if (reg_ptr->tstatr.tme2) {
+    mb_idx = 2;
+  }
+  if (mb_idx == CAN_TX_MB_INVALID_IDX) {
+    if (block) {
+      // sleep
+      core_delay_ms(1);
+      goto try_again;
+    }
+    return;
+  }
+
+  union CANMailboxTxMirRegBits mir = {.dword = 0};
+
+  if (id & CAN_EXT_BIT) {
+    mir.ide = 1;
+    mir.exid = id & 0x3ffff;
+    mir.stid = (id >> 18);
+  } else {
+    mir.stid = id;
+  }
+  can1_mb.tx[mb_idx].mir.dword = mir.dword;
+
+  can1_mb.tx[mb_idx].mdtr &= (uint32_t)(~0b1111);
+  can1_mb.tx[mb_idx].mdtr |= (data_len &= 0b1111);
+  can1_mb.tx[mb_idx].mdlr = 0xDEADBEAF;
+  can1_mb.tx[mb_idx].mdhr = 0xAA55CCDD;
+
+  can1_mb.tx[mb_idx].mir.txrq = 1;
+}

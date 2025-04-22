@@ -183,8 +183,8 @@ typedef enum {
  *
  */
 struct RCCCfgValues {
-  uint32_t hse_freq;     // HSE osc freq, or zero if using HSI
-  uint32_t sysclk_freq;  // Wanted sysclk freq
+  uint32_t hse_freq;    // HSE osc freq, or zero if using HSI
+  uint32_t sysclk_freq; // Wanted sysclk freq
   uint32_t hclk_freq;
   uint32_t usbclk_freq;
   uint32_t pclk1_freq;
@@ -225,7 +225,7 @@ void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on);
  *
  * @return const RCCCfgValues*
  */
-const struct RCCCfgValues* get_clk_values(void);
+const struct RCCCfgValues *get_clk_values(void);
 
 /**
  * @brief
@@ -239,10 +239,11 @@ void rcc_reset_peripherial(RCCPeripheralId id);
  *
  * @param rcc
  */
-void rcc_cfg_clock_tree_ex(const struct RCCCfgValues* ctv);
+void rcc_cfg_clock_tree_ex(const struct RCCCfgValues *ctv);
 
 enum RCCClockId {
   RCC_CLOCK_ID_TIM2,
+  RCC_CLOCK_ID_PB1,
 };
 
 uint32_t rcc_get_clk_freq(enum RCCClockId clock_id);

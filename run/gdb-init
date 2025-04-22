@@ -1,2 +1,4 @@
 target extended-remote :3333
 set pagination off
+set print pretty on
+set output-radix 16
