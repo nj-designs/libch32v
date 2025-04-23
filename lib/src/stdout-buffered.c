@@ -14,13 +14,14 @@
 #ifdef APP_STDOUT_BUFFER_SIZE
 
 #include "dma.h"
-#include "usart.h"
-#include "rcc.h"
 #include "gpio.h"
+#include "rcc.h"
+#include "usart.h"
 
-static void dma_cb(struct DMAXferRequest* req);
+static void dma_cb(struct DMAXferRequest *req);
 
-#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
+#if (LIBCH32_DEVICE_ID == WCH_CH32V203G6U6) ||                                 \
+    (LIBCH32_DEVICE_ID == WCH_CH32V307VCT6)
 static const enum GPIOPinId USART1_TX_PIN = PIN_PA9;
 #elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
 static const enum GPIOPinId USART1_TX_PIN = PIN_PD5;
@@ -46,7 +47,7 @@ static struct DMAXferRequest dma_req = {
 };
 static volatile bool dma_in_progress;
 
-static void dma_cb(struct DMAXferRequest* req) {
+static void dma_cb(struct DMAXferRequest *req) {
   if (dma_in_progress) {
     rd_idx += req->xfter_len;
     dma_in_progress = false;
@@ -73,7 +74,8 @@ static void drain_buffer(uint32_t count) {
   while (count) {
     while (dma_in_progress) {
     }
-    uint32_t head_room = APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
+    uint32_t head_room =
+        APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
     uint32_t xfter_len = count > head_room ? count - head_room : count;
     count -= xfter_len;
     dma_req.xfter_len = xfter_len;

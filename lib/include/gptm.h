@@ -57,6 +57,10 @@ extern struct GPTMRegMap gptm3;
 #ifdef LIBCH32_HAS_GPTM4
 extern struct GPTMRegMap gptm4;
 #endif
+
+#ifdef LIBCH32_HAS_GPTM5
+extern struct GPTMRegMap gptm5;
+#endif
 //
 // CTLR1
 //------

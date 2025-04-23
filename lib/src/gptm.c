@@ -26,11 +26,22 @@ struct GPTMRegMap __attribute__((section(".gptm3"))) gptm3;
 struct GPTMRegMap __attribute__((section(".gptm4"))) gptm4;
 #endif
 
-#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
+#ifdef LIBCH32_HAS_GPTM5
+struct GPTMRegMap __attribute__((section(".gptm5"))) gptm5;
+#endif
+
+#if defined(LIBCH32_V307_FAMILY)
 static struct GPTMRegMap *const reg_lookup[] = {
-    &gptm2,  // GPTM2_ID
-    &gptm3,  // GPTM3_ID
-    &gptm4   // GPTM4_ID
+    &gptm2, // GPTM2_ID
+    &gptm3, // GPTM3_ID
+    &gptm4, // GPTM4_ID
+    &gptm5  // GPTM5_ID
+};
+#elif LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
+static struct GPTMRegMap *const reg_lookup[] = {
+    &gptm2, // GPTM2_ID
+    &gptm3, // GPTM3_ID
+    &gptm4  // GPTM4_ID
 };
 #else
 #erorr "unsupported device"
@@ -61,45 +72,45 @@ void gptm_set_pwm_duty(enum GptmId gptm_id, enum GptmChanNum chan_id,
       chcvr = (reg->atrlr * duty_cycle) / 100;
     }
     switch (chan_id) {
-      case GPTM_CHAN_1: {
-        if (chcvr) {
-          reg->ch1cvr = chcvr;
-          reg->ccer |= GPTM_CCER_CC1E;
-        } else {
-          reg->ccer &= ~(GPTM_CCER_CC1E);
-        }
-        break;
+    case GPTM_CHAN_1: {
+      if (chcvr) {
+        reg->ch1cvr = chcvr;
+        reg->ccer |= GPTM_CCER_CC1E;
+      } else {
+        reg->ccer &= ~(GPTM_CCER_CC1E);
       }
-      case GPTM_CHAN_2: {
-        if (chcvr) {
-          reg->ch2cvr = chcvr;
-          reg->ccer |= GPTM_CCER_CC2E;
-        } else {
-          reg->ccer &= ~(GPTM_CCER_CC2E);
-        }
+      break;
+    }
+    case GPTM_CHAN_2: {
+      if (chcvr) {
+        reg->ch2cvr = chcvr;
+        reg->ccer |= GPTM_CCER_CC2E;
+      } else {
+        reg->ccer &= ~(GPTM_CCER_CC2E);
+      }
 
-        break;
+      break;
+    }
+    case GPTM_CHAN_3: {
+      if (chcvr) {
+        reg->ch3cvr = chcvr;
+        reg->ccer |= GPTM_CCER_CC3E;
+      } else {
+        reg->ccer &= ~(GPTM_CCER_CC3E);
       }
-      case GPTM_CHAN_3: {
-        if (chcvr) {
-          reg->ch3cvr = chcvr;
-          reg->ccer |= GPTM_CCER_CC3E;
-        } else {
-          reg->ccer &= ~(GPTM_CCER_CC3E);
-        }
 
-        break;
+      break;
+    }
+    case GPTM_CHAN_4: {
+      if (chcvr) {
+        reg->ch4cvr = chcvr;
+        reg->ccer |= GPTM_CCER_CC4E;
+      } else {
+        reg->ccer &= ~(GPTM_CCER_CC4E);
       }
-      case GPTM_CHAN_4: {
-        if (chcvr) {
-          reg->ch4cvr = chcvr;
-          reg->ccer |= GPTM_CCER_CC4E;
-        } else {
-          reg->ccer &= ~(GPTM_CCER_CC4E);
-        }
 
-        break;
-      }
+      break;
+    }
     }
 
     reg->swevgr = GPTM_SWEVGR_UG;

@@ -22,8 +22,8 @@ struct CANFilterRegMap __attribute__((section(".can1_filter"))) can1_filter;
 #endif
 
 #ifdef LIBCH32_HAS_CAN2
-struct CANRegMap __attribute__((section(".can1"))) can2;
-struct CANMailboxRegMap __attribute__((section(".can1_mb"))) can2_mb;
+struct CANRegMap __attribute__((section(".can2"))) can2;
+struct CANMailboxRegMap __attribute__((section(".can2_mb"))) can2_mb;
 #endif
 
 static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {

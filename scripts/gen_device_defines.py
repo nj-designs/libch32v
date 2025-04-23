@@ -50,6 +50,10 @@ def bld_cfg_header():
                 op.write('LIBCH32_{0}={1} '.format(k.upper(), cfg_val))
             except ValueError:
                 op.write('LIBCH32_{0}="{1}" '.format(k.upper(), cfg_val))
+            # Special handling
+            if k == 'family':
+                op.write('LIBCH32_{0}_FAMILY=1 '.format(cfg_val.upper()))
+
 
     str = op.getvalue()
     op.close()
@@ -57,4 +61,3 @@ def bld_cfg_header():
 
 if __name__ == '__main__':
     print(bld_cfg_header())
-   

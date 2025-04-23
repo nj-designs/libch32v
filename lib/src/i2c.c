@@ -10,8 +10,8 @@
  */
 #include <stddef.h>
 
-#include "rcc.h"
 #include "i2c.h"
+#include "rcc.h"
 
 #include "printf.h"
 
@@ -20,27 +20,32 @@ struct I2CRegMap __attribute__((section(".i2c1"))) i2c1;
 #endif
 
 #ifdef LIBCH32_HAS_I2C2
-struct I2CRegMap __attribute__((section(".i2c2"))) i2c1;
+struct I2CRegMap __attribute__((section(".i2c2"))) i2c2;
 #endif
 
-#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
-static struct I2CRegMap* const i2c_reg_lookup[] = {
-    &i2c1,  // I2C_ID_1
-    NULL,   // I2C_ID_2
+#if defined(LIBCH32_V307_FAMILY)
+static struct I2CRegMap *const i2c_reg_lookup[] = {
+    &i2c1, // I2C_ID_1
+    &i2c2, // I2C_ID_2
+};
+#elif LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
+static struct I2CRegMap *const i2c_reg_lookup[] = {
+    &i2c1, // I2C_ID_1
+    NULL,  // I2C_ID_2
 };
 #elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
-static struct I2CRegMap* const i2c_reg_lookup[] = {
-    &i2c1,  // I2C_ID_1
-    NULL,   // I2C_ID_2
+static struct I2CRegMap *const i2c_reg_lookup[] = {
+    &i2c1, // I2C_ID_1
+    NULL,  // I2C_ID_2
 };
 #else
 #erorr "unsupported device"
 #endif
 
-void i2c_cfg(enum I2CId id, const struct I2CCfgValues* cfg) {
-  struct I2CRegMap* reg = i2c_reg_lookup[(uint32_t)id];
+void i2c_cfg(enum I2CId id, const struct I2CCfgValues *cfg) {
+  struct I2CRegMap *reg = i2c_reg_lookup[(uint32_t)id];
   if (reg != nullptr) {
-    const struct RCCCfgValues* clks;
+    const struct RCCCfgValues *clks;
     uint16_t tmpreg, freq, result;
 
     rcc_reset_peripherial(id == I2C_ID_1 ? RCC_I2C1_ID : RCC_I2C2_ID);
@@ -75,7 +80,8 @@ void i2c_cfg(enum I2CId id, const struct I2CCfgValues* cfg) {
         result |= (uint16_t)0x0001;
       }
       tmpreg |= (uint16_t)(result | I2C_CKCFGR_FnS);
-      reg->rtr = (uint16_t)(((freq * (uint16_t)300) / (uint16_t)1000) + (uint16_t)1);
+      reg->rtr =
+          (uint16_t)(((freq * (uint16_t)300) / (uint16_t)1000) + (uint16_t)1);
     }
 
     reg->ckcfgr = tmpreg;
@@ -87,7 +93,8 @@ void i2c_cfg(enum I2CId id, const struct I2CCfgValues* cfg) {
 };
 
 void i2c_enable(enum I2CId id, uint32_t en) {
-  struct I2CRegMap* reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+  struct I2CRegMap *reg =
+      id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
   if (reg != nullptr) {
     if (en) {
       reg->ctlr1 |= I2C_CTLR1_PE;
@@ -97,7 +104,8 @@ void i2c_enable(enum I2CId id, uint32_t en) {
   }
 }
 
-static bool check_status_flags(struct I2CRegMap* reg, uint16_t star1, uint16_t star2) {
+static bool check_status_flags(struct I2CRegMap *reg, uint16_t star1,
+                               uint16_t star2) {
   bool match1 = (reg->star1 & star1) == star1;
   bool match2 = (reg->star2 & star2) == star2;
   return match1 && match2;
@@ -105,8 +113,10 @@ static bool check_status_flags(struct I2CRegMap* reg, uint16_t star1, uint16_t s
 
 static const uint32_t MAX_LOOP = 10'000;
 
-int32_t i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfer_type) {
-  struct I2CRegMap* reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+int32_t i2c_connect(enum I2CId id, uint16_t target_address,
+                    enum I2CXferType xfer_type) {
+  struct I2CRegMap *reg =
+      id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
   if (reg != nullptr) {
     uint32_t cnt;
 
@@ -159,8 +169,9 @@ int32_t i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfe
   return -__LINE__;
 }
 
-int32_t i2c_read(enum I2CId id, uint8_t* buffer, uint16_t max_read_len) {
-  struct I2CRegMap* reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+int32_t i2c_read(enum I2CId id, uint8_t *buffer, uint16_t max_read_len) {
+  struct I2CRegMap *reg =
+      id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
   if (reg != nullptr) {
     reg->ctlr1 |= I2C_CTLR1_ACK;
     uint16_t cnt;
@@ -174,8 +185,9 @@ int32_t i2c_read(enum I2CId id, uint8_t* buffer, uint16_t max_read_len) {
   return -__LINE__;
 }
 
-int32_t i2c_write(enum I2CId id, const uint8_t* buffer, uint16_t wr_len) {
-  struct I2CRegMap* reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+int32_t i2c_write(enum I2CId id, const uint8_t *buffer, uint16_t wr_len) {
+  struct I2CRegMap *reg =
+      id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
   if (reg != nullptr) {
     for (uint16_t cnt = 0; cnt < wr_len; cnt++) {
       while (check_status_flags(reg, I2C_STAR1_TxE, 0) == 0) {
@@ -187,7 +199,8 @@ int32_t i2c_write(enum I2CId id, const uint8_t* buffer, uint16_t wr_len) {
 }
 
 void i2c_disconnect(enum I2CId id) {
-  struct I2CRegMap* reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+  struct I2CRegMap *reg =
+      id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
   if (reg != nullptr) {
     reg->ctlr1 |= I2C_CTLR1_STOP;
   }

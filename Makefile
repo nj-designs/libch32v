@@ -1,6 +1,6 @@
-APP ?= can-example
+APP ?= led-flash
 
-DEVICE ?= ch32v203g6u6
+DEVICE ?= ch32v307vct6
 
 # Need gnuXX to allow __asm
 CSTD = gnu2x

@@ -211,6 +211,16 @@ SECTIONS
 		KEEP(*(.can1_filter))
 	} >PERIPHERALS
 
+	.can2 0x40006800 (NOLOAD):
+	{
+		KEEP(*(.can2))
+	} >PERIPHERALS
+
+	.can2_mb 0x40006980 (NOLOAD):
+	{
+		KEEP(*(.can2_mb))
+	} >PERIPHERALS
+
   .afio 0x40010000 (NOLOAD):
 	{
 		KEEP(*(.afio))
@@ -238,6 +248,10 @@ SECTIONS
 		KEEP(*(.gpio_d))
 	} > PERIPHERALS
 
+	.gpio_e 0x40011800 (NOLOAD):
+	{
+		KEEP(*(.gpio_e))
+	} > PERIPHERALS
 
 	.adc1 0x40012400 (NOLOAD):
 	{
