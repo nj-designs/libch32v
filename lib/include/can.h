@@ -226,9 +226,12 @@ static const uint32_t CAN_STATR_INAK = (1 << 0);
 //-------
 // CODE[25:24]
 static const uint32_t CAN_TSTATR_CODE_SHIFT = 24;
+
 static const uint32_t CAN_TSTATR_RQCP = (1 << 0);
 static const uint32_t CAN_TSTATR_TXOK = (1 << 1);
+static const uint32_t CAN_TSTATR_ALST = (1 << 2);
 static const uint32_t CAN_TSTATR_TERRO = (1 << 3);
+
 // BTIMR
 //------
 // SILM[31]
@@ -238,7 +241,9 @@ static const uint32_t CAN_BTIMR_LBKM = (1 << 30);
 // BRP[9:0]
 static const uint32_t CAN_BTIMR_BRP_MASK = (0x3FF);
 
-void can_init(struct CANRegMap *reg_ptr, uint32_t bus_speed);
+void can_init(struct CANRegMap *reg_ptr, uint32_t bus_speed, bool silent,
+              bool loopback);
+void can_deinit(struct CANRegMap *can_ctrl);
 
 void can_filter_init(struct CANRegMap *reg_ptr);
 

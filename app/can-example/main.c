@@ -34,7 +34,7 @@ void setup_can(void) {
   gpio_pin_init(PIN_PD0, PIN_MODE_INPUT_PULL_UP);
   gpio_pin_init(PIN_PD1, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
-  can_init(CAN1, 500'000);
+  can_init(CAN1, 500'000, true, true);
   can_filter_init(CAN1);
 }
 
@@ -48,6 +48,7 @@ void main(void) {
   do {
     tx_status = can_check_tx_complete(&can_req);
   } while (tx_status == CAN_TX_RUNNING);
+  can_deinit(CAN1);
 
   while (1) {
     gpio_pin_set_fast(&ledCache, 1);

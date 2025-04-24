@@ -30,7 +30,6 @@ static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {
 #ifdef LIBCH32_HAS_CAN1
   if (reg_ptr == &can1) {
     rcc_set_peripheral_clk(RCCCan1Id, on);
-    rcc_set_peripheral_clk(RCCTimer10Id, on);
     rcc_reset_peripherial(RCCCan1Id);
     return;
   }
@@ -58,7 +57,7 @@ static void set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
   can_ctrl->btimr = tmp32;
 }
 
-void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
+void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool loopback) {
 
   enbable_ctrl(can_ctrl, 1);
   // Can controller enters SLEEP_MODE after reset, need to transition to
@@ -68,9 +67,18 @@ void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
   };
   set_brp(can_ctrl, bus_speed);
 
+  if (silent) {
+    can_ctrl->btimr |= CAN_BTIMR_SILM;
+  }
+  if (loopback) {
+    can_ctrl->btimr |= CAN_BTIMR_LBKM;
+  }
+
   // Enter normal mode
   can_ctrl->ctlr = 0;
 }
+
+void can_deinit(struct CANRegMap *can_ctrl) { enbable_ctrl(can_ctrl, 0); }
 
 void can_filter_init(struct CANRegMap *reg_ptr) {
 
@@ -181,10 +189,11 @@ enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
   if ((tstatr & CAN_TSTATR_RQCP) == 0) {
     return CAN_TX_RUNNING;
   }
-  // Xfer completed ok?
-  if (tstatr & CAN_TSTATR_TXOK) {
-    return CAN_TX_DONE;
-  }
 
-  return CAN_TX_ERROR;
+  enum CanTxStatus status = (tstatr & CAN_TSTATR_TXOK) ? CAN_TX_DONE : CAN_TX_ERROR;
+
+  req->reg_ptr->tstatr.dword |= (CAN_TSTATR_RQCP | CAN_TSTATR_TXOK | CAN_TSTATR_ALST | CAN_TSTATR_TERRO)
+                                << req->_mb_idx * 8;
+
+  return status;
 }
