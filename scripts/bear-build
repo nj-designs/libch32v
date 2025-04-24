@@ -1,5 +1,5 @@
 #!/bin/bash
 
-bear -- make
+bear -- make -j$(nproc)
 
 sed -i '/-MF/d' compile_commands.json
