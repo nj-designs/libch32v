@@ -251,9 +251,6 @@ void can_filter_init(struct CANRegMap *reg_ptr);
 #define CAN_STD_ID(_id) ((uint32_t)(_id & 0x7ff))
 #define CAN_EXT_ID(_id) (CAN_EXT_BIT | (uint32_t)(_id & 0x1fffffff))
 
-void can_tx(struct CANRegMap *reg_ptr, uint32_t id, uint32_t data_len,
-            const uint8_t *data_ptr, bool block);
-
 struct CANTxReq {
   struct CANRegMap *reg_ptr;
   uint32_t id;

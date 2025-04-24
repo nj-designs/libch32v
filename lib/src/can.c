@@ -52,7 +52,7 @@ static void set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
   btr = 11;
 
   tmp32 = can_ctrl->btimr & ~CAN_BTIMR_BRP_MASK;
-  tmp32 |= btr | CAN_BTIMR_LBKM | CAN_BTIMR_SILM;
+  tmp32 |= btr;
 
   can_ctrl->btimr = tmp32;
 }
@@ -100,46 +100,6 @@ void can_filter_init(struct CANRegMap *reg_ptr) {
   can1_filter.fwr |= 1;
 
   can1_filter.fctlr.finit = 0;
-}
-
-void can_tx(struct CANRegMap *reg_ptr, uint32_t id, uint32_t data_len, const uint8_t *data_ptr, bool block) {
-  (void)data_ptr;
-
-  uint32_t mb_idx = CAN_TX_MB_INVALID_IDX;
-try_again:
-  if (reg_ptr->tstatr.tme0) {
-    mb_idx = 0;
-  } else if (reg_ptr->tstatr.tme1) {
-    mb_idx = 1;
-  } else if (reg_ptr->tstatr.tme2) {
-    mb_idx = 2;
-  }
-  if (mb_idx == CAN_TX_MB_INVALID_IDX) {
-    if (block) {
-      // sleep
-      core_delay_ms(1);
-      goto try_again;
-    }
-    return;
-  }
-
-  union CANMailboxTxMirRegBits mir = {.dword = 0};
-
-  if (id & CAN_EXT_BIT) {
-    mir.ide = 1;
-    mir.exid = id & 0x3ffff;
-    mir.stid = (id >> 18);
-  } else {
-    mir.stid = id;
-  }
-  can1_mb.tx[mb_idx].mir.dword = mir.dword;
-
-  can1_mb.tx[mb_idx].mdtr &= (uint32_t)(~0b1111);
-  can1_mb.tx[mb_idx].mdtr |= (data_len &= 0b1111);
-  can1_mb.tx[mb_idx].mdlr = 0xDEADBEAF;
-  can1_mb.tx[mb_idx].mdhr = 0xAA55CCDD;
-
-  can1_mb.tx[mb_idx].mir.txrq = 1;
 }
 
 bool can_tx_req(struct CANTxReq *req) {
