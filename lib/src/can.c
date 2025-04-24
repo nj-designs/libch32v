@@ -53,7 +53,7 @@ static void set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
   btr = 11;
 
   tmp32 = can_ctrl->btimr & ~CAN_BTIMR_BRP_MASK;
-  tmp32 |= btr;
+  tmp32 |= btr | CAN_BTIMR_LBKM | CAN_BTIMR_SILM;
 
   can_ctrl->btimr = tmp32;
 }
@@ -94,8 +94,7 @@ void can_filter_init(struct CANRegMap *reg_ptr) {
   can1_filter.fctlr.finit = 0;
 }
 
-void can_tx(struct CANRegMap *reg_ptr, uint32_t id, uint32_t data_len,
-            const uint8_t *data_ptr, bool block) {
+void can_tx(struct CANRegMap *reg_ptr, uint32_t id, uint32_t data_len, const uint8_t *data_ptr, bool block) {
   (void)data_ptr;
 
   uint32_t mb_idx = CAN_TX_MB_INVALID_IDX;
@@ -133,4 +132,59 @@ try_again:
   can1_mb.tx[mb_idx].mdhr = 0xAA55CCDD;
 
   can1_mb.tx[mb_idx].mir.txrq = 1;
+}
+
+bool can_tx_req(struct CANTxReq *req) {
+
+  // Find free mb
+  req->_mb_idx = CAN_TX_MB_INVALID_IDX;
+  if (req->reg_ptr->tstatr.tme0) {
+    req->_mb_idx = 0;
+  } else if (req->reg_ptr->tstatr.tme1) {
+    req->_mb_idx = 1;
+  } else if (req->reg_ptr->tstatr.tme2) {
+    req->_mb_idx = 2;
+  } else {
+    return false;
+  }
+
+  // Get mb for this controller
+  struct CANMailboxRegMap *mb = (req->reg_ptr == CAN1) ? &can1_mb : &can2_mb;
+
+  union CANMailboxTxMirRegBits mir = {.dword = 0};
+
+  if (req->id & CAN_EXT_BIT) {
+    mir.ide = 1;
+    mir.exid = req->id & 0x3ffff;
+    mir.stid = (req->id >> 18);
+  } else {
+    mir.stid = req->id;
+  }
+  mb->tx[req->_mb_idx].mir.dword = mir.dword;
+
+  mb->tx[req->_mb_idx].mdtr &= (uint32_t)(~0b1111);
+  mb->tx[req->_mb_idx].mdtr |= (req->data_len & 0b1111);
+  mb->tx[req->_mb_idx].mdlr = (uint32_t)req->data_ptr[3] << 24 | (uint32_t)req->data_ptr[2] << 16 |
+                              (uint32_t)req->data_ptr[1] << 8 | (uint32_t)req->data_ptr[0];
+  mb->tx[req->_mb_idx].mdhr = (uint32_t)req->data_ptr[7] << 24 | (uint32_t)req->data_ptr[6] << 16 |
+                              (uint32_t)req->data_ptr[5] << 8 | (uint32_t)req->data_ptr[4];
+
+  mb->tx[req->_mb_idx].mir.txrq = 1;
+
+  return true;
+}
+
+enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
+
+  const uint32_t tstatr = req->reg_ptr->tstatr.dword >> req->_mb_idx * 8;
+
+  if ((tstatr & CAN_TSTATR_RQCP) == 0) {
+    return CAN_TX_RUNNING;
+  }
+  // Xfer completed ok?
+  if (tstatr & CAN_TSTATR_TXOK) {
+    return CAN_TX_DONE;
+  }
+
+  return CAN_TX_ERROR;
 }

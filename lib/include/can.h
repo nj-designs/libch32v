@@ -79,7 +79,7 @@ struct CANMailboxRegMap {
     uint32_t mdhr;
   } rx[2];
 };
-static const uint32_t CAN_TX_MB_INVALID_IDX = 0xFF;
+static const uint8_t CAN_TX_MB_INVALID_IDX = 0xFF;
 
 /* struct CANMailboxRegMap {
   // Tx Mailbox0
@@ -226,6 +226,9 @@ static const uint32_t CAN_STATR_INAK = (1 << 0);
 //-------
 // CODE[25:24]
 static const uint32_t CAN_TSTATR_CODE_SHIFT = 24;
+static const uint32_t CAN_TSTATR_RQCP = (1 << 0);
+static const uint32_t CAN_TSTATR_TXOK = (1 << 1);
+static const uint32_t CAN_TSTATR_TERRO = (1 << 3);
 // BTIMR
 //------
 // SILM[31]
@@ -234,11 +237,6 @@ static const uint32_t CAN_BTIMR_SILM = (1 << 31);
 static const uint32_t CAN_BTIMR_LBKM = (1 << 30);
 // BRP[9:0]
 static const uint32_t CAN_BTIMR_BRP_MASK = (0x3FF);
-
-enum CanId {
-  CAN_ID_1,
-  CAN_ID_2,
-};
 
 void can_init(struct CANRegMap *reg_ptr, uint32_t bus_speed);
 
@@ -250,3 +248,22 @@ void can_filter_init(struct CANRegMap *reg_ptr);
 
 void can_tx(struct CANRegMap *reg_ptr, uint32_t id, uint32_t data_len,
             const uint8_t *data_ptr, bool block);
+
+struct CANTxReq {
+  struct CANRegMap *reg_ptr;
+  uint32_t id;
+  const uint8_t *data_ptr;
+  uint8_t data_len;
+  // Private
+  uint8_t _mb_idx;
+};
+
+bool can_tx_req(struct CANTxReq *req);
+
+enum CanTxStatus {
+
+  CAN_TX_DONE,
+  CAN_TX_ERROR,
+  CAN_TX_RUNNING
+};
+enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req);
