@@ -12,7 +12,6 @@
 #include <stdint.h>
 
 #include "can.h"
-#include "core.h"
 #include "rcc.h"
 
 #ifdef LIBCH32_HAS_CAN1
@@ -83,7 +82,6 @@ void can_deinit(struct CANRegMap *can_ctrl) { enbable_ctrl(can_ctrl, 0); }
 void can_filter_init(struct CANRegMap *reg_ptr) {
 
   (void)reg_ptr;
-  can1_filter.fctlr.finit = 1;
 
   for (int i = 0; i < 28; i++) {
     can1_filter.fb[i].fr1 = 0;
@@ -99,6 +97,57 @@ void can_filter_init(struct CANRegMap *reg_ptr) {
   can1_filter.fafifor = 0;
   can1_filter.fwr |= 1;
 
+  can1_filter.fctlr.finit = 0;
+}
+
+union CANIdFilter {
+  uint8_t bytes[4];
+  uint32_t dword;
+};
+
+void can_filter_init_ex(struct CANRegMap *reg_ptr, const uint32_t *ids, uint32_t id_cnt) {
+
+  uint32_t mb_start_idx;
+  if (reg_ptr == CAN2) {
+    mb_start_idx = can1_filter.fctlr.can2sb;
+  } else {
+    mb_start_idx = 0;
+  }
+  id_cnt = (id_cnt <= 14) ? id_cnt : 14;
+
+  for (uint32_t i = 0; i < 28; i++) {
+    can1_filter.fb[i].fr1 = 0;
+    can1_filter.fb[i].fr2 = 0;
+  }
+
+  // Filter needs to be in init mode
+  can1_filter.fctlr.finit = 1;
+
+  for (uint32_t id_idx = 0; id_idx < id_cnt; id_idx++) {
+    volatile uint32_t id = ids[id_idx];
+    volatile union CANIdFilter fr = {.dword = 0};
+    volatile uint32_t mb_idx = mb_start_idx + (id_idx / 2);
+
+    fr.bytes[2] = (id & 0b111) << 5;
+    fr.bytes[3] = (id >> 3);
+    if (id & CAN_EXT_BIT) {
+      fr.bytes[0] = ((id & 0b11111) << 3) | 0x02;
+      fr.bytes[1] = (id >> 5);
+      fr.bytes[2] |= ((id >> 13) & 0b11111);
+    }
+
+    if (id_idx & 1) {
+      can1_filter.fafifor |= (1 << mb_idx); // FOFO 1
+      can1_filter.fb[mb_idx].fr2 = fr.dword;
+    } else {
+      can1_filter.fb[mb_idx].fr1 = fr.dword;
+    }
+
+    can1_filter.fmcfgr |= (1 << mb_idx); // Id list mode
+    can1_filter.fscfgr |= (1 << mb_idx); // Is single 32 bit
+    can1_filter.fwr |= (1 << mb_idx);    // Is active
+  }
+  // Back to normal mode
   can1_filter.fctlr.finit = 0;
 }
 

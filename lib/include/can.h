@@ -114,7 +114,7 @@ struct CANFilterRegMap {
     struct {
       uint32_t finit : 1;      // 0
       uint32_t resv7_1 : 7;    // 7:1
-      uint32_t can2sh : 6;     // 13:8
+      uint32_t can2sb : 6;     // 13:8
       uint32_t resv31_14 : 18; // 31:14
     };
     uint32_t dword;
@@ -208,6 +208,8 @@ extern struct CANFilterRegMap can1_filter;
 extern struct CANRegMap can2;
 #define CAN2 (&can2)
 extern struct CANMailboxRegMap can2_mb;
+#else
+#define CAN2 (nullptr)
 #endif
 
 // CTRL
@@ -269,3 +271,5 @@ enum CanTxStatus {
   CAN_TX_RUNNING
 };
 enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req);
+void can_filter_init_ex(struct CANRegMap *reg_ptr, const uint32_t *ids,
+                        uint32_t id_cnt);

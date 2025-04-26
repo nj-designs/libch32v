@@ -18,7 +18,9 @@ static struct GPIOPinSetCache ledCache;
 
 const enum GPIOPinId LED_PIN = PIN_PA9;
 
-static const uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
+static uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
+
+static const uint32_t can_ids[3] = {CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x900)};
 
 static void setup_led(void) {
   // Setup LED
@@ -35,7 +37,8 @@ void setup_can(void) {
   gpio_pin_init(PIN_PD1, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
   can_init(CAN1, 500'000, true, true);
-  can_filter_init(CAN1);
+  // can_filter_init(CAN1);
+  can_filter_init_ex(CAN1, can_ids, 3);
 }
 
 void main(void) {
@@ -44,6 +47,19 @@ void main(void) {
 
   struct CANTxReq can_req = {.reg_ptr = CAN1, .data_ptr = can_msg, .data_len = 8, .id = CAN_STD_ID(0x317)};
   can_tx_req(&can_req);
+
+  can_msg[0] = 0x01;
+  can_req.id = CAN_STD_ID(0x555);
+  can_tx_req(&can_req);
+
+  can_msg[0] = 0x02;
+  can_req.id = CAN_STD_ID(0x900);
+  can_tx_req(&can_req);
+
+  can_msg[0] = 0x03;
+  can_req.id = CAN_STD_ID(0x900);
+  can_tx_req(&can_req);
+
   volatile enum CanTxStatus tx_status = CAN_TX_RUNNING;
   do {
     tx_status = can_check_tx_complete(&can_req);
