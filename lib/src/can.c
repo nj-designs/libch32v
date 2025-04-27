@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "can.h"
+#include "core.h"
 #include "rcc.h"
 
 #ifdef LIBCH32_HAS_CAN1
@@ -206,3 +207,19 @@ enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
 
   return status;
 }
+
+#ifdef LIBCH32_HAS_CAN1
+void USB_LP_CAN1_RX0_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
+void USB_LP_CAN1_RX0_IRQHandler(void) {}
+
+void CAN1_RX1_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
+void CAN1_RX1_IRQHandler(void) {}
+#endif
+
+#ifdef LIBCH32_HAS_CAN2
+void CAN2_RX0_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
+void CAN2_RX0_IRQHandler(void) {}
+
+void CAN2_RX1_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
+void CAN2_RX1_IRQHandler(void) {}
+#endif

@@ -83,7 +83,7 @@ endif
 # $(info $$MARCH: '${MARCH}')
 # $(info $$FLASH_PROG_ADDR: '${FLASH_PROG_ADDR}')
 # $(info $$APP_DEFS: '${APP_DEFS}')
-$(info $$DEV_DEFS: '${DEV_DEFS}')
+# $(info $$DEV_DEFS: '${DEV_DEFS}')
 
 APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 

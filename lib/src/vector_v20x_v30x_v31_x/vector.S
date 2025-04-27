@@ -81,10 +81,52 @@ _vector_base:
     .word   EXTI15_10_IRQHandler       /* EXTI Line 15..10 */
     .word   RTCAlarm_IRQHandler        /* RTC Alarm through EXTI Line */
     .word   USBWakeUp_IRQHandler       /* USB Wake up from suspend */
-    .word   USBFS_IRQHandler           /* USBFS Break */
-    .word   USBFSWakeUp_IRQHandler     /* USBFS Wake up from suspend */
-    .word   UART4_IRQHandler           /* UART4 */
-    .word   DMA1_Channel8_IRQHandler   /* DMA1 Channel8 */
+    .word   TIM8_BRK_IRQHandler        /* TIM8 break interrupt */
+    .word   TIM8_UP_IRQHandler        /* TIM8 update interrupt */
+    .word   TIM8_TRG_COM_IRQHandler    /*  TIM8 trigger and communication */
+    .word   TIM8_CC_IRQHandler        /*  TIM8 capture compare interrupt */
+    .word   RNG_IRQHandler        /*  RNG global int*/
+    .word   0                           /* Reserved : 0x00000100 */
+    .word   SDIO_IRQHandler             /* SDIO global interrupt */
+    .word   TIM5_IRQHandler             /* TIM5 global interrupt */
+    .word   SPI3_IRQHandler             /* SPI3 global interrupt */
+    .word   USART4_IRQHandler             /* USART4 global interrupt */
+    .word   USART5_IRQHandler             /* USART5 global interrupt */
+    .word   TIM6_IRQHandler             /* TIM6 global interrupt */
+    .word   TIM7_IRQHandler             /* TIM7 global interrupt */
+    .word   DMA2_CH1_IRQHandler             /* DMA2 channel1 global interrupt */
+    .word   DMA2_CH2_IRQHandler             /* DMA2 channel2 global interrupt */
+    .word   DMA2_CH3_IRQHandler             /* DMA2 channel3 global interrupt */
+    .word   DMA2_CH4_IRQHandler             /* DMA2 channel4 global interrupt */
+    .word   DMA2_CH5_IRQHandler             /* DMA2 channel5 global interrupt */
+    .word   ETH_IRQHandler                  /* ETH global interrupt */
+    .word   ETH_WKUP_IRQHandler                  /* ETH_WKUP global interrupt */
+    .word   CAN2_TX_IRQHandler                  /* CAN2_TX global interrupt */
+    .word   CAN2_RX0_IRQHandler                  /* CAN2_TX global interrupt */
+    .word   CAN2_RX1_IRQHandler                  /* CAN2_TX global interrupt */
+    .word   CAN2_SCE_IRQHandler                  /* CAN2_TX global interrupt */
+    .word   OTG_FS_IRQHandler                  /* OTG_FS global interrupt */
+    .word   USBHS_WAKE_UP_IRQHandler           /* USBHS global interrupt */
+    .word   USBHS_IRQHandler           /* USBHS global interrupt */
+    .word   DVP_IRQHandler           /* DVP global interrupt */
+    .word   USART6_IRQHandler           /* USART6 global interrupt */
+    .word   USART7_IRQHandler           /* USART8 global interrupt */
+    .word   USART8_IRQHandler           /* USART8 global interrupt */
+    .word   TIM9_BRK_IRQHandler
+    .word   TIM9_UP_IRQHandler
+    .word   TIM9_TRG_COM_IRQHandler
+    .word   TIM9_CC_IRQHandler
+    .word   TIM10_BRK_IRQHandler
+    .word   TIM10_UP_IRQHandler
+    .word   TIM10_TRG_COM_IRQHandler
+    .word   TIM10_CC_IRQHandler
+    .word   DMA2_CH6_IRQHandler
+    .word   DMA2_CH7_IRQHandler
+    .word   DMA2_CH8_IRQHandler
+    .word   DMA2_CH9_IRQHandler
+    .word   DMA2_CH10_IRQHandler
+    .word   DMA2_CH11_IRQHandler
+
 
     .option rvc;                        // Enable ompressed instructions
     .section    .text.vector_handler, "ax", @progbits
@@ -142,6 +184,50 @@ _vector_base:
     .weak   USBFSWakeUp_IRQHandler     /* USBFS Wake Up */
     .weak   UART4_IRQHandler           /* UART4 */
     .weak   DMA1_Channel8_IRQHandler   /* DMA1 Channel8 */
+    .weak   TIM8_BRK_IRQHandler        /* TIM8 break interrupt */
+    .weak   TIM8_UP_IRQHandler        /* TIM8 update interrupt */
+    .weak   TIM8_TRG_COM_IRQHandler    /*  TIM8 trigger and communication */
+    .weak   TIM8_CC_IRQHandler        /*  TIM8 capture compare interrupt */
+    .weak   RNG_IRQHandler        /*  RNG global int*/
+    .weak   SDIO_IRQHandler             /* SDIO global interrupt */
+    .weak   TIM5_IRQHandler             /* TIM5 global interrupt */
+    .weak   SPI3_IRQHandler             /* SPI3 global interrupt */
+    .weak   USART4_IRQHandler             /* USART4 global interrupt */
+    .weak   USART5_IRQHandler             /* USART5 global interrupt */
+    .weak   TIM6_IRQHandler             /* TIM6 global interrupt */
+    .weak   TIM7_IRQHandler             /* TIM7 global interrupt */
+    .weak   DMA2_CH1_IRQHandler             /* DMA2 channel1 global interrupt */
+    .weak   DMA2_CH2_IRQHandler             /* DMA2 channel2 global interrupt */
+    .weak   DMA2_CH3_IRQHandler             /* DMA2 channel3 global interrupt */
+    .weak   DMA2_CH4_IRQHandler             /* DMA2 channel4 global interrupt */
+    .weak   DMA2_CH5_IRQHandler             /* DMA2 channel5 global interrupt */
+    .weak   ETH_IRQHandler             /* ETH global interrupt */
+    .weak   ETH_WKUP_IRQHandler                  /* ETH_WKUP global interrupt */
+    .weak   CAN2_TX_IRQHandler                  /* CAN2_TX global interrupt */
+    .weak   CAN2_RX0_IRQHandler                  /* CAN2_TX global interrupt */
+    .weak   CAN2_RX1_IRQHandler                  /* CAN2_TX global interrupt */
+    .weak   CAN2_SCE_IRQHandler                  /* CAN2_TX global interrupt */
+    .weak   OTG_FS_IRQHandler                  /* OTG_FS global interrupt */
+    .weak   USBHS_WAKE_UP_IRQHandler           /* USBHS global interrupt */
+    .weak   USBHS_IRQHandler           /* USBHS global interrupt */
+    .weak   DVP_IRQHandler           /* DVP global interrupt */
+    .weak   USART6_IRQHandler           /* USART6 global interrupt */
+    .weak   USART7_IRQHandler           /* USART8 global interrupt */
+    .weak   USART8_IRQHandler           /* USART8 global interrupt */
+    .weak   TIM9_BRK_IRQHandler
+    .weak   TIM9_UP_IRQHandler
+    .weak   TIM9_TRG_COM_IRQHandler
+    .weak   TIM9_CC_IRQHandler
+    .weak   TIM10_BRK_IRQHandler
+    .weak   TIM10_UP_IRQHandler
+    .weak   TIM10_TRG_COM_IRQHandler
+    .weak   TIM10_CC_IRQHandler
+    .weak   DMA2_CH6_IRQHandler
+    .weak   DMA2_CH7_IRQHandler
+    .weak   DMA2_CH8_IRQHandler
+    .weak   DMA2_CH9_IRQHandler
+    .weak   DMA2_CH10_IRQHandler
+    .weak   DMA2_CH11_IRQHandler
 
 NMI_Handler:
 int_handler_hard_fault:
@@ -197,5 +283,50 @@ USBFS_IRQHandler:
 USBFSWakeUp_IRQHandler:
 UART4_IRQHandler:
 DMA1_Channel8_IRQHandler:
+TIM8_BRK_IRQHandler:
+TIM8_UP_IRQHandler:
+TIM8_TRG_COM_IRQHandler:
+TIM8_CC_IRQHandler:
+RNG_IRQHandler:
+SDIO_IRQHandler:
+TIM5_IRQHandler:
+SPI3_IRQHandler:
+USART4_IRQHandler:
+USART5_IRQHandler:
+TIM6_IRQHandler:
+TIM6_IRQHandler:
+DMA3_CH1_IRQHandler:
+DMA3_CH2_IRQHandler:
+DMA3_CH3_IRQHandler:
+DMA3_CH4_IRQHandler:
+DMA3_CH5_IRQHandler:
+ETH_IRQHandler:
+ETH_WKUP_IRQHandler:
+CAN2_TX_IRQHandler:
+CAN2_RX0_IRQHandler:
+CAN2_RX1_IRQHandler:
+CAN2_SCE_IRQHandler:
+OTG_FS_IRQHandler:
+USBHS_WAKE_UP_IRQHandler:
+USBHS_IRQHandler:
+DVP_IRQHandler:
+USART6_IRQHandler:
+USART7_IRQHandler:
+USART8_IRQHandler:
+TIM9_BRK_IRQHandler:
+TIM9_UP_IRQHandler:
+TIM10_UP_IRQHandler:
+TIM10_TRG_COM_IRQHandler:
+TIM10_CC_IRQHandler:
+TIM11_BRK_IRQHandler:
+TIM11_UP_IRQHandler:
+TIM11_TRG_COM_IRQHandler:
+TIM11_CC_IRQHandler:
+DMA3_CH6_IRQHandler:
+DMA3_CH7_IRQHandler:
+DMA3_CH8_IRQHandler:
+DMA3_CH9_IRQHandler:
+DMA3_CH10_IRQHandler:
+DMA3_CH11_IRQHandler:
 1:
 	j 1b
