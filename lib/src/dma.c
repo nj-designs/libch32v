@@ -13,9 +13,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "core.h"
 #include "dma.h"
 #include "usart.h"
-#include "core.h"
 
 struct DMA1RegMap __attribute__((section(".dma1"))) dma1;
 
@@ -43,10 +43,10 @@ static const struct DMAPeripheralLookup peripheral_lookup[] = {
     // DMA_PERIPHERAL_ID_USART1_TX,
     {
         .reg_addr = (uint32_t)&usart1.datar,
-        .cfgr = DMA_CHANNEL_CFGR_MSIZE_8_BITS | DMA_CHANNEL_CFGR_PSIZE_16_BITS | DMA_CHANNEL_CFGR_MINC | DMA_CHANNEL_CFGR_DIR |
-                DMA_CHANNEL_CFGR_TEIE | DMA_CHANNEL_CFGR_TCIE,
+        .cfgr = DMA_CHANNEL_CFGR_MSIZE_8_BITS | DMA_CHANNEL_CFGR_PSIZE_16_BITS | DMA_CHANNEL_CFGR_MINC |
+                DMA_CHANNEL_CFGR_DIR | DMA_CHANNEL_CFGR_TEIE | DMA_CHANNEL_CFGR_TCIE,
         .intfcr = DMA_INTFCR_CTEIF4 | DMA_INTFCR_HTIF4 | DMA_INTFCR_TCIF4 | DMA_INTFCR_GIF4,
-        .chan_idx = 3,  // Idx = channel number - 1
+        .chan_idx = 3, // Idx = channel number - 1
         .pfic_int_num = PFIC_DMA1_CH4_INT_NUM,
     },
 };
@@ -58,8 +58,8 @@ static const struct DMAPeripheralLookup peripheral_lookup[] = {
  *
  * @param req
  */
-static void program_dma_request(struct DMAXferRequest* req) {
-  struct DMAChanelRegMap* creg = &dma1.channel[req->_chan_idx];
+static void program_dma_request(struct DMAXferRequest *req) {
+  struct DMAChanelRegMap *creg = &dma1.channel[req->_chan_idx];
   dma1.intfcr = req->_intfcr;
   creg->cfgr = req->_cfgr;
   creg->paddr = req->_peripheral_addr;
@@ -68,8 +68,8 @@ static void program_dma_request(struct DMAXferRequest* req) {
   creg->cfgr |= DMA_CHANNEL_CFGR_EN;
 }
 
-void dma_queue_xfer_request(struct DMAXferRequest* req) {
-  const struct DMAPeripheralLookup* pl = &peripheral_lookup[(uint32_t)req->id];
+void dma_queue_xfer_request(struct DMAXferRequest *req) {
+  const struct DMAPeripheralLookup *pl = &peripheral_lookup[(uint32_t)req->id];
 
   req->_cfgr = pl->cfgr;
   req->_peripheral_addr = pl->reg_addr;
@@ -78,8 +78,8 @@ void dma_queue_xfer_request(struct DMAXferRequest* req) {
 
   core_disable_pfic_irq(pl->pfic_int_num);
 
-  struct list_head* req_list = &per_channel_dma_req_q[req->_chan_idx];
-  list_insert_node_after(req_list, NULL, (struct list_node*)req);
+  struct list_head *req_list = &per_channel_dma_req_q[req->_chan_idx];
+  list_insert_node_after(req_list, NULL, (struct list_node *)req);
   if (list_head(req_list) == req) {
     program_dma_request(req);
   }
@@ -93,18 +93,18 @@ void dma_queue_xfer_request(struct DMAXferRequest* req) {
  */
 void int_handler_dma1_chan4(void) NJD_IRQ_ATTRIBUTE;
 void int_handler_dma1_chan4(void) {
-  struct list_head* req_list = &per_channel_dma_req_q[3];
+  struct list_head *req_list = &per_channel_dma_req_q[3];
 
-  if (dma1.intfr && DMA_INTFR_GIF4) {
+  if (dma1.intfr & DMA_INTFR_GIF4) {
     // TODO(njohn) : Check for dma errors?
     dma1.intfcr |= DMA_INTFR_TEIF4 | DMA_INTFR_HTIF4 | DMA_INTFR_TCIF4 | DMA_INTFR_GIF4;
-    struct DMAXferRequest* req = (struct DMAXferRequest*)list_head(req_list);
+    struct DMAXferRequest *req = (struct DMAXferRequest *)list_head(req_list);
     if (req != NULL) {
       if (req->cb != NULL) {
         req->cb(req);
       }
-      list_remove_node(req_list, (struct list_node*)req);
-      req = (struct DMAXferRequest*)list_head(req_list);
+      list_remove_node(req_list, (struct list_node *)req);
+      req = (struct DMAXferRequest *)list_head(req_list);
       if (req != NULL) {
         program_dma_request(req);
       }
