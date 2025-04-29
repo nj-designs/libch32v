@@ -214,7 +214,9 @@ extern struct CANMailboxRegMap can2_mb;
 
 // CTRL
 //-----
-// SLEEP[0]
+// TXFP
+static const uint32_t CAN_CTRL_TXFP = (1 << 2);
+// SLEEP[1]
 static const uint32_t CAN_CTRL_SLEEP = (1 << 1);
 // INRQ[0]
 static const uint32_t CAN_CTRL_INRQ = (1 << 0);
@@ -234,6 +236,27 @@ static const uint32_t CAN_TSTATR_TXOK = (1 << 1);
 static const uint32_t CAN_TSTATR_ALST = (1 << 2);
 static const uint32_t CAN_TSTATR_TERRO = (1 << 3);
 
+// RFIFO0
+//-------
+static const uint32_t CAN_RFIFO0_RFOM0 = (1 << 5);
+static const uint32_t CAN_RFIFO0_FOVR0 = (1 << 4);
+static const uint32_t CAN_RFIFO0_FULL0 = (1 << 3);
+
+// RFIFO1
+//-------
+static const uint32_t CAN_RFIFO1_RFOM1 = (1 << 5);
+static const uint32_t CAN_RFIFO1_FOVR1 = (1 << 4);
+static const uint32_t CAN_RFIFO1_FULL1 = (1 << 3);
+
+// INTENR
+//-------
+// ERRIE
+static const uint32_t CAN_INTENR_ERRIE = (1 << 15);
+// FMPIE1
+static const uint32_t CAN_INTENR_FMPIE1 = (1 << 4);
+// FMPIE0
+static const uint32_t CAN_INTENR_FMPIE0 = (1 << 1);
+
 // BTIMR
 //------
 // SILM[31]
@@ -242,12 +265,6 @@ static const uint32_t CAN_BTIMR_SILM = (1 << 31);
 static const uint32_t CAN_BTIMR_LBKM = (1 << 30);
 // BRP[9:0]
 static const uint32_t CAN_BTIMR_BRP_MASK = (0x3FF);
-
-void can_init(struct CANRegMap *reg_ptr, uint32_t bus_speed, bool silent,
-              bool loopback);
-void can_deinit(struct CANRegMap *can_ctrl);
-
-void can_filter_init(struct CANRegMap *reg_ptr);
 
 #define CAN_EXT_BIT ((uint32_t)(1 << 31))
 #define CAN_STD_ID(_id) ((uint32_t)(_id & 0x7ff))
@@ -262,7 +279,9 @@ struct CANTxReq {
   uint8_t _mb_idx;
 };
 
-bool can_tx_req(struct CANTxReq *req);
+typedef struct CANTxReq CanRxMsg;
+
+typedef void (*can_rx_cb)(const CanRxMsg *can_msg);
 
 enum CanTxStatus {
 
@@ -270,6 +289,12 @@ enum CanTxStatus {
   CAN_TX_ERROR,
   CAN_TX_RUNNING
 };
+
+void can_init(struct CANRegMap *reg_ptr, uint32_t bus_speed, bool silent,
+              bool loopback, can_rx_cb rx_cb);
+void can_deinit(struct CANRegMap *can_ctrl);
+void can_filter_init(struct CANRegMap *reg_ptr);
+bool can_tx_req(struct CANTxReq *req, uint32_t max_wait_ms);
 enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req);
 void can_filter_init_ex(struct CANRegMap *reg_ptr, const uint32_t *ids,
                         uint32_t id_cnt);

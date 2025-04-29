@@ -87,7 +87,9 @@ extern struct PFICRegMap pfic;
 enum PFICIntNum {
   PFIC_DMA1_CH1_INT_NUM = 27, // Addr: 0x0000006C
   PFIC_DMA1_CH4_INT_NUM = 30, // Addr: 0x00000078
-  PFIC_USART1_INT_NUM = 53,   // Addr: 0x000000D4
+  PFIC_CAN1_RX0_INT_NUM = 36,
+  PFIC_CAN1_RX1_INT_NUM = 37,
+  PFIC_USART1_INT_NUM = 53, // Addr: 0x000000D4
 };
 #elif defined(LIBCH32_V003_FAMILY)
 enum PFICIntNum {

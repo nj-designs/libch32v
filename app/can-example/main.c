@@ -20,7 +20,10 @@ const enum GPIOPinId LED_PIN = PIN_PA9;
 
 static uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
 
-static const uint32_t can_ids[3] = {CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x900)};
+static const uint32_t can_ids[4] = {CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400),
+                                    CAN_STD_ID(0x900)};
+
+void can_rx_handler(const CanRxMsg *can_msg) { (void)can_msg; }
 
 static void setup_led(void) {
   // Setup LED
@@ -29,41 +32,61 @@ static void setup_led(void) {
   gpio_pin_cache(LED_PIN, &ledCache);
 }
 
-void setup_can(void) {
+static void setup_can(void) {
 
   rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
   rcc_set_peripheral_clk(RCC_IOPD_ID, 1);
   gpio_pin_init(PIN_PD0, PIN_MODE_INPUT_PULL_UP);
   gpio_pin_init(PIN_PD1, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
-  can_init(CAN1, 500'000, true, true);
+  can_init(CAN1, 500'000, true, true, can_rx_handler);
   // can_filter_init(CAN1);
-  can_filter_init_ex(CAN1, can_ids, 3);
+  can_filter_init_ex(CAN1, can_ids, 4);
 }
 
+static void tx_fail(uint32_t line_num) {
+  volatile uint32_t fail_num = line_num;
+  while (fail_num) {
+  }
+}
+
+static const uint32_t MAX_CAN_WAIT_MS = 5;
+
 void main(void) {
+  // core_enable_irq();
   setup_led();
   setup_can();
 
+  // volatile enum CanTxStatus tx_status = CAN_TX_RUNNING;
+
   struct CANTxReq can_req = {.reg_ptr = CAN1, .data_ptr = can_msg, .data_len = 8, .id = CAN_STD_ID(0x317)};
-  can_tx_req(&can_req);
 
-  can_msg[0] = 0x01;
+  can_msg[0] = 0xA0;
   can_req.id = CAN_STD_ID(0x555);
-  can_tx_req(&can_req);
+  if (can_tx_req(&can_req, MAX_CAN_WAIT_MS) == false) {
+    tx_fail(__LINE__);
+  }
 
-  can_msg[0] = 0x02;
+  can_msg[0] = 0xA1;
   can_req.id = CAN_STD_ID(0x900);
-  can_tx_req(&can_req);
+  if (can_tx_req(&can_req, MAX_CAN_WAIT_MS) == false) {
+    tx_fail(__LINE__);
+  }
 
-  can_msg[0] = 0x03;
-  can_req.id = CAN_STD_ID(0x900);
-  can_tx_req(&can_req);
+  can_msg[0] = 0xA2;
+  can_req.id = CAN_STD_ID(0x317);
+  if (can_tx_req(&can_req, MAX_CAN_WAIT_MS) == false) {
+    tx_fail(__LINE__);
+  }
 
-  volatile enum CanTxStatus tx_status = CAN_TX_RUNNING;
-  do {
-    tx_status = can_check_tx_complete(&can_req);
-  } while (tx_status == CAN_TX_RUNNING);
+  can_msg[0] = 0xA3;
+  can_req.id = CAN_STD_ID(0x400);
+  if (can_tx_req(&can_req, MAX_CAN_WAIT_MS) == false) {
+    tx_fail(__LINE__);
+  }
+
+  core_delay_ms(2000);
+
   can_deinit(CAN1);
 
   while (1) {

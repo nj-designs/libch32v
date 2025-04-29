@@ -15,6 +15,8 @@
 #include "core.h"
 #include "rcc.h"
 
+static can_rx_cb registered_can_rx_cb;
+
 #ifdef LIBCH32_HAS_CAN1
 struct CANRegMap __attribute__((section(".can1"))) can1;
 struct CANMailboxRegMap __attribute__((section(".can1_mb"))) can1_mb;
@@ -43,13 +45,15 @@ static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {
 #endif
 }
 
-static void set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
-  uint32_t tmp32;
-  uint32_t btr;
+static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
+  volatile uint32_t tmp32;
+  volatile uint32_t btr;
   const uint32_t ts_val = 3 + 2 + 3; // Assuming ->btimr default values
 
-  btr = rcc_get_clk_freq(RCC_CLOCK_ID_PB1) / (ts_val * bus_speed);
-  btr = 11;
+  volatile uint32_t clk_freq = rcc_get_clk_freq(RCC_CLOCK_ID_PB1);
+
+  btr = clk_freq / (ts_val * bus_speed);
+  // btr = 11;
 
   tmp32 = can_ctrl->btimr & ~CAN_BTIMR_BRP_MASK;
   tmp32 |= btr;
@@ -57,7 +61,9 @@ static void set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
   can_ctrl->btimr = tmp32;
 }
 
-void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool loopback) {
+void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool loopback, can_rx_cb rx_cb) {
+
+  registered_can_rx_cb = rx_cb;
 
   enbable_ctrl(can_ctrl, 1);
   // Can controller enters SLEEP_MODE after reset, need to transition to
@@ -74,8 +80,13 @@ void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool 
     can_ctrl->btimr |= CAN_BTIMR_LBKM;
   }
 
+  can_ctrl->intenr = CAN_INTENR_FMPIE0 | CAN_INTENR_FMPIE1;
+
+  core_enable_pfic_irq(PFIC_CAN1_RX0_INT_NUM);
+  core_enable_pfic_irq(PFIC_CAN1_RX1_INT_NUM);
+
   // Enter normal mode
-  can_ctrl->ctlr = 0;
+  can_ctrl->ctlr = CAN_CTRL_TXFP;
 }
 
 void can_deinit(struct CANRegMap *can_ctrl) { enbable_ctrl(can_ctrl, 0); }
@@ -152,19 +163,25 @@ void can_filter_init_ex(struct CANRegMap *reg_ptr, const uint32_t *ids, uint32_t
   can1_filter.fctlr.finit = 0;
 }
 
-bool can_tx_req(struct CANTxReq *req) {
+bool can_tx_req(struct CANTxReq *req, uint32_t max_wait_ms) {
 
   // Find free mb
   req->_mb_idx = CAN_TX_MB_INVALID_IDX;
-  if (req->reg_ptr->tstatr.tme0) {
-    req->_mb_idx = 0;
-  } else if (req->reg_ptr->tstatr.tme1) {
-    req->_mb_idx = 1;
-  } else if (req->reg_ptr->tstatr.tme2) {
-    req->_mb_idx = 2;
-  } else {
-    return false;
-  }
+retry:
+  do {
+    if (req->reg_ptr->tstatr.tme0) {
+      req->_mb_idx = 0;
+    } else if (req->reg_ptr->tstatr.tme1) {
+      req->_mb_idx = 1;
+    } else if (req->reg_ptr->tstatr.tme2) {
+      req->_mb_idx = 2;
+    } else if (max_wait_ms--) {
+      core_delay_ms(1);
+      goto retry;
+    } else {
+      return false;
+    }
+  } while (req->_mb_idx == CAN_TX_MB_INVALID_IDX);
 
   // Get mb for this controller
   struct CANMailboxRegMap *mb = (req->reg_ptr == CAN1) ? &can1_mb : &can2_mb;
@@ -208,12 +225,51 @@ enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
   return status;
 }
 
+uint32_t rx0_count;
+uint32_t rx1_count;
+
+#define RX_BUFFER_CNT 5
+
+struct {
+  uint32_t mir;
+  uint32_t mdtr;
+  uint32_t mdlr;
+  uint32_t mdhr;
+} rx0[RX_BUFFER_CNT];
+
+struct {
+  uint32_t mir;
+  uint32_t mdtr;
+  uint32_t mdlr;
+  uint32_t mdhr;
+} rx1[RX_BUFFER_CNT];
+
 #ifdef LIBCH32_HAS_CAN1
 void USB_LP_CAN1_RX0_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
-void USB_LP_CAN1_RX0_IRQHandler(void) {}
+void USB_LP_CAN1_RX0_IRQHandler(void) {
+  if (rx0_count < RX_BUFFER_CNT) {
+    rx0[rx0_count].mir = can1_mb.rx[0].mir;
+    rx0[rx0_count].mdtr = can1_mb.rx[0].mdtr;
+    rx0[rx0_count].mdlr = can1_mb.rx[0].mdlr;
+    rx0[rx0_count].mdhr = can1_mb.rx[0].mdhr;
+    rx0_count++;
+  }
+
+  can1.rfifo0 = CAN_RFIFO0_RFOM0 | CAN_RFIFO0_FOVR0 | CAN_RFIFO0_FULL0;
+}
 
 void CAN1_RX1_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
-void CAN1_RX1_IRQHandler(void) {}
+void CAN1_RX1_IRQHandler(void) {
+  if (rx1_count < RX_BUFFER_CNT) {
+    rx1[rx1_count].mir = can1_mb.rx[1].mir;
+    rx1[rx1_count].mdtr = can1_mb.rx[1].mdtr;
+    rx1[rx1_count].mdlr = can1_mb.rx[1].mdlr;
+    rx1[rx1_count].mdhr = can1_mb.rx[1].mdhr;
+    rx1_count++;
+  }
+
+  can1.rfifo1 = CAN_RFIFO1_RFOM1 | CAN_RFIFO1_FOVR1 | CAN_RFIFO1_FULL1;
+}
 #endif
 
 #ifdef LIBCH32_HAS_CAN2
