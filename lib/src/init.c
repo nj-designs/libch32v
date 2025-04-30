@@ -14,7 +14,7 @@
 void init_system(void) {
   rcc_init();
 
-#if LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
+#if defined(APP_HSE_FREQ) && defined(APP_SYSCLK_FREQ)
   rcc_cfg_clock_tree(APP_HSE_FREQ, APP_SYSCLK_FREQ);
 #endif
 

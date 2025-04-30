@@ -18,11 +18,10 @@
 RCCRegMap __attribute__((section(".rcc"))) rcc;
 
 // Must match RCCPeripheralBlockIdx
-static volatile uint32_t *const clk_enable_reg_look_up[] = {
-    &rcc.ahbpcenr, &rcc.apb1pcenr, &rcc.apb2pcenr};
+static volatile uint32_t *const clk_enable_reg_look_up[] = {&rcc.ahbpcenr, &rcc.apb1pcenr, &rcc.apb2pcenr};
 
-static volatile uint32_t *const peripheral_reset_reg_look_up[] = {
-    &rcc.ahbrstr, &rcc.apb1prstr, &rcc.apb2prstr};
+static volatile uint32_t *const peripheral_reset_reg_look_up[] = {&rcc.ahbrstr, &rcc.apb1prstr,
+                                                                  &rcc.apb2prstr};
 
 /**
  * @brief Define values that match rcc_init()
@@ -39,20 +38,22 @@ static const struct RCCCfgValues initial_cfg = {.hse_freq = 0,
 
 static const struct RCCCfgValues *current_cfg = &initial_cfg;
 
+#if defined(LIBCH32_V307_FAMILY)
 static const struct RCCCfgValues cfg_table[] = {
     {.hse_freq = 8'000'000,
-     .sysclk_freq = 144'000'000,
-     .hclk_freq = 144'000'000,  // RCC_CFGR0_HPRE_DIV_1
-     .usbclk_freq = 48'000'000, // RCC_CFGR0_USBPRE_DIV_3
-     .pclk1_freq = 36'000'000,  // RCC_CFGR0_PPRE1_DIV_4
-     .pclk2_freq = 144'000'000, // RCC_CFGR0_PPRE2_DIV_1
-     .adcclk_freq = 72'000'000, // RCC_CFGR0_ADCPRE_DIV_2
-     .cfgr0 = RCC_CFGR0_MCO_NO_CLK | RCC_CFGR0_USBPRE_DIV_3 |
-              RCC_CFGR0_PLLMUL_MUL_18 | RCC_CFGR0_PLLSRC |
-              RCC_CFGR0_ADCPRE_DIV_2 | RCC_CFGR0_HPRE_DIV_1 |
-              RCC_CFGR0_PPRE2_DIV_1 | RCC_CFGR0_PPRE1_DIV_4},
+     .sysclk_freq = 128'000'000,
+     .hclk_freq = 128'000'000,  // RCC_CFGR0_HPRE_DIV_1
+     .usbclk_freq = 48'000'000, // RCC_CFGR0_USBPRE_DIV_3 TODO(njohn): This is wrong!!
+     .pclk1_freq = 32'000'000,  // RCC_CFGR0_PPRE1_DIV_4
+     .pclk2_freq = 128'000'000, // RCC_CFGR0_PPRE2_DIV_1
+     .adcclk_freq = 64'000'000, // RCC_CFGR0_ADCPRE_DIV_2
+     .cfgr0 = RCC_CFGR0_MCO_NO_CLK | RCC_CFGR0_USBPRE_DIV_3 | RCC_CFGR0_PLLMUL_MUL_16 | RCC_CFGR0_PLLSRC |
+              RCC_CFGR0_ADCPRE_DIV_2 | RCC_CFGR0_HPRE_DIV_1 | RCC_CFGR0_PPRE2_DIV_1 | RCC_CFGR0_PPRE1_DIV_4},
 };
 static const uint16_t CFG_TABLE_SIZE = sizeof(cfg_table) / sizeof(cfg_table[0]);
+#else
+#error Product not supported
+#endif
 
 void rcc_cfg_clock_tree(uint32_t hse_freq, uint32_t sysclk_freq) {
   for (uint16_t i = 0; i < CFG_TABLE_SIZE; i++) {
@@ -98,26 +99,24 @@ void rcc_init(void) {
   rcc.ctlr |= RCC_CTLR_HSION;
 
   rcc.cfgr0 &=
-      (uint32_t)~(RCC_CFGR0_MCO_MASK | RCC_CFGR0_ADCPRE_MASK |
-                  RCC_CFGR0_PPRE2_MASK | RCC_CFGR0_PPRE1_MASK |
+      (uint32_t)~(RCC_CFGR0_MCO_MASK | RCC_CFGR0_ADCPRE_MASK | RCC_CFGR0_PPRE2_MASK | RCC_CFGR0_PPRE1_MASK |
                   RCC_CFGR0_HPRE_MASK | RCC_CFGR0_SWS_MASK | RCC_CFGR0_SW_MASK);
 
   rcc.ctlr &= (uint32_t)~(RCC_CTLR_PLLON | RCC_CTLR_CSSON | RCC_CTLR_HSEON);
 
   rcc.ctlr &= (uint32_t)~(RCC_CTLR_HSEBYP);
 
-  rcc.cfgr0 &= (uint32_t)~(RCC_CFGR0_USBPRE_MASK | RCC_CFGR0_PLLMUL_MASK |
-                           RCC_CFGR0_PLLXTPRE | RCC_CFGR0_PLLSRC);
+  rcc.cfgr0 &=
+      (uint32_t)~(RCC_CFGR0_USBPRE_MASK | RCC_CFGR0_PLLMUL_MASK | RCC_CFGR0_PLLXTPRE | RCC_CFGR0_PLLSRC);
 
-  rcc.intr = RCC_INTR_CSSC | RCC_INTR_PLLRDYC | RCC_INTR_HSERDYC |
-             RCC_INTR_HSIRDYC | RCC_INTR_LSERDYC | RCC_INTR_LSIRDYC;
+  rcc.intr = RCC_INTR_CSSC | RCC_INTR_PLLRDYC | RCC_INTR_HSERDYC | RCC_INTR_HSIRDYC | RCC_INTR_LSERDYC |
+             RCC_INTR_LSIRDYC;
 
   current_cfg = &initial_cfg;
 }
 
 void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on) {
-  volatile uint32_t *clk_enable_reg =
-      clk_enable_reg_look_up[(uint32_t)id >> 16];
+  volatile uint32_t *clk_enable_reg = clk_enable_reg_look_up[(uint32_t)id >> 16];
   if (on) {
     *clk_enable_reg |= 1 << (id & 0xFFFF);
   } else {
@@ -128,8 +127,7 @@ void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on) {
 const struct RCCCfgValues *get_clk_values(void) { return current_cfg; }
 
 void rcc_reset_peripherial(RCCPeripheralId id) {
-  volatile uint32_t *clk_enable_reg =
-      peripheral_reset_reg_look_up[(uint32_t)id >> 16];
+  volatile uint32_t *clk_enable_reg = peripheral_reset_reg_look_up[(uint32_t)id >> 16];
   *clk_enable_reg = (id & 0xFFFF);
 }
 

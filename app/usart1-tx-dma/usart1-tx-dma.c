@@ -8,21 +8,19 @@
  * @copyright Copyright (c) 2024
  *
  */
-#include <stdlib.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
-#include "rcc.h"
 #include "core.h"
-#include "gpio.h"
-#include "usart.h"
 #include "dma.h"
+#include "gpio.h"
+#include "rcc.h"
+#include "usart.h"
 
-#include "device_config.h"
-
-static GPIOPinSetCache ledCache;
+static struct GPIOPinSetCache ledCache;
 
 static const struct UsartCfgValues usart_cfg_values = {
-    .baud_rate = 115200,
+    .baud_rate = 9600,
     .word_len = USART_WORD_LEN_8_BITS,
     .parity = USART_PARITY_NONE,
     .stop_bits = USART_STOP_BITS_1_0,
@@ -30,13 +28,14 @@ static const struct UsartCfgValues usart_cfg_values = {
     .dma = true,
 };
 
-static const char message1[] = "0 1 2 3 4 5 6 7 8 9\n";
-static const char message2[] = "18.10.2 USART Data Register (USARTx_DATAR) (x=1/2/3/4/5/6/7/8)\n";
-static const char message3[] = "Below is a useful subset of gdb commands, listed roughly in the order they might be needed.\n";
+static const char message1[] = "0 1 2 3 4 5 6 7 8 9\n\n";
+static const char message2[] = "18.10.2 USART Data Register (USARTx_DATAR) (x=1/2/3/4/5/6/7/8)\n\n";
+static const char message3[] =
+    "Below is a useful subset of gdb commands, listed roughly in the order they might be needed.\n\n";
 static uint32_t msg_idx;
 static struct DMAXferRequest dma_reqs[3];
 
-static void dma_cb(struct DMAXferRequest* req) {
+static void dma_cb(struct DMAXferRequest *req) {
   (void)req;
 
   uint32_t idx = msg_idx++;
@@ -49,7 +48,7 @@ static void dma_cb(struct DMAXferRequest* req) {
 static void setup_led(void) {
   // Setup LED
   rcc_set_peripheral_clk(RCC_IOPA_ID, 1);
-  const GPIOPinId led_pin = PIN_PA3;
+  const enum GPIOPinId led_pin = PIN_PA10;
   gpio_pin_init(led_pin, PIN_MODE_OUTPUT_PUSH_PULL_50MHZ);
   gpio_pin_cache(led_pin, &ledCache);
 }
@@ -69,29 +68,29 @@ static void setup_dma(void) {
   rcc_set_peripheral_clk(RCC_DMA1_ID, 1);
 
   for (uint32_t i = 0; i < 3; i++) {
-    struct DMAXferRequest* dma_req = &dma_reqs[i];
+    struct DMAXferRequest *dma_req = &dma_reqs[i];
     dma_req->cb = dma_cb;
     dma_req->id = DMA_PERIPHERAL_ID_USART1_TX;
 
     switch (i) {
-      case 0: {
-        dma_req->memory_address = (void*)message1;
-        dma_req->xfter_len = sizeof(message1);
-        break;
-      }
-      case 1: {
-        dma_req->memory_address = (void*)message2;
-        dma_req->xfter_len = sizeof(message2);
-        break;
-      }
-      case 2: {
-        dma_req->memory_address = (void*)message3;
-        dma_req->xfter_len = sizeof(message3);
-        break;
-      }
-      default: {
-        break;
-      }
+    case 0: {
+      dma_req->memory_address = (void *)message1;
+      dma_req->xfter_len = sizeof(message1);
+      break;
+    }
+    case 1: {
+      dma_req->memory_address = (void *)message2;
+      dma_req->xfter_len = sizeof(message2);
+      break;
+    }
+    case 2: {
+      dma_req->memory_address = (void *)message3;
+      dma_req->xfter_len = sizeof(message3);
+      break;
+    }
+    default: {
+      break;
+    }
     }
   }
 }

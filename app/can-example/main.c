@@ -12,18 +12,19 @@
 #include "can.h"
 #include "core.h"
 #include "gpio.h"
+#include "printf.h"
 #include "rcc.h"
 
 static struct GPIOPinSetCache ledCache;
 
-const enum GPIOPinId LED_PIN = PIN_PA9;
+const enum GPIOPinId LED_PIN = PIN_PA10;
 
 static uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
 
 static const uint32_t can_ids[4] = {CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400),
                                     CAN_STD_ID(0x900)};
 
-void can_rx_handler(const CanRxMsg *can_msg) { (void)can_msg; }
+void can_rx_handler(const CanRxMsg *can_msg) { printf("CAN - Got %p\n", (void *)can_msg); }
 
 static void setup_led(void) {
   // Setup LED
@@ -53,11 +54,8 @@ static void tx_fail(uint32_t line_num) {
 static const uint32_t MAX_CAN_WAIT_MS = 5;
 
 void main(void) {
-  // core_enable_irq();
   setup_led();
   setup_can();
-
-  // volatile enum CanTxStatus tx_status = CAN_TX_RUNNING;
 
   struct CANTxReq can_req = {.reg_ptr = CAN1, .data_ptr = can_msg, .data_len = 8, .id = CAN_STD_ID(0x317)};
 
@@ -90,8 +88,10 @@ void main(void) {
   can_deinit(CAN1);
 
   while (1) {
+    printf("On\n");
     gpio_pin_set_fast(&ledCache, 1);
     core_delay_ms(1000);
+    printf("Off\n");
     gpio_pin_set_fast(&ledCache, 0);
     core_delay_ms(1000);
   }
@@ -108,6 +108,8 @@ void int_handler_nmi(void) {
 void int_handler_hard_fault(void) NJD_IRQ_ATTRIBUTE;
 void int_handler_hard_fault(void) {
   while (1) {
+    asm volatile("csrr a1, mcause");
+    asm volatile("csrr a2, mtval");
     asm volatile("nop");
   }
 }

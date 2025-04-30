@@ -13,6 +13,8 @@ NOTE: The following assumes you are using some version of linux. It should work 
 
 === GCC COMPILER
 
+link: https://gcc.gnu.org/onlinedocs/gcc/RISC-V-Options.html
+
 I've yet to find a known good binary build of the *riscv32-unknow-** toolchain, the following shows how to build from source.
 
 Add the following to your _.bashrc_ or equivalent (don't forget to reload your shell).
@@ -208,3 +210,8 @@ wlink-openocd -f run/wch-riscv.cfg -c init -c halt -c wlink_reset_resume
 ----
 make start-gdb
 ----
+
+== TODO
+
+* [ ] Improve RCC setup
+* [ ] Introduce concept of boards to build system

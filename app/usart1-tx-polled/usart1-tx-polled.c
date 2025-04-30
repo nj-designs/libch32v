@@ -9,14 +9,12 @@
  *
  */
 
-#include "rcc.h"
 #include "core.h"
 #include "gpio.h"
+#include "rcc.h"
 #include "usart.h"
 
-#include "device_config.h"
-
-static GPIOPinSetCache ledCache;
+static struct GPIOPinSetCache ledCache;
 
 static const struct UsartCfgValues usart_cfg_values = {
     .baud_rate = 115200,
@@ -26,14 +24,14 @@ static const struct UsartCfgValues usart_cfg_values = {
     .mode = USART_DATA_MODE_RX_AND_TX,
 };
 
-static const char *message =
-    "Parity error flag. In the receiving mode, if a parity error occurs, this bit can be set by hardware.This bit can be reset by "
-    "reading the bit and then reading the data register\n";
+static const char *message = "Parity error flag. In the receiving mode, if a parity error occurs, this bit "
+                             "can be set by hardware.This bit can be reset by "
+                             "reading the bit and then reading the data register\n";
 
 static void setup_led(void) {
   // Setup LED
   rcc_set_peripheral_clk(RCC_IOPA_ID, 1);
-  const GPIOPinId led_pin = PIN_PA3;
+  const enum GPIOPinId led_pin = PIN_PA10;
   gpio_pin_init(led_pin, PIN_MODE_OUTPUT_PUSH_PULL_50MHZ);
   gpio_pin_cache(led_pin, &ledCache);
 }

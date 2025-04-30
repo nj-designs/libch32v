@@ -20,8 +20,7 @@
 
 static void dma_cb(struct DMAXferRequest *req);
 
-#if (LIBCH32_DEVICE_ID == WCH_CH32V203G6U6) ||                                 \
-    (LIBCH32_DEVICE_ID == WCH_CH32V307VCT6)
+#if (LIBCH32_DEVICE_ID == WCH_CH32V203G6U6) || (LIBCH32_DEVICE_ID == WCH_CH32V307VCT6)
 static const enum GPIOPinId USART1_TX_PIN = PIN_PA9;
 #elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
 static const enum GPIOPinId USART1_TX_PIN = PIN_PD5;
@@ -34,7 +33,7 @@ static const struct UsartCfgValues usart_cfg_values = {
     .word_len = USART_WORD_LEN_8_BITS,
     .parity = USART_PARITY_NONE,
     .stop_bits = USART_STOP_BITS_1_0,
-    .mode = USART_DATA_MODE_RX_AND_TX,
+    .mode = USART_DATA_MODE_TX_ONY,
     .dma = true,
 };
 
@@ -74,8 +73,7 @@ static void drain_buffer(uint32_t count) {
   while (count) {
     while (dma_in_progress) {
     }
-    uint32_t head_room =
-        APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
+    uint32_t head_room = APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
     uint32_t xfter_len = count > head_room ? count - head_room : count;
     count -= xfter_len;
     dma_req.xfter_len = xfter_len;

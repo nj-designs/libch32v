@@ -66,7 +66,7 @@ static const uint32_t RCC_CFGR0_USBPRE_DIV_3 = (0b10 << 22);
 // static const uint32_t RCC_CFGR0_USBPRE_DIV_5 = (0b11 << 22);
 // PLLMUL[21:18]
 static const uint32_t RCC_CFGR0_PLLMUL_MASK = (0b1111 << 18);
-static const uint32_t RCC_CFGR0_PLLMUL_MUL_18 = (0b1111 << 18);
+static const uint32_t RCC_CFGR0_PLLMUL_MUL_16 = (0b1111 << 18);
 // PLLXTPRE[17]
 static const uint32_t RCC_CFGR0_PLLXTPRE = (1 << 17);
 // PLLSRC[16]
