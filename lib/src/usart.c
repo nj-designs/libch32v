@@ -110,8 +110,8 @@ void usart_cfg(UsartId id, const struct UsartCfgValues *cfg) {
       reg->ctlr3 = 0;
     }
 
-    const struct RCCCfgValues *clk = get_clk_values();
-    uint32_t pclk = id == USART1_ID ? clk->pclk2_freq : clk->pclk1_freq;
+    uint32_t pclk =
+        id == USART1_ID ? rcc_get_clk_freq(RCC_CLOCK_ID_PCLK2) : rcc_get_clk_freq(RCC_CLOCK_ID_PCLK1);
     // Taken from USART_Init() in ch32v20x_usart.c
     uint32_t integerdivider = ((25 * pclk) / (4 * (cfg->baud_rate)));
     uint32_t tmpreg = (integerdivider / 100) << 4;

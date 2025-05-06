@@ -215,3 +215,8 @@ make start-gdb
 
 * [ ] Improve RCC setup
 * [ ] Introduce concept of boards to build system
+* [ ] Add ini file as a build dependency
+
+== Links
+
+link:https://clang.llvm.org/docs/ClangFormatStyleOptions.html

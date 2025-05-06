@@ -52,7 +52,7 @@ static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32
   volatile uint32_t btr;
   const uint32_t ts_val = 3 + 2 + 3; // Assuming ->btimr default values
 
-  volatile uint32_t clk_freq = rcc_get_clk_freq(RCC_CLOCK_ID_PB1);
+  volatile uint32_t clk_freq = rcc_get_clk_freq(RCC_CLOCK_ID_PCLK1);
 
   btr = clk_freq / (ts_val * bus_speed);
 
@@ -256,7 +256,7 @@ void USB_LP_CAN1_RX0_IRQHandler(void) {
     rx0_count++;
   }
 
-  printf_("RX0\n");
+  // printf_("RX0\n");
 
   can1.rfifo0 = CAN_RFIFO0_RFOM0 | CAN_RFIFO0_FOVR0 | CAN_RFIFO0_FULL0;
 }
@@ -271,7 +271,7 @@ void CAN1_RX1_IRQHandler(void) {
     rx1_count++;
   }
 
-  printf_("RX1\n");
+  // printf_("RX1\n");
   can1.rfifo1 = CAN_RFIFO1_RFOM1 | CAN_RFIFO1_FOVR1 | CAN_RFIFO1_FULL1;
 }
 #endif
