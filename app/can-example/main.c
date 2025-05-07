@@ -14,6 +14,7 @@
 #include "gpio.h"
 #include "printf.h"
 #include "rcc.h"
+#include "stdout.h"
 
 static struct GPIOPinSetCache ledCache;
 
@@ -26,7 +27,7 @@ static const uint32_t can_ids[4] = {CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_ST
 
 void can_rx_handler(const CanRxMsg *can_msg) {
   (void)can_msg;
-  // printf("CAN - Got %p\n", (void *)can_msg);
+  printf("CAN - Got %p\n", (void *)can_msg);
 }
 
 static void setup_led(void) {
@@ -50,13 +51,14 @@ static void setup_can(void) {
 
 static void tx_fail(uint32_t line_num) {
   volatile uint32_t fail_num = line_num;
-  while (fail_num) {
-  }
+  while (fail_num) {}
 }
 
 static const uint32_t MAX_CAN_WAIT_MS = 5;
 
 void main(void) {
+
+  stdout_init();
   setup_led();
   setup_can();
 
@@ -91,10 +93,10 @@ void main(void) {
   can_deinit(CAN1);
 
   while (1) {
-    // printf("On\n");
+    printf("On\n");
     gpio_pin_set_fast(&ledCache, 1);
     core_delay_ms(1000);
-    // printf("Off\n");
+    printf("Off\n");
     gpio_pin_set_fast(&ledCache, 0);
     core_delay_ms(1000);
   }

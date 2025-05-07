@@ -11,12 +11,14 @@
 
 #include "stdout.h"
 
-#ifdef APP_STDOUT_BUFFER_SIZE
-
 #include "dma.h"
 #include "gpio.h"
 #include "rcc.h"
 #include "usart.h"
+
+#if !defined(APP_STDOUT_BUFFER_SIZE)
+#define APP_STDOUT_BUFFER_SIZE (256)
+#endif
 
 static void dma_cb(struct DMAXferRequest *req);
 
@@ -51,8 +53,7 @@ static void dma_cb(struct DMAXferRequest *req) {
     rd_idx += req->xfter_len;
     dma_in_progress = false;
   } else {
-    while (1) {
-    }
+    while (1) {}
   }
 }
 
@@ -71,8 +72,7 @@ void stdout_init(void) {
 
 static void drain_buffer(uint32_t count) {
   while (count) {
-    while (dma_in_progress) {
-    }
+    while (dma_in_progress) {}
     uint32_t head_room = APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
     uint32_t xfter_len = count > head_room ? count - head_room : count;
     count -= xfter_len;
@@ -89,8 +89,7 @@ void _putchar(char ch) {
   wr_idx++;
   if (dma_in_progress) {
     if (flush) {
-      while (dma_in_progress) {
-      }
+      while (dma_in_progress) {}
       uint32_t count = (uint32_t)(wr_idx - rd_idx);
       drain_buffer(count);
     }
@@ -101,5 +100,3 @@ void _putchar(char ch) {
     }
   }
 }
-
-#endif

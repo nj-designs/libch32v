@@ -10,12 +10,8 @@
  */
 #pragma once
 
-#ifdef APP_STDOUT_BUFFER_SIZE
-
 /**
  * @brief
  *
  */
 void stdout_init(void);
-
-#endif

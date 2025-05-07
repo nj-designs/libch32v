@@ -225,7 +225,22 @@ uint32_t rcc_get_clk_freq(enum RCCClockId clock_id) {
       break;
     }
     case RCC_CLOCK_ID_SYSCLK: {
-      clock_freq = 0; // SYSCLK_FREQ;
+      const uint32_t pllmul = rcc.cfgr0.pllmul;
+      switch (pllmul) {
+        case 0: {
+          clock_freq = rcc_pll_input_clk * 18;
+          break;
+        }
+        case 14:
+        case 15: {
+          clock_freq = rcc_pll_input_clk * (pllmul + 1);
+          break;
+        }
+        default: {
+          clock_freq = rcc_pll_input_clk * (pllmul + 2);
+          break;
+        }
+      }
       break;
     }
     case RCC_CLOCK_ID_HCLK: {
