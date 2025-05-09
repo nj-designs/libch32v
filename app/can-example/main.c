@@ -9,6 +9,7 @@
  *
  */
 
+#include "afio.h"
 #include "can.h"
 #include "core.h"
 #include "gpio.h"
@@ -22,12 +23,59 @@ const enum GPIOPinId LED_PIN = PIN_PA10;
 
 static uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
 
-static const uint32_t can_ids[4] = {CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400),
-                                    CAN_STD_ID(0x900)};
+static const uint32_t can_ids[4] = {
+    CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400), CAN_STD_ID(0x900)
+};
 
 void can_rx_handler(const CanRxMsg *can_msg) {
-  (void)can_msg;
   printf("CAN - Got %p\n", (void *)can_msg);
+}
+
+static void print_clocks(void) {
+
+  static const struct {
+    const char     *str;
+    enum RCCClockId id;
+  } clocks[] = {
+
+      {
+          "HSE: %d\n",
+          RCC_CLOCK_ID_HSE,
+      },
+      {
+          "HSI: %d\n",
+          RCC_CLOCK_ID_HSI,
+      },
+      {
+          "SYSCLK: %d\n",
+          RCC_CLOCK_ID_SYSCLK,
+      },
+      {
+          "HCLK: %d\n",
+          RCC_CLOCK_ID_HCLK,
+      },
+      {
+          "TIM1: %d\n",
+          RCC_CLOCK_ID_TIM1,
+      },
+      {
+          "TIM2: %d\n",
+          RCC_CLOCK_ID_TIM2,
+      },
+      {
+          "PCLK1: %d\n",
+          RCC_CLOCK_ID_PCLK1,
+      },
+      {
+          "PCLK2: %d\n",
+          RCC_CLOCK_ID_PCLK2,
+      },
+
+  };
+  const uint32_t clk_count = sizeof(clocks) / sizeof(clocks[0]);
+  for (uint32_t idx = 0; idx < clk_count; idx++) {
+    printf(clocks[idx].str, rcc_get_clk_freq(clocks[idx].id));
+  }
 }
 
 static void setup_led(void) {
@@ -41,11 +89,11 @@ static void setup_can(void) {
 
   rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
   rcc_set_peripheral_clk(RCC_IOPD_ID, 1);
+  afio.pcfr1 = 0x6000;
   gpio_pin_init(PIN_PD0, PIN_MODE_INPUT_PULL_UP);
   gpio_pin_init(PIN_PD1, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
   can_init(CAN1, 500'000, true, true, can_rx_handler);
-  // can_filter_init(CAN1);
   can_filter_init_ex(CAN1, can_ids, 4);
 }
 
@@ -59,6 +107,9 @@ static const uint32_t MAX_CAN_WAIT_MS = 5;
 void main(void) {
 
   stdout_init();
+
+  print_clocks();
+
   setup_led();
   setup_can();
 

@@ -20,13 +20,13 @@
 static can_rx_cb registered_can_rx_cb;
 
 #ifdef LIBCH32_HAS_CAN1
-struct CANRegMap __attribute__((section(".can1"))) can1;
-struct CANMailboxRegMap __attribute__((section(".can1_mb"))) can1_mb;
+struct CANRegMap __attribute__((section(".can1")))              can1;
+struct CANMailboxRegMap __attribute__((section(".can1_mb")))    can1_mb;
 struct CANFilterRegMap __attribute__((section(".can1_filter"))) can1_filter;
 #endif
 
 #ifdef LIBCH32_HAS_CAN2
-struct CANRegMap __attribute__((section(".can2"))) can2;
+struct CANRegMap __attribute__((section(".can2")))           can2;
 struct CANMailboxRegMap __attribute__((section(".can2_mb"))) can2_mb;
 #endif
 
@@ -50,7 +50,7 @@ static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {
 static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
   volatile uint32_t tmp32;
   volatile uint32_t btr;
-  const uint32_t ts_val = 3 + 2 + 3; // Assuming ->btimr default values
+  const uint32_t    ts_val = 3 + 2 + 3; // Assuming ->btimr default values
 
   volatile uint32_t clk_freq = rcc_get_clk_freq(RCC_CLOCK_ID_PCLK1);
 
@@ -70,8 +70,7 @@ void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool 
   // Can controller enters SLEEP_MODE after reset, need to transition to
   // INIT_MODE
   can_ctrl->ctlr = CAN_CTRL_INRQ;
-  while ((can_ctrl->statr & CAN_STATR_INAK) == 0) {
-  };
+  while ((can_ctrl->statr & CAN_STATR_INAK) == 0) {};
   set_brp(can_ctrl, bus_speed);
 
   if (silent) {
@@ -90,7 +89,9 @@ void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool 
   can_ctrl->ctlr = CAN_CTRL_TXFP;
 }
 
-void can_deinit(struct CANRegMap *can_ctrl) { enbable_ctrl(can_ctrl, 0); }
+void can_deinit(struct CANRegMap *can_ctrl) {
+  enbable_ctrl(can_ctrl, 0);
+}
 
 void can_filter_init(struct CANRegMap *reg_ptr) {
 
@@ -114,7 +115,7 @@ void can_filter_init(struct CANRegMap *reg_ptr) {
 }
 
 union CANIdFilter {
-  uint8_t bytes[4];
+  uint8_t  bytes[4];
   uint32_t dword;
 };
 
@@ -137,9 +138,9 @@ void can_filter_init_ex(struct CANRegMap *reg_ptr, const uint32_t *ids, uint32_t
   can1_filter.fctlr.finit = 1;
 
   for (uint32_t id_idx = 0; id_idx < id_cnt; id_idx++) {
-    volatile uint32_t id = ids[id_idx];
+    volatile uint32_t          id = ids[id_idx];
     volatile union CANIdFilter fr = {.dword = 0};
-    volatile uint32_t mb_idx = mb_start_idx + (id_idx / 2);
+    volatile uint32_t          mb_idx = mb_start_idx + (id_idx / 2);
 
     fr.bytes[2] = (id & 0b111) << 5;
     fr.bytes[3] = (id >> 3);
