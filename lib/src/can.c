@@ -57,7 +57,7 @@ static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32
   btr = clk_freq / (ts_val * bus_speed);
 
   tmp32 = can_ctrl->btimr & ~CAN_BTIMR_BRP_MASK;
-  tmp32 |= btr;
+  tmp32 |= btr - 1;
 
   can_ctrl->btimr = tmp32;
 }
