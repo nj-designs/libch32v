@@ -17,7 +17,7 @@
 #include "core.h"
 #include "rcc.h"
 
-static can_rx_cb registered_can_rx_cb;
+static can_rx_cb _registered_can_rx_cb;
 
 #ifdef LIBCH32_HAS_CAN1
 struct CANRegMap __attribute__((section(".can1")))              can1;
@@ -64,7 +64,7 @@ static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32
 
 void can_init(struct CANRegMap *can_ctrl, uint32_t bus_speed, bool silent, bool loopback, can_rx_cb rx_cb) {
 
-  registered_can_rx_cb = rx_cb;
+  _registered_can_rx_cb = rx_cb;
 
   enbable_ctrl(can_ctrl, 1);
   // Can controller enters SLEEP_MODE after reset, need to transition to
@@ -257,7 +257,27 @@ void USB_LP_CAN1_RX0_IRQHandler(void) {
     rx0_count++;
   }
 
-  printf_("RX0\n");
+  if (_registered_can_rx_cb) {
+    CanRxMsg msg;
+    union {
+      struct {
+        uint32_t mdlr;
+        uint32_t mdhr;
+      };
+      uint8_t bytes[8];
+    } payload;
+
+    payload.mdlr = can1_mb.rx[0].mdlr;
+    payload.mdhr = can1_mb.rx[0].mdhr;
+
+    msg.id = 0x49;
+    msg.data_ptr = &payload.bytes[0];
+    msg.data_len = 8;
+
+    _registered_can_rx_cb(&msg);
+  }
+
+  // printf_("RX0\n");
 
   can1.rfifo0 = CAN_RFIFO0_RFOM0 | CAN_RFIFO0_FOVR0 | CAN_RFIFO0_FULL0;
 }
@@ -272,7 +292,27 @@ void CAN1_RX1_IRQHandler(void) {
     rx1_count++;
   }
 
-  printf_("RX1\n");
+  if (_registered_can_rx_cb) {
+    CanRxMsg msg;
+    union {
+      struct {
+        uint32_t mdlr;
+        uint32_t mdhr;
+      };
+      uint8_t bytes[8];
+    } payload;
+
+    payload.mdlr = can1_mb.rx[1].mdlr;
+    payload.mdhr = can1_mb.rx[1].mdhr;
+
+    msg.id = 0x49;
+    msg.data_ptr = &payload.bytes[0];
+    msg.data_len = 8;
+
+    _registered_can_rx_cb(&msg);
+  }
+
+  // printf_("RX1\n");
   can1.rfifo1 = CAN_RFIFO1_RFOM1 | CAN_RFIFO1_FOVR1 | CAN_RFIFO1_FULL1;
 }
 #endif

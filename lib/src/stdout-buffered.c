@@ -11,6 +11,7 @@
 
 #include "stdout.h"
 
+#include "core.h"
 #include "dma.h"
 #include "gpio.h"
 #include "rcc.h"
@@ -39,9 +40,9 @@ static const struct UsartCfgValues usart_cfg_values = {
     .dma = true,
 };
 
-static uint8_t op_buffer[APP_STDOUT_BUFFER_SIZE];
-static uint64_t wr_idx;
-static uint64_t rd_idx;
+static uint8_t               op_buffer[APP_STDOUT_BUFFER_SIZE];
+static uint64_t              wr_idx;
+static uint64_t              rd_idx;
 static struct DMAXferRequest dma_req = {
     .cb = dma_cb,
     .id = DMA_PERIPHERAL_ID_USART1_TX,
@@ -66,6 +67,8 @@ void stdout_init(void) {
   gpio_pin_init(USART1_TX_PIN, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
   usart_cfg(USART1_ID, &usart_cfg_values);
+
+  core_pfic_set_int_priority(PFIC_DMA1_CH4_INT_NUM, PFIC_INT_PRIORITY_HIGHEST);
 
   usart_enable(USART1_ID, 1);
 }

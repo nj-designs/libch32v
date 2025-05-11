@@ -83,8 +83,43 @@ struct PFICRegMap {
 };
 extern struct PFICRegMap pfic;
 
+// PFIC interrupt priority levels
+#if LIBCH32_INT_NEST_DEPTH == 8
+enum PFICIntPriority : uint8_t {
+  PFIC_INT_PRIORITY_0 = 0b111,
+  PFIC_INT_PRIORITY_1 = 0b110,
+  PFIC_INT_PRIORITY_2 = 0b101,
+  PFIC_INT_PRIORITY_3 = 0b100,
+  PFIC_INT_PRIORITY_4 = 0b011,
+  PFIC_INT_PRIORITY_5 = 0b010,
+  PFIC_INT_PRIORITY_6 = 0b001,
+  PFIC_INT_PRIORITY_7 = 0b000,
+
+  PFIC_INT_PRIORITY_LOWEST = PFIC_INT_PRIORITY_0,
+  PFIC_INT_PRIORITY_HIGHEST = PFIC_INT_PRIORITY_7,
+};
+#elif LIBCH32_INT_NEST_DEPTH == 4
+enum PFICIntPriority : uint8_t {
+  PFIC_INT_PRIORITY_0 = 0b11,
+  PFIC_INT_PRIORITY_1 = 0b10,
+  PFIC_INT_PRIORITY_2 = 0b01,
+  PFIC_INT_PRIORITY_3 = 0b00,
+
+  PFIC_INT_PRIORITY_LOWEST = PFIC_INT_PRIORITY_0,
+  PFIC_INT_PRIORITY_HIGHEST = PFIC_INT_PRIORITY_3,
+};
+#elif LIBCH32_INT_NEST_DEPTH == 2
+enum PFICIntPriority : uint8_t {
+  PFIC_INT_PRIORITY_0 = 0b1,
+  PFIC_INT_PRIORITY_1 = 0b0,
+
+  PFIC_INT_PRIORITY_LOWEST = PFIC_INT_PRIORITY_0,
+  PFIC_INT_PRIORITY_HIGHEST = PFIC_INT_PRIORITY_1,
+};
+#endif
+
 #if defined(LIBCH32_V203_FAMILY) || defined(LIBCH32_V307_FAMILY)
-enum PFICIntNum {
+enum PFICIntNum : uint8_t {
   PFIC_DMA1_CH1_INT_NUM = 27, // Addr: 0x0000006C
   PFIC_DMA1_CH4_INT_NUM = 30, // Addr: 0x00000078
   PFIC_CAN1_RX0_INT_NUM = 36,
@@ -98,6 +133,7 @@ enum PFICIntNum {
 #else
 #error "unsupported device"
 #endif
+
 /**
  * Prototypes from here down
  */
@@ -192,3 +228,8 @@ core_check_pfic_irq(enum PFICIntNum in) {
  *
  */
 void core_init(void);
+
+/**
+ * @brief Set priority of specified interrupt
+ */
+void core_pfic_set_int_priority(enum PFICIntNum in, enum PFICIntPriority prio);

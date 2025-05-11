@@ -1,3 +1,19 @@
+#if !defined(LIBCH32_INT_NEST_DEPTH)
+#error Need to define int_nest_depth in devices.ini
+#endif
+
+#if LIBCH32_INT_NEST_DEPTH == 8
+#define INTSYSCR_PMTCFG (0b11 << 2)
+#elif LIBCH32_INT_NEST_DEPTH == 4
+#define INTSYSCR_PMTCFG (0b10 << 2)
+#elif LIBCH32_INT_NEST_DEPTH == 2
+#define INTSYSCR_PMTCFG (0b01 << 2)
+#else
+#define INTSYSCR_PMTCFG (0)
+#endif
+
+#define INTSYSCR_INESTEN (1 << 1)
+
 	.section	.text.handle_reset,"ax",@progbits
     .global	handle_reset
 	.align	1
@@ -46,7 +62,8 @@ handle_reset:
     jal  init_system
 
 /* Enable 2 levels of interrupt nesting*/
-	 li t0, 0x6
+	 //li t0, 0x6
+	 li t0, INTSYSCR_PMTCFG | INTSYSCR_INESTEN
 	 csrw 0x804, t0
 	//csrw 0x804, zero
 /* Configure the interrupt vector table recognition mode and entry address mode */

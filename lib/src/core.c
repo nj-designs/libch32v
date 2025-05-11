@@ -9,6 +9,7 @@
  *
  */
 #include <stddef.h>
+#include <stdint.h>
 
 #include "core.h"
 #include "rcc.h"
@@ -74,11 +75,41 @@ void *memset(void *ptr_in, int value, size_t count) {
   return ptr_in;
 }
 
+void core_pfic_set_int_priority(enum PFICIntNum in, enum PFICIntPriority prio) {
+#if LIBCH32_INT_NEST_DEPTH == 8
+  union {
+    struct {
+      uint8_t res :5; // 4:0
+      uint8_t pri :3; // 7:5
+    } sub[4];
+    uint32_t dword;
+  } reg;
+#elif LIBCH32_INT_NEST_DEPTH == 4
+  union {
+    struct {
+      uint8_t res :6; // 5:0
+      uint8_t pri :2; // 7:6
+    } sub[4];
+    uint32_t dword;
+  } reg;
+#else
+  union {
+    struct {
+      uint8_t res :7; // 6:0
+      uint8_t pri :1; // 7
+    } sub[4];
+    uint32_t dword;
+  } reg;
+#endif
+  reg.dword = pfic.iprior[(int)in / 4];
+  reg.sub[in & 0b11].pri = (uint8_t)prio;
+  pfic.iprior[(int)in / 4] = reg.dword;
+}
+
 void core_init(void) {
 
-  for (int idx = 0; idx < 64; idx++) {
-    pfic.iprior[idx] = 0x80808080;
+  // Initially set all PFIC interrupts to lower priority
+  for (int idx = 0; idx < 256; idx++) {
+    core_pfic_set_int_priority(idx, PFIC_INT_PRIORITY_LOWEST);
   }
-
-  pfic.iprior[30 / 4] = 0x0;
 }

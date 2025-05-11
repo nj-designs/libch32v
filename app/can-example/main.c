@@ -28,7 +28,11 @@ static const uint32_t can_ids[4] = {
 };
 
 void can_rx_handler(const CanRxMsg *can_msg) {
-  printf("CAN - Got %p\n", (void *)can_msg);
+  printf("CAN Msg - Id: 0x%08X PayLoad:", can_msg->id);
+  for (int idx = 0; idx < can_msg->data_len; idx++) {
+    printf(" %02X", can_msg->data_ptr[idx]);
+  }
+  printf("\n");
 }
 
 static void print_clocks(void) {
