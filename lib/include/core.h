@@ -186,3 +186,9 @@ __attribute__((always_inline)) inline uint32_t
 core_check_pfic_irq(enum PFICIntNum in) {
   return pfic.isr[(uint32_t)in / 32] &= ~(1 << ((uint32_t)in & 0x1F));
 }
+
+/**
+ * @brief Init PFIC and other core HW
+ *
+ */
+void core_init(void);

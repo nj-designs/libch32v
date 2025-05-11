@@ -257,7 +257,7 @@ void USB_LP_CAN1_RX0_IRQHandler(void) {
     rx0_count++;
   }
 
-  // printf_("RX0\n");
+  printf_("RX0\n");
 
   can1.rfifo0 = CAN_RFIFO0_RFOM0 | CAN_RFIFO0_FOVR0 | CAN_RFIFO0_FULL0;
 }
@@ -272,7 +272,7 @@ void CAN1_RX1_IRQHandler(void) {
     rx1_count++;
   }
 
-  // printf_("RX1\n");
+  printf_("RX1\n");
   can1.rfifo1 = CAN_RFIFO1_RFOM1 | CAN_RFIFO1_FOVR1 | CAN_RFIFO1_FULL1;
 }
 #endif

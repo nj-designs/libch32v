@@ -42,19 +42,22 @@ handle_reset:
 /* Configure pipelining and instruction prediction */
     li t0, 0x1f
     csrw 0xbc0, t0
-/* Enable interrupt nesting and hardware stack */
-	// li t0, 0x3
-	// csrw 0x804, t0
-	csrw 0x804, zero
-/* Enable global interrupt and configure privileged mode */
-   	li t0, 0x88
-   	csrw mstatus, t0
+
+    jal  init_system
+
+/* Enable 2 levels of interrupt nesting*/
+	 li t0, 0x6
+	 csrw 0x804, t0
+	//csrw 0x804, zero
 /* Configure the interrupt vector table recognition mode and entry address mode */
  	la t0, _vector_base
     ori t0, t0, 3
 	csrw mtvec, t0
 
-    jal  init_system
+/* Enable global interrupt and configure privileged mode */
+  li t0, 0x88
+  csrw mstatus, t0
+
 	la t0, main
 	csrw mepc, t0
 	mret

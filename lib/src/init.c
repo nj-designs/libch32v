@@ -8,8 +8,10 @@
  * @copyright Copyright (c) 2024
  *
  */
+#include "core.h"
 #include "rcc.h"
 
 void init_system(void) {
+  core_init();
   rcc_init();
 }

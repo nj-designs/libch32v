@@ -62,7 +62,9 @@ void core_delay_us(uint32_t duration) {
 }
 #endif
 
-void core_delay_ms(uint32_t duration) { core_delay_us(duration * 1000); }
+void core_delay_ms(uint32_t duration) {
+  core_delay_us(duration * 1000);
+}
 
 void *memset(void *ptr_in, int value, size_t count) {
   uint8_t *ptr = (uint8_t *)ptr_in;
@@ -70,4 +72,13 @@ void *memset(void *ptr_in, int value, size_t count) {
     ptr[i] = (uint8_t)value;
   }
   return ptr_in;
+}
+
+void core_init(void) {
+
+  for (int idx = 0; idx < 64; idx++) {
+    pfic.iprior[idx] = 0x80808080;
+  }
+
+  pfic.iprior[30 / 4] = 0x0;
 }
