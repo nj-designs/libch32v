@@ -16,6 +16,7 @@
 #include "printf.h"
 #include "rcc.h"
 #include "stdout.h"
+#include <stdint.h>
 
 static struct GPIOPinSetCache ledCache;
 
@@ -23,12 +24,12 @@ const enum GPIOPinId LED_PIN = PIN_PA10;
 
 static uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
 
-static const uint32_t can_ids[4] = {
-    CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400), CAN_STD_ID(0x900)
+static const uint32_t can_ids[] = {
+    CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400), CAN_EXT_ID(0x900), CAN_EXT_ID(0x1FFFFFFF),
 };
 
 void can_rx_handler(const CanRxMsg *can_msg) {
-  printf("CAN Msg - Id: 0x%08X PayLoad:", can_msg->id);
+  printf("CAN Msg - Id: 0x%X PayLoad:", can_msg->id);
   for (int idx = 0; idx < can_msg->data_len; idx++) {
     printf(" %02X", can_msg->data_ptr[idx]);
   }
@@ -97,8 +98,9 @@ static void setup_can(void) {
   gpio_pin_init(PIN_PD0, PIN_MODE_INPUT_PULL_UP);
   gpio_pin_init(PIN_PD1, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
-  can_init(CAN1, 500'000, true, true, can_rx_handler);
-  can_filter_init_ex(CAN1, can_ids, 4);
+  can_init(CAN1, 500'000, false, false, can_rx_handler);
+  const uint32_t id_cnt = sizeof(can_ids) / sizeof(can_ids[0]);
+  can_filter_init_ex(CAN1, can_ids, id_cnt);
 }
 
 static void tx_fail(uint32_t line_num) {
@@ -126,7 +128,7 @@ void main(void) {
   }
 
   can_msg[0] = 0xA1;
-  can_req.id = CAN_STD_ID(0x900);
+  can_req.id = CAN_STD_ID(0x500);
   if (can_tx_req(&can_req, MAX_CAN_WAIT_MS) == false) {
     tx_fail(__LINE__);
   }
@@ -143,9 +145,11 @@ void main(void) {
     tx_fail(__LINE__);
   }
 
-  core_delay_ms(2000);
-
-  can_deinit(CAN1);
+  can_msg[0] = 0x90;
+  can_req.id = CAN_EXT_ID(0x900);
+  if (can_tx_req(&can_req, MAX_CAN_WAIT_MS) == false) {
+    tx_fail(__LINE__);
+  }
 
   while (1) {
     printf("On\n");

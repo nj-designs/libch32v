@@ -142,12 +142,16 @@ void can_filter_init_ex(struct CANRegMap *reg_ptr, const uint32_t *ids, uint32_t
     volatile union CANIdFilter fr = {.dword = 0};
     volatile uint32_t          mb_idx = mb_start_idx + (id_idx / 2);
 
-    fr.bytes[2] = (id & 0b111) << 5;
-    fr.bytes[3] = (id >> 3);
     if (id & CAN_EXT_BIT) {
-      fr.bytes[0] = ((id & 0b11111) << 3) | 0x02;
-      fr.bytes[1] = (id >> 5);
-      fr.bytes[2] |= ((id >> 13) & 0b11111);
+      id &= 0x1fffffff;
+      fr.bytes[3] = id >> 21;
+      fr.bytes[2] = (id >> 13) & 0b11100000;
+      fr.bytes[2] |= (id >> 13) & 0b00011111;
+      fr.bytes[1] = id >> 5;
+      fr.bytes[0] = ((id & 0b11111) << 3) | 0x04;
+    } else {
+      fr.bytes[2] = (id & 0b111) << 5;
+      fr.bytes[3] = (id >> 3);
     }
 
     if (id_idx & 1) {
@@ -226,7 +230,7 @@ enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
 
   return status;
 }
-
+/*
 uint32_t rx0_count;
 uint32_t rx1_count;
 
@@ -245,74 +249,50 @@ struct {
   uint32_t mdlr;
   uint32_t mdhr;
 } rx1[RX_BUFFER_CNT];
+*/
+
+// TODO(njohn): Fixup for CAN2
+static void _handle_can_rx(uint32_t rx_id) {
+  CanRxMsg msg;
+  union {
+    struct {
+      uint32_t mdlr;
+      uint32_t mdhr;
+    };
+    uint8_t bytes[8];
+  } payload;
+
+  payload.mdlr = can1_mb.rx[rx_id].mdlr;
+  payload.mdhr = can1_mb.rx[rx_id].mdhr;
+
+  if (can1_mb.rx[rx_id].mir.ide) {
+    /* mir.exid = req->id & 0x3ffff;
+    mir.stid = (req->id >> 18); */
+    msg.id = can1_mb.rx[rx_id].mir.exid | (can1_mb.rx[rx_id].mir.stid << 18);
+  } else {
+    msg.id = can1_mb.rx[rx_id].mir.stid;
+  }
+
+  msg.data_ptr = &payload.bytes[0];
+  msg.data_len = 8;
+
+  _registered_can_rx_cb(&msg);
+}
 
 #ifdef LIBCH32_HAS_CAN1
 void USB_LP_CAN1_RX0_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
 void USB_LP_CAN1_RX0_IRQHandler(void) {
-  if (rx0_count < RX_BUFFER_CNT) {
-    rx0[rx0_count].mir = can1_mb.rx[0].mir;
-    rx0[rx0_count].mdtr = can1_mb.rx[0].mdtr;
-    rx0[rx0_count].mdlr = can1_mb.rx[0].mdlr;
-    rx0[rx0_count].mdhr = can1_mb.rx[0].mdhr;
-    rx0_count++;
-  }
-
   if (_registered_can_rx_cb) {
-    CanRxMsg msg;
-    union {
-      struct {
-        uint32_t mdlr;
-        uint32_t mdhr;
-      };
-      uint8_t bytes[8];
-    } payload;
-
-    payload.mdlr = can1_mb.rx[0].mdlr;
-    payload.mdhr = can1_mb.rx[0].mdhr;
-
-    msg.id = 0x49;
-    msg.data_ptr = &payload.bytes[0];
-    msg.data_len = 8;
-
-    _registered_can_rx_cb(&msg);
+    _handle_can_rx(0);
   }
-
-  // printf_("RX0\n");
-
   can1.rfifo0 = CAN_RFIFO0_RFOM0 | CAN_RFIFO0_FOVR0 | CAN_RFIFO0_FULL0;
 }
 
 void CAN1_RX1_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
 void CAN1_RX1_IRQHandler(void) {
-  if (rx1_count < RX_BUFFER_CNT) {
-    rx1[rx1_count].mir = can1_mb.rx[1].mir;
-    rx1[rx1_count].mdtr = can1_mb.rx[1].mdtr;
-    rx1[rx1_count].mdlr = can1_mb.rx[1].mdlr;
-    rx1[rx1_count].mdhr = can1_mb.rx[1].mdhr;
-    rx1_count++;
-  }
-
   if (_registered_can_rx_cb) {
-    CanRxMsg msg;
-    union {
-      struct {
-        uint32_t mdlr;
-        uint32_t mdhr;
-      };
-      uint8_t bytes[8];
-    } payload;
-
-    payload.mdlr = can1_mb.rx[1].mdlr;
-    payload.mdhr = can1_mb.rx[1].mdhr;
-
-    msg.id = 0x49;
-    msg.data_ptr = &payload.bytes[0];
-    msg.data_len = 8;
-
-    _registered_can_rx_cb(&msg);
+    _handle_can_rx(1);
   }
-
-  // printf_("RX1\n");
   can1.rfifo1 = CAN_RFIFO1_RFOM1 | CAN_RFIFO1_FOVR1 | CAN_RFIFO1_FULL1;
 }
 #endif

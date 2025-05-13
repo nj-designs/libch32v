@@ -11,6 +11,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <sys/types.h>
 
 struct CANRegMap {
   volatile uint32_t ctlr;  // 0x00
@@ -73,7 +74,7 @@ struct CANMailboxRegMap {
     uint32_t mdhr;
   } tx[3];
   volatile struct {
-    uint32_t mir;
+    union CANMailboxTxMirRegBits mir;
     uint32_t mdtr;
     uint32_t mdlr;
     uint32_t mdhr;
