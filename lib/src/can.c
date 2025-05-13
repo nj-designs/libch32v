@@ -251,8 +251,8 @@ struct {
 } rx1[RX_BUFFER_CNT];
 */
 
-// TODO(njohn): Fixup for CAN2
-static void _handle_can_rx(uint32_t rx_id) {
+#ifdef LIBCH32_HAS_CAN1
+static void _handle_can_rx(struct CANMailboxRegMap *mb, uint32_t rx_id) {
   CanRxMsg msg;
   union {
     struct {
@@ -262,15 +262,15 @@ static void _handle_can_rx(uint32_t rx_id) {
     uint8_t bytes[8];
   } payload;
 
-  payload.mdlr = can1_mb.rx[rx_id].mdlr;
-  payload.mdhr = can1_mb.rx[rx_id].mdhr;
+  payload.mdlr = mb->rx[rx_id].mdlr;
+  payload.mdhr = mb->rx[rx_id].mdhr;
 
-  if (can1_mb.rx[rx_id].mir.ide) {
+  if (mb->rx[rx_id].mir.ide) {
     /* mir.exid = req->id & 0x3ffff;
     mir.stid = (req->id >> 18); */
-    msg.id = can1_mb.rx[rx_id].mir.exid | (can1_mb.rx[rx_id].mir.stid << 18);
+    msg.id = mb->rx[rx_id].mir.exid | (mb->rx[rx_id].mir.stid << 18);
   } else {
-    msg.id = can1_mb.rx[rx_id].mir.stid;
+    msg.id = mb->rx[rx_id].mir.stid;
   }
 
   msg.data_ptr = &payload.bytes[0];
@@ -278,12 +278,13 @@ static void _handle_can_rx(uint32_t rx_id) {
 
   _registered_can_rx_cb(&msg);
 }
+#endif
 
 #ifdef LIBCH32_HAS_CAN1
 void USB_LP_CAN1_RX0_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
 void USB_LP_CAN1_RX0_IRQHandler(void) {
   if (_registered_can_rx_cb) {
-    _handle_can_rx(0);
+    _handle_can_rx(&can1_mb, 0);
   }
   can1.rfifo0 = CAN_RFIFO0_RFOM0 | CAN_RFIFO0_FOVR0 | CAN_RFIFO0_FULL0;
 }
@@ -291,7 +292,7 @@ void USB_LP_CAN1_RX0_IRQHandler(void) {
 void CAN1_RX1_IRQHandler(void) NJD_IRQ_ATTRIBUTE;
 void CAN1_RX1_IRQHandler(void) {
   if (_registered_can_rx_cb) {
-    _handle_can_rx(1);
+    _handle_can_rx(&can1_mb, 1);
   }
   can1.rfifo1 = CAN_RFIFO1_RFOM1 | CAN_RFIFO1_FOVR1 | CAN_RFIFO1_FULL1;
 }
