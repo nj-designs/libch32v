@@ -34,7 +34,7 @@ void core_delay_us(uint32_t duration) {
   systick.ctrl = 0;
   systick.cnt = 0;
   // systick.cmp = (uint32_t)duration * (uint32_t)_us_tick_count;
-  systick.cmp = (uint32_t)8'000'000;
+  systick.cmp = (uint32_t)8000000;
   systick.ctrl |= STK_CTLR_STE;
   while (1) {
     if (systick.sr & STK_SR_CNTIF) {
@@ -76,7 +76,7 @@ void *memset(void *ptr_in, int value, size_t count) {
 }
 
 void core_pfic_set_int_priority(enum PFICIntNum in, enum PFICIntPriority prio) {
-#if LIBCH32_INT_NEST_DEPTH == 8
+/* #if LIBCH32_INT_NEST_DEPTH == 8
   union {
     struct {
       uint8_t res :5; // 4:0
@@ -100,6 +100,17 @@ void core_pfic_set_int_priority(enum PFICIntNum in, enum PFICIntPriority prio) {
     } sub[4];
     uint32_t dword;
   } reg;
+#endif */
+#if defined(LIBCH32_CPU_CORE_V4B)
+  union {
+    struct {
+      uint8_t res :5; // 4:0
+      uint8_t pri :3; // 7:5
+    } sub[4];
+    uint32_t dword;
+  } reg;
+#else
+#error unsuported device
 #endif
   reg.dword = pfic.iprior[(int)in / 4];
   reg.sub[in & 0b11].pri = (uint8_t)prio;
@@ -112,4 +123,10 @@ void core_init(void) {
   for (int idx = 0; idx < 256; idx++) {
     core_pfic_set_int_priority(idx, PFIC_INT_PRIORITY_LOWEST);
   }
+}
+
+enum PFICIntPriority core_pfic_set_int_priority_threshold(enum PFICIntPriority prio) {
+  enum PFICIntPriority current_threshold = (pfic.ithresdr >> 5) & 0b111;
+  pfic.ithresdr = (uint32_t)prio << 5;
+  return current_threshold;
 }

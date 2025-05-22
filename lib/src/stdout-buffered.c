@@ -23,7 +23,8 @@
 
 static void dma_cb(struct DMAXferRequest *req);
 
-#if (LIBCH32_DEVICE_ID == WCH_CH32V203G6U6) || (LIBCH32_DEVICE_ID == WCH_CH32V307VCT6)
+#if (LIBCH32_DEVICE_ID == WCH_CH32V203G6U6) || (LIBCH32_DEVICE_ID == WCH_CH32V203C8T6) ||                    \
+    (LIBCH32_DEVICE_ID == WCH_CH32V307VCT6)
 static const enum GPIOPinId USART1_TX_PIN = PIN_PA9;
 #elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
 static const enum GPIOPinId USART1_TX_PIN = PIN_PD5;
@@ -74,12 +75,21 @@ void stdout_init(void) {
 }
 
 static void drain_buffer(uint32_t count) {
+  /* volatile uint32_t i_count = count;
+
+  if (count >= APP_STDOUT_BUFFER_SIZE / 4) {
+    volatile uint32_t foo = 0;
+    while (1) {
+      foo += i_count;
+    }
+  }
+*/
   while (count) {
     while (dma_in_progress) {}
     uint32_t head_room = APP_STDOUT_BUFFER_SIZE - (rd_idx & (APP_STDOUT_BUFFER_SIZE - 1));
-    uint32_t xfter_len = count > head_room ? count - head_room : count;
-    count -= xfter_len;
-    dma_req.xfter_len = xfter_len;
+    uint32_t xfer_len = count > head_room ? count - head_room : count;
+    count -= xfer_len;
+    dma_req.xfter_len = xfer_len;
     dma_req.memory_address = &op_buffer[rd_idx & (APP_STDOUT_BUFFER_SIZE - 1)];
     dma_in_progress = true;
     dma_queue_xfer_request(&dma_req);
@@ -88,6 +98,8 @@ static void drain_buffer(uint32_t count) {
 
 void _putchar(char ch) {
   bool flush = ch == '\n' ? true : false;
+  // DMA CHAN 4 is 7 (highest) so continue to allow its interrupts else dma_in_progress will never complete
+  enum PFICIntPriority old_prio = core_pfic_set_int_priority_threshold(PFIC_INT_PRIORITY_6);
   op_buffer[wr_idx & (APP_STDOUT_BUFFER_SIZE - 1)] = (uint8_t)ch;
   wr_idx++;
   if (dma_in_progress) {
@@ -102,4 +114,5 @@ void _putchar(char ch) {
       drain_buffer(count);
     }
   }
+  core_pfic_set_int_priority_threshold(old_prio);
 }

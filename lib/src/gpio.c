@@ -56,14 +56,22 @@ static struct GPIORegMap *const port_lookup[] = {
     &gpio_d, // GPIO_D_IDX = 3
     NULL     // GPIO_E_IDX = 4  (Not present)
 };
+#elif LIBCH32_DEVICE_ID == WCH_CH32V203C8T6
+static struct GPIORegMap *const port_lookup[] = {
+    &gpio_a, // GPIO_A_IDX = 0
+    &gpio_b, // GPIO_B_IDX = 1
+    nullptr, // GPIO_C_IDX = 2 (Not present)
+    nullptr, // GPIO_D_IDX = 3 (Not present)
+    nullptr  // GPIO_E_IDX = 4  (Not present)
+};
 #else
 #erorr "unsupported device"
 #endif
 
 void gpio_pin_init(enum GPIOPinId pin_id, GPIOPinMode mode) {
   struct GPIORegMap *port = port_lookup[(pin_id >> 16)];
-  uint32_t pin_num = pin_id & 0xFFFF;
-  uint32_t cfg_value;
+  uint32_t           pin_num = pin_id & 0xFFFF;
+  uint32_t           cfg_value;
 
   if (pin_num > 7) {
     cfg_value = port->cfghr;
@@ -78,26 +86,27 @@ void gpio_pin_init(enum GPIOPinId pin_id, GPIOPinMode mode) {
   }
 
   switch (mode) {
-  case PIN_MODE_INPUT_PULL_UP:
-  case PIN_MODE_INPUT_PULL_DOWN: {
-    uint16_t dr = port->outdr;
+    case PIN_MODE_INPUT_PULL_UP:
+    case PIN_MODE_INPUT_PULL_DOWN: {
+      uint16_t dr = port->outdr;
     if ((uint32_t)mode & 0b1'0000) {
       dr |= (uint16_t)(1 << pin_num);
-    } else {
-      dr &= (uint16_t)~(1 << pin_num);
     }
-    port->outdr = dr;
-    break;
+      else {
+        dr &= (uint16_t)~(1 << pin_num);
+      }
+      port->outdr = dr;
+      break;
   }
   default: {
     break;
   }
-  }
+}
 }
 
 void gpio_pin_set(enum GPIOPinId pin_id, uint8_t val) {
   struct GPIORegMap *port = port_lookup[(pin_id >> 16)];
-  uint16_t pin_bit = 1 << ((uint16_t)pin_id & 0xFFFF);
+  uint16_t           pin_bit = 1 << ((uint16_t)pin_id & 0xFFFF);
   if (val) {
     port->bshr = pin_bit;
   } else {

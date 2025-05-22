@@ -17,6 +17,7 @@
 #include "dma.h"
 #include "usart.h"
 
+// TODO(njohn): Handle multiple DMA enginese?
 struct DMA1RegMap __attribute__((section(".dma1"))) dma1;
 
 static struct list_head per_channel_dma_req_q[DMA1_MAX_CHANNEL_COUNT];
@@ -26,11 +27,11 @@ static struct list_head per_channel_dma_req_q[DMA1_MAX_CHANNEL_COUNT];
  *
  */
 struct DMAPeripheralLookup {
-  uint32_t reg_addr;
-  uint32_t cfgr;
-  uint32_t intfcr;
+  uint32_t        reg_addr;
+  uint32_t        cfgr;
+  uint32_t        intfcr;
   enum PFICIntNum pfic_int_num;
-  uint8_t chan_idx;
+  uint8_t         chan_idx;
 };
 
 /**

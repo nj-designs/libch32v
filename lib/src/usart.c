@@ -78,6 +78,17 @@ static struct USARTRegMap *const reg_lookup[] = {
     NULL,    // USART7_ID
     NULL,    // USART8_ID
 };
+#elif LIBCH32_DEVICE_ID == WCH_CH32V203C8T6
+static struct USARTRegMap *const reg_lookup[] = {
+    &usart1, // USART1_ID
+    &usart2, // USART2_ID
+    &usart3, // USART3_ID
+    &usart4, // USART4_ID
+    NULL,    // USART5_ID
+    NULL,    // USART6_ID
+    NULL,    // USART7_ID
+    NULL,    // USART8_ID
+};
 #else
 #erorr "unsupported device"
 #endif
@@ -91,20 +102,20 @@ void usart_cfg(UsartId id, const struct UsartCfgValues *cfg) {
 
     if (cfg->dma) {
       switch (cfg->mode) {
-      case USART_DATA_MODE_RX_ONY: {
-        reg->ctlr3 = RCC_CTRL3_DMAR;
-        break;
-      }
+        case USART_DATA_MODE_RX_ONY: {
+          reg->ctlr3 = RCC_CTRL3_DMAR;
+          break;
+        }
 
-      case USART_DATA_MODE_TX_ONY: {
-        reg->ctlr3 = RCC_CTRL3_DMAT;
-        break;
-      }
+        case USART_DATA_MODE_TX_ONY: {
+          reg->ctlr3 = RCC_CTRL3_DMAT;
+          break;
+        }
 
-      default: {
-        reg->ctlr3 = RCC_CTRL3_DMAT | RCC_CTRL3_DMAR;
-        break;
-      }
+        default: {
+          reg->ctlr3 = RCC_CTRL3_DMAT | RCC_CTRL3_DMAR;
+          break;
+        }
       }
     } else {
       reg->ctlr3 = 0;
@@ -137,8 +148,7 @@ void usart_enable(UsartId id, uint32_t en) {
 void usart_send_byte(UsartId id, uint16_t value, const bool block) {
   struct USARTRegMap *reg = reg_lookup[(uint32_t)id];
   if (reg != NULL) {
-    while (block && (reg->statr & RCC_STATR_TXE) == 0) {
-    }
+    while (block && (reg->statr & RCC_STATR_TXE) == 0) {}
     reg->datar = value;
   }
 }
