@@ -25,7 +25,7 @@ typedef enum {
  *        Used in both clk & reset context but not all
  *        entries are valid for both use cases
  */
-typedef enum {
+enum RCCPeripheralId {
   // HB
   RCCBlesId = CREATE_RCC_PERIPHERAL_ID(RCC_AHB_IDX, 17),
   RCCBlecId = CREATE_RCC_PERIPHERAL_ID(RCC_AHB_IDX, 16),
@@ -79,7 +79,7 @@ typedef enum {
   RCC_IOPA_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 2),
   RCC_AFIO_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 0),
 
-} RCCPeripheralId;
+};
 
 /**
  * @brief Enumerate possible clocks
@@ -108,14 +108,14 @@ void rcc_init(void);
  * @param id Which peripheral
  * @param on on or off
  */
-void rcc_set_peripheral_clk(RCCPeripheralId id, uint32_t on);
+void rcc_set_peripheral_clk(enum RCCPeripheralId id, uint32_t on);
 
 /**
  * @brief
  *
  * @param id
  */
-void rcc_reset_peripherial(RCCPeripheralId id);
+void rcc_reset_peripherial(enum RCCPeripheralId id);
 
 /**
  * @brief Return frequency of specified clock source

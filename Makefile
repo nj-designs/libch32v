@@ -92,7 +92,7 @@ APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 BUILD = build
 
 LIB_INC_DIR	= lib/include
-LIB_FAMILY_INC_DIR = $(LIB_INC_DIR)/$(FAMILY)
+# LIB_FAMILY_INC_DIR = $(LIB_INC_DIR)/$(FAMILY)
 
 LIB_BASE_SRC_DIR = lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
@@ -130,7 +130,7 @@ CFLAGS += -std=$(CSTD) -march=$(MARCH) -mabi=$(MABI) -ffreestanding -fno-pic
 CFLAGS += -O$(OPTIMIZE)
 CFLAGS += -Werror -g -Wall -Wextra
 CFLAGS += $(addprefix -I,$(LIB_INC_DIR))
-CFLAGS += $(addprefix -I,$(LIB_FAMILY_INC_DIR))
+# CFLAGS += $(addprefix -I,$(LIB_FAMILY_INC_DIR))
 CFLAGS += -I$(BUILD)
 CFLAGS += $(addprefix -D,$(DEFS))
 CFLAGS += -ffunction-sections -fdata-sections

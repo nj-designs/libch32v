@@ -4,7 +4,7 @@ AccessModifierOffset: -1
 AlignAfterOpenBracket: Align
 AlignArrayOfStructures: None
 AlignConsecutiveAssignments:
-  Enabled:         false
+  Enabled:         true
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false
@@ -12,7 +12,7 @@ AlignConsecutiveAssignments:
   AlignFunctionPointers: false
   PadOperators:    true
 AlignConsecutiveBitFields:
-  Enabled:         false
+  Enabled:         true
   AcrossEmptyLines: false
   AcrossComments:  false
   AlignCompound:   false

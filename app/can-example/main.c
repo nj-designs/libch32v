@@ -111,14 +111,15 @@ static void setup_led(void) {
 static void setup_can(void) {
   rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
   rcc_set_peripheral_clk(RCC_IOPB_ID, 1);
-  afio.pcfr1 = 0x4000;
+  afio_remap(RCCCan1Id, AFIO_PCFR1_CAN1_RM_PB8_PB9);
+
   /* gpio_pin_init(PIN_PA11, PIN_MODE_INPUT_PULL_UP);
   gpio_pin_init(PIN_PA12, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ); */
 
   gpio_pin_init(PIN_PB8, PIN_MODE_INPUT_PULL_UP);
   gpio_pin_init(PIN_PB9, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
 
-  can_init(CAN_CTRL_ID_1, 500'000, false, false, can_rx_handler);
+  can_init(CAN_CTRL_ID_1, 500'000, true, true, can_rx_handler);
   const uint32_t id_cnt = sizeof(can_ids) / sizeof(can_ids[0]);
   can_filter_init_ex(CAN_CTRL_ID_1, can_ids, id_cnt);
 }
