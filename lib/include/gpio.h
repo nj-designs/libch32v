@@ -76,6 +76,7 @@ enum GPIOPinId {
   PIN_PB6 = CREATE_PIN_NUMBER(GPIO_B_IDX, 6),
   PIN_PB7 = CREATE_PIN_NUMBER(GPIO_B_IDX, 7),
   PIN_PB8 = CREATE_PIN_NUMBER(GPIO_B_IDX, 8),
+  PIN_PB9 = CREATE_PIN_NUMBER(GPIO_B_IDX, 9),
   PIN_PD0 = CREATE_PIN_NUMBER(GPIO_D_IDX, 0),
   PIN_PD1 = CREATE_PIN_NUMBER(GPIO_D_IDX, 1),
 
@@ -220,8 +221,8 @@ typedef enum {
  *
  */
 struct GPIOPinSetCache {
-  volatile uint32_t *bshr;
-  volatile uint32_t *bcr;
+  volatile uint32_t* bshr;
+  volatile uint32_t* bcr;
   uint16_t pin_bit_map;
 };
 
@@ -250,7 +251,7 @@ extern void gpio_pin_set(enum GPIOPinId pin_id, uint8_t val);
  * @param cache Which to cache
  */
 extern void gpio_pin_cache(enum GPIOPinId pin_id,
-                           struct GPIOPinSetCache *cache);
+                           struct GPIOPinSetCache* cache);
 
 /**
  * @brief Set the specified pin to val using a cached pin set
@@ -258,7 +259,7 @@ extern void gpio_pin_cache(enum GPIOPinId pin_id,
  * @param cache Cached pin set info
  * @param val 1 or 0
  */
-inline void gpio_pin_set_fast(struct GPIOPinSetCache *cache, uint8_t val) {
+inline void gpio_pin_set_fast(struct GPIOPinSetCache* cache, uint8_t val) {
   if (val) {
     *cache->bshr = cache->pin_bit_map;
   } else {

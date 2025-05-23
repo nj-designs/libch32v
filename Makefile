@@ -1,7 +1,7 @@
 APP ?= can-example
 
-# DEVICE ?= ch32v307vct6
-DEVICE ?= ch32v203c8t6
+DEVICE ?= ch32v307vct6
+# DEVICE ?= ch32v203c8t6
 
 # Need gnuXX to allow __asm
 CSTD = gnu2x

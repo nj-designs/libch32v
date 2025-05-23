@@ -9,6 +9,7 @@
  *
  */
 
+#include <stdint.h>
 #include "afio.h"
 #include "can.h"
 #include "core.h"
@@ -16,26 +17,30 @@
 #include "printf.h"
 #include "rcc.h"
 #include "stdout.h"
-#include <stdint.h>
 
 static struct GPIOPinSetCache ledCache;
 
-const enum GPIOPinId LED_PIN = PIN_PA15;
+// const enum GPIOPinId LED_PIN = PIN_PA15; //V203 nano board
+const enum GPIOPinId LED_PIN = PIN_PA10;  // V307 board
 
 static uint8_t can_msg[8] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x7};
 
 static const uint32_t can_ids[] = {
-    CAN_STD_ID(0x555), CAN_STD_ID(0x317), CAN_STD_ID(0x400), CAN_EXT_ID(0x900), CAN_EXT_ID(0x1FFFFFFF),
+    CAN_STD_ID(0x555),
+    CAN_STD_ID(0x317),
+    CAN_STD_ID(0x400),
+    CAN_EXT_ID(0x900),
+    CAN_EXT_ID(0x1FFFFFFF),
 };
 
 struct CanCmd1 {
-  uint8_t  opcode;
+  uint8_t opcode;
   uint16_t arg1;
   uint16_t arg2;
 };
 static_assert(sizeof(struct CanCmd1) <= 8, "Too big");
 
-void can_rx_handler(const CanRxMsg *can_msg) {
+void can_rx_handler(const CanRxMsg* can_msg) {
   printf("CAN Msg - Id: 0x%X Len: %d PayLoad:", can_msg->id, can_msg->data_len);
   int len = can_msg->data_len <= 8 ? can_msg->data_len : 8;
   for (int idx = 0; idx < len; idx++) {
@@ -44,15 +49,14 @@ void can_rx_handler(const CanRxMsg *can_msg) {
   printf("\n");
 
   if (can_msg->data_len >= sizeof(struct CanCmd1)) {
-    struct CanCmd1 *cmd = (struct CanCmd1 *)can_msg->data_ptr;
+    struct CanCmd1* cmd = (struct CanCmd1*)can_msg->data_ptr;
     printf("CanCmd1 - opcode:0x%02X arg1:0x%04X arg2:0x%04X\n", cmd->opcode, cmd->arg1, cmd->arg2);
   }
 }
 
 static void print_clocks(void) {
-
   static const struct {
-    const char     *str;
+    const char* str;
     enum RCCClockId id;
   } clocks[] = {
 
@@ -105,27 +109,29 @@ static void setup_led(void) {
 }
 
 static void setup_can(void) {
-
   rcc_set_peripheral_clk(RCC_AFIO_ID, 1);
-  rcc_set_peripheral_clk(RCC_IOPD_ID, 1);
-  afio.pcfr1 = 0x6000;
-  gpio_pin_init(PIN_PA11, PIN_MODE_INPUT_PULL_UP);
-  gpio_pin_init(PIN_PA12, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
+  rcc_set_peripheral_clk(RCC_IOPB_ID, 1);
+  afio.pcfr1 = 0x4000;
+  /* gpio_pin_init(PIN_PA11, PIN_MODE_INPUT_PULL_UP);
+  gpio_pin_init(PIN_PA12, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ); */
 
-  can_init(CAN_CTRL_ID_1, 500'000, true, true, can_rx_handler);
+  gpio_pin_init(PIN_PB8, PIN_MODE_INPUT_PULL_UP);
+  gpio_pin_init(PIN_PB9, PIN_MODE_ALTERNATE_FUNC_PUSH_PULL_50MHZ);
+
+  can_init(CAN_CTRL_ID_1, 500'000, false, false, can_rx_handler);
   const uint32_t id_cnt = sizeof(can_ids) / sizeof(can_ids[0]);
   can_filter_init_ex(CAN_CTRL_ID_1, can_ids, id_cnt);
 }
 
 static void tx_fail(uint32_t line_num) {
   volatile uint32_t fail_num = line_num;
-  while (fail_num) {}
+  while (fail_num) {
+  }
 }
 
 static const uint32_t MAX_CAN_WAIT_MS = 5;
 
 void main(void) {
-
   stdout_init();
 
   print_clocks();
@@ -134,8 +140,7 @@ void main(void) {
   setup_can();
 
   struct CANTxReq can_req = {
-      .ctrl_id = CAN_CTRL_ID_1, .data_ptr = can_msg, .data_len = 8, .id = CAN_STD_ID(0x317)
-  };
+      .ctrl_id = CAN_CTRL_ID_1, .data_ptr = can_msg, .data_len = 8, .id = CAN_STD_ID(0x317)};
 
   can_msg[0] = 0xA0;
   can_req.id = CAN_STD_ID(0x555);

@@ -121,7 +121,7 @@ enum PFICIntPriority : uint8_t {
 
 #endif
 
-#if defined(LIBCH32_CPU_CORE_V4B)
+#if defined(LIBCH32_CPU_CORE_V4B) || defined(LIBCH32_CPU_CORE_V4F)
 enum PFICIntPriority : uint8_t {
   PFIC_INT_PRIORITY_0 = 0b111,
   PFIC_INT_PRIORITY_1 = 0b110,

@@ -101,7 +101,7 @@ void core_pfic_set_int_priority(enum PFICIntNum in, enum PFICIntPriority prio) {
     uint32_t dword;
   } reg;
 #endif */
-#if defined(LIBCH32_CPU_CORE_V4B)
+#if defined(LIBCH32_CPU_CORE_V4B) || defined(LIBCH32_CPU_CORE_V4F)
   union {
     struct {
       uint8_t res : 5;  // 4:0
