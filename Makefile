@@ -17,6 +17,7 @@ DEVICE_HEADER_TOOL = scripts/gen_device_header.py
 APP_HEADER_TOOL = scripts/gen_app_header.py
 APP_DEF_TOOL = scripts/gen_app_defines.py
 DEV_DEF_TOOL = scripts/gen_device_defines.py
+FLASH_HELPER_TOOL = scripts/flash_helper.py
 
 FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
 ifeq ($(FAMILY),)
@@ -124,7 +125,7 @@ SIZE    = $(TOOL_CHAIN_PREFIX)-size
 NM      = $(TOOL_CHAIN_PREFIX)-nm
 GDB     = $(TOOL_CHAIN_PREFIX)-gdb
 
-FLASH_TOOL   = wlink
+WLINK   = wlink
 
 CFLAGS += -std=$(CSTD) -march=$(MARCH) -mabi=$(MABI) -ffreestanding -fno-pic
 CFLAGS += -O$(OPTIMIZE)
@@ -197,8 +198,11 @@ $(AOBJ) : $(BUILD)/%.o : %.S
 start-gdb: $(BUILD)/$(APP).elf
 	$(GDB) --command run/gdb-init $<
 
+flash_old: $(BUILD)/$(APP).bin
+	$(WLINK) flash --address $(FLASH_PROG_ADDR) $<
+
 flash: $(BUILD)/$(APP).bin
-	$(FLASH_TOOL) flash --address $(FLASH_PROG_ADDR) $<
+	python3 $(FLASH_HELPER_TOOL) --verbose --device $(DEVICE) --address $(FLASH_PROG_ADDR) --file $<
 
 clean:
 	@rm -rfv $(BUILD) compile_commands.json

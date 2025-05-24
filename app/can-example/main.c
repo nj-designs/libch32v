@@ -176,10 +176,10 @@ void main(void) {
   while (1) {
     printf("On\n");
     gpio_pin_set_fast(&ledCache, 1);
-    core_delay_ms(1000);
+    core_delay_ms(100);
     printf("Off\n");
     gpio_pin_set_fast(&ledCache, 0);
-    core_delay_ms(1000);
+    core_delay_ms(100);
   }
 }
 
