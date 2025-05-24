@@ -14,7 +14,7 @@
 
 #include "rcc.h"
 
-#if defined(LIBCH32_V307_FAMILY)
+#if defined(LIBCH32_V307_FAMILY) || defined(LIBCH32_V203_FAMILY)
 // PCFR1
 // -----
 // PD01_RM[15]

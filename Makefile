@@ -1,7 +1,7 @@
-APP ?= can-example
+APP ?= hello-world
 
-DEVICE ?= ch32v307vct6
-# DEVICE ?= ch32v203c8t6
+# DEVICE ?= ch32v307vct6
+DEVICE ?= ch32v203c8t6
 
 # Need gnuXX to allow __asm
 CSTD = gnu2x
@@ -98,7 +98,7 @@ LIB_INC_DIR	= lib/include
 LIB_BASE_SRC_DIR = lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
-DEFS = $(APP_DEFS) $(DEV_DEFS)
+DEFS = $(APP_DEFS) $(DEV_DEFS) $(BOARD)
 
 OPTIMIZE = s
 
