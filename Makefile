@@ -13,11 +13,11 @@ DEVICE_CFG_FILE = lib/cfg/devices.ini
 APP_CFG_FILE = $(APP_DIR)/app.ini
 
 DEVICE_CFG_TOOL = scripts/get_device_cfg.py
-DEVICE_HEADER_TOOL = scripts/gen_device_header.py
-APP_HEADER_TOOL = scripts/gen_app_header.py
+# DEVICE_HEADER_TOOL = scripts/gen_device_header.py
+# APP_HEADER_TOOL = scripts/gen_app_header.py
 APP_DEF_TOOL = scripts/gen_app_defines.py
 DEV_DEF_TOOL = scripts/gen_device_defines.py
-FLASH_HELPER_TOOL = scripts/flash_helper.py
+FLASH_HELPER_TOOL = scripts/flash-helper.py
 
 FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
 ifeq ($(FAMILY),)
