@@ -94,12 +94,11 @@ APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 BUILD = build
 
 LIB_INC_DIR	= lib/include
-# LIB_FAMILY_INC_DIR = $(LIB_INC_DIR)/$(FAMILY)
 
 LIB_BASE_SRC_DIR = lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
-DEFS = $(APP_DEFS) $(DEV_DEFS) $(BOARD)
+DEFS = $(APP_DEFS) $(DEV_DEFS)
 
 OPTIMIZE = s
 
