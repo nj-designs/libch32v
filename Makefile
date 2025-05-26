@@ -12,6 +12,7 @@ DEVICE_CFG_FILE = lib/cfg/devices.ini
 
 APP_CFG_FILE = $(APP_DIR)/app.ini
 
+
 APP_DEF_TOOL = scripts/gen_app_defines.py
 DEV_DEF_TOOL = scripts/gen_device_defines.py
 FLASH_HELPER_TOOL = scripts/flash-helper.py
@@ -93,6 +94,8 @@ APP_C_SRCS := $(wildcard $(APP_DIR)/*.c)
 # All build artifacts go here
 BUILD = build
 
+LIBCH32V_CONFIG_FILE = $(BUILD)/libch32v-config.h
+
 LIB_INC_DIR	= lib/include
 
 LIB_BASE_SRC_DIR = lib/src
@@ -158,7 +161,7 @@ sym: $(BUILD)/$(APP).sym
 bin: $(BUILD)/$(APP).bin
 hex: $(BUILD)/$(APP).hex
 
-%.elf:  $(COBJ) $(AOBJ)
+%.elf: $(COBJ) $(AOBJ)
 	@echo
 	@echo Linking...
 	$(CC) $(CFLAGS) $(AOBJ) $(COBJ) $(LDFLAGS) --output $@
@@ -185,15 +188,19 @@ size: $(BUILD)/$(APP).elf
 	@echo
 	$(OBJCOPY) -O ihex $< $@
 
-$(COBJ) : $(BUILD)/%.o : %.c
+$(COBJ) : $(BUILD)/%.o : %.c $(LIBCH32V_CONFIG_FILE)
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(CFLAGS) -Wp,-MP,-M,-MT,$@,-MF,$(BUILD)/$(*F).d  $< -o $@
 
-$(AOBJ) : $(BUILD)/%.o : %.S
+$(AOBJ) : $(BUILD)/%.o : %.S $(LIBCH32V_CONFIG_FILE)
 	@mkdir -p `dirname $@`
 	@echo
 	$(CC) -c $(ALL_ASFLAGS) $< -o $@
+
+$(LIBCH32V_CONFIG_FILE): $(DEVICE_CFG_FILE) $(APP_CFG_FILE)
+	@mkdir -p `dirname $@`
+	@python3 $(CFG_HELPER_TOOL) gen-header-file --app-file $(APP_CFG_FILE) --device-file $(DEVICE_CFG_FILE) --device-id $(DEVICE) --header-file $(LIBCH32V_CONFIG_FILE)
 
 start-gdb: $(BUILD)/$(APP).elf
 	$(GDB) --command run/gdb-init $<
