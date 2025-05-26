@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 struct GPIORegMap {
   volatile uint32_t cfglr;
   volatile uint32_t cfghr;
@@ -221,8 +223,8 @@ typedef enum {
  *
  */
 struct GPIOPinSetCache {
-  volatile uint32_t* bshr;
-  volatile uint32_t* bcr;
+  volatile uint32_t *bshr;
+  volatile uint32_t *bcr;
   uint16_t pin_bit_map;
 };
 
@@ -251,7 +253,7 @@ extern void gpio_pin_set(enum GPIOPinId pin_id, uint8_t val);
  * @param cache Which to cache
  */
 extern void gpio_pin_cache(enum GPIOPinId pin_id,
-                           struct GPIOPinSetCache* cache);
+                           struct GPIOPinSetCache *cache);
 
 /**
  * @brief Set the specified pin to val using a cached pin set
@@ -259,7 +261,7 @@ extern void gpio_pin_cache(enum GPIOPinId pin_id,
  * @param cache Cached pin set info
  * @param val 1 or 0
  */
-inline void gpio_pin_set_fast(struct GPIOPinSetCache* cache, uint8_t val) {
+inline void gpio_pin_set_fast(struct GPIOPinSetCache *cache, uint8_t val) {
   if (val) {
     *cache->bshr = cache->pin_bit_map;
   } else {

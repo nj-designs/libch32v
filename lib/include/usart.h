@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 struct USARTRegMap {
   volatile uint32_t statr;
   volatile uint32_t datar;
@@ -140,13 +142,13 @@ struct UsartCfgValues {
   bool dma;
 };
 
-struct UsartTxBufferRequest;  // Forward dec...
+struct UsartTxBufferRequest; // Forward dec...
 
 /**
  * @brief Define signature of a callback function upon all bytes being sent
  *
  */
-typedef void (*UsartTxBufferCB)(struct UsartTxBufferRequest* req);
+typedef void (*UsartTxBufferCB)(struct UsartTxBufferRequest *req);
 
 /**
  * @brief Define parameters required for a usart tx request
@@ -154,7 +156,7 @@ typedef void (*UsartTxBufferCB)(struct UsartTxBufferRequest* req);
  */
 struct UsartTxBufferRequest {
   UsartTxBufferCB cb;
-  const uint8_t* base;
+  const uint8_t *base;
   uint32_t len;
   uint32_t _idx;
   UsartId usart_id;
@@ -165,14 +167,14 @@ struct UsartTxBufferRequest {
  *
  * @param req
  */
-void usart_tx_buffer_request_start(struct UsartTxBufferRequest* req);
+void usart_tx_buffer_request_start(struct UsartTxBufferRequest *req);
 
 /**
  * @brief Update request based on usart interrupt
  *
  * @param req
  */
-void usart_tx_buffer_request_handle_int(struct UsartTxBufferRequest* req);
+void usart_tx_buffer_request_handle_int(struct UsartTxBufferRequest *req);
 
 /**
  * @brief Configure the specified usart
@@ -180,7 +182,7 @@ void usart_tx_buffer_request_handle_int(struct UsartTxBufferRequest* req);
  * @param id Which uart
  * @param cfg Config values
  */
-void usart_cfg(UsartId id, const struct UsartCfgValues* cfg);
+void usart_cfg(UsartId id, const struct UsartCfgValues *cfg);
 
 /**
  * @brief Enable en > 0 or disable en == 0 specified port

@@ -10,6 +10,8 @@
  */
 #pragma once
 
+#include "libch32v-config.h"
+
 #if !defined(LIBCH32_HAS_CAN1)
 #error This device doesn't support CAN
 #endif

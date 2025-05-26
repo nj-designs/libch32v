@@ -1,3 +1,5 @@
+#include "libch32v-config.h"
+
 #if !defined(LIBCH32_INT_NEST_DEPTH)
 #error Need to define int_nest_depth in devices.ini
 #endif
@@ -13,6 +15,7 @@
 #endif
 
 #define INTSYSCR_INESTEN (1 << 1)
+
 
 	.section	.text.handle_reset,"ax",@progbits
     .global	handle_reset

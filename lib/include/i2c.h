@@ -10,8 +10,10 @@
  */
 #pragma once
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+
+#include "libch32v-config.h"
 
 struct I2CRegMap {
   volatile uint16_t ctlr1;
@@ -115,7 +117,7 @@ struct I2CCfgValues {
 
 enum I2CXferType { I2C_XFER_WRITE, I2C_XFER_READ };
 
-void i2c_cfg(enum I2CId id, const struct I2CCfgValues* cfg);
+void i2c_cfg(enum I2CId id, const struct I2CCfgValues *cfg);
 
 void i2c_start(enum I2CId id);
 
@@ -127,7 +129,8 @@ void i2c_start(enum I2CId id);
  * @param xfer_type
  *
  */
-int32_t i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfer_type);
+int32_t i2c_connect(enum I2CId id, uint16_t target_address,
+                    enum I2CXferType xfer_type);
 
 /**
  * @brief
@@ -137,9 +140,9 @@ int32_t i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfe
  * @param max_read_len
  * @return int32_t
  */
-int32_t i2c_read(enum I2CId id, uint8_t* buffer, uint16_t max_read_len);
+int32_t i2c_read(enum I2CId id, uint8_t *buffer, uint16_t max_read_len);
 
-int32_t i2c_write(enum I2CId id, const uint8_t* buffer, uint16_t wr_len);
+int32_t i2c_write(enum I2CId id, const uint8_t *buffer, uint16_t wr_len);
 
 /**
  * @brief

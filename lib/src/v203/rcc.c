@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 #include "gpio.h"
 #include "rcc.h"
 

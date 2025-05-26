@@ -12,24 +12,26 @@
 
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 struct SPIRegMap {
-  volatile uint16_t ctlr1;  // 0x00
+  volatile uint16_t ctlr1; // 0x00
   uint16_t rsvd1;
-  volatile uint16_t ctlr2;  // 0x04
+  volatile uint16_t ctlr2; // 0x04
   uint16_t rsvd2;
-  volatile uint16_t statr;  // 0x08
+  volatile uint16_t statr; // 0x08
   uint16_t rsvd3;
-  volatile uint16_t datar;  // 0x0C
+  volatile uint16_t datar; // 0x0C
   uint16_t rsvd4;
-  volatile uint16_t crcr;  // 0x10
+  volatile uint16_t crcr; // 0x10
   uint16_t rsvd5;
-  volatile uint16_t rcrcr;  // 0x14
+  volatile uint16_t rcrcr; // 0x14
   uint16_t rsvd6;
-  volatile uint16_t tcrcr;  // 0x18
+  volatile uint16_t tcrcr; // 0x18
   uint16_t rsvd7;
-  volatile uint16_t i2s_cfgr;  // 0x1C
-  volatile uint16_t i2sspr;    // 0x20 (Reserved for SPI1)
-  volatile uint16_t hscr;      // 0x24
+  volatile uint16_t i2s_cfgr; // 0x1C
+  volatile uint16_t i2sspr;   // 0x20 (Reserved for SPI1)
+  volatile uint16_t hscr;     // 0x24
 };
 
 #ifdef LIBCH32_HAS_SPI1
@@ -130,4 +132,4 @@ struct SPICfgValues {
   enum SPIInstanceId id;
 };
 
-void spi_cfg(struct SPICfgValues* cfg);
+void spi_cfg(struct SPICfgValues *cfg);

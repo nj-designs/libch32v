@@ -147,11 +147,11 @@ class ConfigFileWriter(object):
         device_constant_val = hex(
             binascii.crc32(device_constant.encode('utf8'))
         )
-        print(f'#define {device_constant}={device_constant_val} ', file=f)
+        print(f'#define {device_constant} {device_constant_val}', file=f)
 
-        print(f'#define LIBCH32_DEVICE_ID={device_constant} ', file=f)
+        print(f'#define LIBCH32_DEVICE_ID {device_constant}', file=f)
 
-        print(f'#define LIBCH32_DEVICE_NAME="{device_id.upper()}" ', file=f)
+        print(f'#define LIBCH32_DEVICE_NAME "{device_id.upper()}"', file=f)
 
         for k in sorted(all_keys):
             cfg_val = self._get_device_value(device_id, k)
@@ -159,22 +159,18 @@ class ConfigFileWriter(object):
                 try:
                     _ = int(cfg_val, 16)
                     print(
-                        '#define LIBCH32_{0}={1} '.format(k.upper(), cfg_val),
+                        '#define LIBCH32_{0} {1}'.format(k.upper(), cfg_val),
                         file=f,
                     )
                 except ValueError:
                     print(
-                        '#define LIBCH32_{0}="{1}" '.format(
-                            k.upper(), cfg_val
-                        ),
+                        '#define LIBCH32_{0} "{1}"'.format(k.upper(), cfg_val),
                         file=f,
                     )
                 # Special handling
                 if k == 'family':
                     print(
-                        '#define LIBCH32_{0}_FAMILY=1 '.format(
-                            cfg_val.upper()
-                        ),
+                        '#define LIBCH32_{0}_FAMILY 1'.format(cfg_val.upper()),
                         file=f,
                     )
 
@@ -184,15 +180,13 @@ class ConfigFileWriter(object):
         )
         for k, v in self._app_cfg.defaults().items():
             if v is None:
-                print('#define APP_{0} '.format(k.upper()), file=f)
+                print('#define APP_{0}'.format(k.upper()), file=f)
             else:
                 try:
                     _ = int(v, 16)
-                    print('#define APP_{0}={1} '.format(k.upper(), v), file=f)
+                    print('#define APP_{0} {1}'.format(k.upper(), v), file=f)
                 except ValueError:
-                    print(
-                        '#define APP_{0}="{1}" '.format(k.upper(), v), file=f
-                    )
+                    print('#define APP_{0} "{1}"'.format(k.upper(), v), file=f)
 
     def _get_app_cfg(self):
         print('Get App File')

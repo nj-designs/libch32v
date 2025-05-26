@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 #include "rcc.h"
 
 #if defined(LIBCH32_V307_FAMILY) || defined(LIBCH32_V203_FAMILY)
@@ -22,18 +24,18 @@ static const uint32_t AFIO_PCFR1_PD01_RM_XTAL = 0;
 static const uint32_t AFIO_PCFR1_PD01_RM_GPIO = 1;
 // CAN1_RM[14:13]
 static const uint32_t AFIO_PCFR1_CAN1_RM_PA11_PA12 = 0b00;
-static const uint32_t AFIO_PCFR1_CAN1_RM_PB8_PB9   = 0b01;
-static const uint32_t AFIO_PCFR1_CAN1_RM_PD0_PD1   = 0b11;
+static const uint32_t AFIO_PCFR1_CAN1_RM_PB8_PB9 = 0b01;
+static const uint32_t AFIO_PCFR1_CAN1_RM_PD0_PD1 = 0b11;
 // TIM2_RM[9:8]
-static const uint32_t AFIO_PCFR1_TIM2_RM_DEFAULT    = 0b00;
+static const uint32_t AFIO_PCFR1_TIM2_RM_DEFAULT = 0b00;
 static const uint32_t AFIO_PCFR1_TIM2_RM_PARTIAL_01 = 0b01;
 static const uint32_t AFIO_PCFR1_TIM2_RM_PARTIAL_10 = 0b10;
-static const uint32_t AFIO_PCFR1_TIM2_RM_FULLY      = 0b11;
+static const uint32_t AFIO_PCFR1_TIM2_RM_FULLY = 0b11;
 // TIM1_RM[7:6]
-static const uint32_t AFIO_PCFR1_TIM1_RM_DEFAULT    = 0b00;
+static const uint32_t AFIO_PCFR1_TIM1_RM_DEFAULT = 0b00;
 static const uint32_t AFIO_PCFR1_TIM1_RM_PARTIAL_01 = 0b01;
 static const uint32_t AFIO_PCFR1_TIM1_RM_PARTIAL_10 = 0b10;
-static const uint32_t AFIO_PCFR1_TIM1_RM_FULLY      = 0b11;
+static const uint32_t AFIO_PCFR1_TIM1_RM_FULLY = 0b11;
 #else
 #error unsupported
 #endif

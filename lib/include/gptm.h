@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 struct GPTMRegMap {
   volatile uint16_t ctlr1; // 0x00
   uint16_t rsvd1;

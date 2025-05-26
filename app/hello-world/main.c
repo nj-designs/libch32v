@@ -10,6 +10,9 @@
  */
 
 #include <stdint.h>
+
+#include "libch32v-config.h"
+
 #include "core.h"
 #include "gpio.h"
 #include "printf.h"

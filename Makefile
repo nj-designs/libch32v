@@ -67,15 +67,15 @@ ifeq ($(FLASH_PROG_ADDR),)
 $(error Can't find value for $(DEVICE).flash_prog_addr)
 endif
 
-APP_DEFS=$(shell python3 $(APP_DEF_TOOL) $(APP_CFG_FILE))
-ifeq ($(APP_DEFS),)
-$(error Failed to generate app defines from $(APP_CFG_FILE))
-endif
-
-DEV_DEFS=$(shell python3 $(DEV_DEF_TOOL) $(DEVICE_CFG_FILE) $(DEVICE))
-ifeq ($(DEV_DEFS),)
-$(error Failed to generate app defines from $(DEVICE_CFG_FILE))
-endif
+# app_defs=$(shell python3 $(app_def_tool) $(app_cfg_file))
+# ifeq ($(app_defs),)
+# $(error failed to generate app defines from $(app_cfg_file))
+# endif
+#
+# dev_defs=$(shell python3 $(dev_def_tool) $(device_cfg_file) $(device))
+# ifeq ($(dev_defs),)
+# $(error failed to generate app defines from $(device_cfg_file))
+# endif
 
 
 # $(info $$FAMILY: '${FAMILY}')
@@ -101,7 +101,7 @@ LIB_INC_DIR	= lib/include
 LIB_BASE_SRC_DIR = lib/src
 LIB_FAMILY_SRC_DIR = $(LIB_BASE_SRC_DIR)/$(FAMILY)
 
-DEFS = $(APP_DEFS) $(DEV_DEFS)
+# DEFS = $(APP_DEFS) $(DEV_DEFS)
 
 OPTIMIZE = s
 
@@ -119,7 +119,7 @@ LIB_A_SRC = $(wildcard $(LIB_BASE_SRC_DIR)/*.S) $(wildcard $(LIB_FAMILY_SRC_DIR)
 CSRC = $(APP_C_SRCS) $(LIB_C_SRC)
 ASRC = $(APP_A_SRCS) $(LIB_A_SRC)
 
-ADEFS	= $(DEFS)
+# ADEFS	= $(DEFS)
 
 CC      = $(TOOL_CHAIN_PREFIX)-gcc
 OBJCOPY = $(TOOL_CHAIN_PREFIX)-objcopy
@@ -136,10 +136,12 @@ CFLAGS += -Werror -g -Wall -Wextra
 CFLAGS += $(addprefix -I,$(LIB_INC_DIR))
 # CFLAGS += $(addprefix -I,$(LIB_FAMILY_INC_DIR))
 CFLAGS += -I$(BUILD)
-CFLAGS += $(addprefix -D,$(DEFS))
+# CFLAGS += $(addprefix -D,$(DEFS))
 CFLAGS += -ffunction-sections -fdata-sections
 
-ASFLAGS += $(addprefix -D,$(ADEFS)) -Wa,-gstabs,-g$(DEBUG)
+# ASFLAGS += $(addprefix -D,$(ADEFS)) -Wa,-gstabs,-g$(DEBUG)
+ASFLAGS += -Wa,-gstabs,-g$(DEBUG)
+ASFLAGS += -I$(BUILD)
 ALL_ASFLAGS = -march=$(MARCH) -mabi=$(MABI) -I. -x assembler-with-cpp $(ASFLAGS)
 
 COBJ = $(CSRC:.c=.o)
