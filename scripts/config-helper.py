@@ -2,6 +2,7 @@
 Generate combined config file
 """
 import argparse
+import configparser
 import pathlib
 
 
@@ -71,12 +72,50 @@ class ConfigFileWriter(object):
             help='header output file',
         )
 
-        self._args = parser.parse_args()
+        self._args = vars(parser.parse_args())
+        self._device_cfg = configparser.ConfigParser()
+        self._app_cfg = configparser.ConfigParser()
 
-        print(self._args)
+    def _get_device_value(self):
+        pass
+
+    def _get_device_cfg(self):
+        # all_device_keys = set()
+        # for sec in self._device_cfg.sections():
+        #     for k in self._device_cfg[sec]:
+        #         all_device_keys.add(k)
+        # print(all_device_keys)
+        device_id = self._args['device_id']
+        key = self._args['cfg_name']
+        for i in range(len(device_id), 3, -1):
+            try:
+                sdn = device_id[0:i]
+                val = self._device_cfg[sdn][key]
+                if len(val):
+                    print(val, end='')
+                    return
+            except KeyError:
+                pass
+
+    def _get_app_cfg(self):
+        print('Get App File')
+
+    def _gen_header_file(self):
+        print('Gen Header file')
 
     def run(self):
-        pass
+
+        if self._args.get('device_file'):
+            self._device_cfg.read(self._args['device_file'])
+
+        if self._args.get('app_file'):
+            self._app_cfg.read(self._args['app_file'])
+
+        {
+            'get-device-cfg': self._get_device_cfg,
+            'get-app-cfg': self._get_app_cfg,
+            'gen-header-file': self._gen_header_file,
+        }[self._args['command']]()
 
 
 if __name__ == '__main__':

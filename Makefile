@@ -12,55 +12,56 @@ DEVICE_CFG_FILE = lib/cfg/devices.ini
 
 APP_CFG_FILE = $(APP_DIR)/app.ini
 
-DEVICE_CFG_TOOL = scripts/get_device_cfg.py
-# DEVICE_HEADER_TOOL = scripts/gen_device_header.py
-# APP_HEADER_TOOL = scripts/gen_app_header.py
 APP_DEF_TOOL = scripts/gen_app_defines.py
 DEV_DEF_TOOL = scripts/gen_device_defines.py
 FLASH_HELPER_TOOL = scripts/flash-helper.py
+CFG_HELPER_TOOL = scripts/config-helper.py
 
-FAMILY=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) family)
+# $1 = DEVICE
+# $2 = cfg_name
+get_device_cfg = $(shell python3 $(CFG_HELPER_TOOL) get-device-cfg --device-file $(DEVICE_CFG_FILE) --device-id $(1) --cfg-name $(2))
+
+FAMILY = $(call get_device_cfg,$(DEVICE),family)
 ifeq ($(FAMILY),)
 $(error Can't find value for $(DEVICE).FAMILY)
 endif
 
-
-FLASH_SIZE=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_size)
+FLASH_SIZE = $(call get_device_cfg,$(DEVICE),flash_size)
 ifeq ($(FLASH_SIZE),)
 $(error Can't find value for $(DEVICE).flash_size)
 endif
 
-FLASH_START=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_start)
+FLASH_START = $(call get_device_cfg,$(DEVICE),flash_start)
 ifeq ($(FLASH_START),)
 $(error Can't find value for $(DEVICE).flash_start)
 endif
 
-SRAM_SIZE=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) sram_size)
+SRAM_SIZE = $(call get_device_cfg,$(DEVICE),sram_size)
 ifeq ($(SRAM_SIZE),)
 $(error Can't find value for $(DEVICE).sram_size)
 endif
 
-SRAM_START=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) sram_start)
+SRAM_START = $(call get_device_cfg,$(DEVICE),sram_start)
 ifeq ($(SRAM_START),)
 $(error Can't find value for $(DEVICE).sram_start)
 endif
 
-LD_SCRIPT=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) ld_script)
+LD_SCRIPT = $(call get_device_cfg,$(DEVICE),ld_script)
 ifeq ($(LD_SCRIPT),)
 $(error Can't find value for $(DEVICE).ld_script)
 endif
 
-MARCH=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) march)
+MARCH = $(call get_device_cfg,$(DEVICE),march)
 ifeq ($(MARCH),)
 $(error Can't find value for $(DEVICE).march)
 endif
 
-MABI=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) mabi)
+MABI = $(call get_device_cfg,$(DEVICE),mabi)
 ifeq ($(MABI),)
 $(error Can't find value for $(DEVICE).mabi)
 endif
 
-FLASH_PROG_ADDR=$(shell python3 $(DEVICE_CFG_TOOL) $(DEVICE_CFG_FILE) $(DEVICE) flash_prog_addr)
+FLASH_PROG_ADDR = $(call get_device_cfg,$(DEVICE),flash_prog_addr)
 ifeq ($(FLASH_PROG_ADDR),)
 $(error Can't find value for $(DEVICE).flash_prog_addr)
 endif
