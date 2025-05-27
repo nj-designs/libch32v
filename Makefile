@@ -15,6 +15,9 @@ APP_CFG_FILE = $(APP_DIR)/app.ini
 
 FLASH_HELPER_TOOL = scripts/flash-helper.py
 CFG_HELPER_TOOL = scripts/config-helper.py
+CCJ_HELPER_TOOL = scripts/gen-compile-commands.py
+CCJ_FILE = compile_commands.json
+CLANGD_CACHE_DIR = .cache
 
 # $1 = DEVICE
 # $2 = cfg_name
@@ -113,7 +116,7 @@ CFLAGS += -ffunction-sections -fdata-sections
 
 ASFLAGS += -Wa,-gstabs,-g$(DEBUG)
 ASFLAGS += -I$(BUILD)
-ALL_ASFLAGS = -march=$(MARCH) -mabi=$(MABI) -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_ASFLAGS = -march=$(MARCH) -mabi=$(MABI) -x assembler-with-cpp $(ASFLAGS)
 
 COBJ = $(CSRC:.c=.o)
 AOBJ = $(ASRC:.S=.o)
@@ -178,16 +181,17 @@ $(LIBCH32V_CONFIG_FILE): $(DEVICE_CFG_FILE) $(APP_CFG_FILE)
 start-gdb: $(BUILD)/$(APP).elf
 	$(GDB) --command run/gdb-init $<
 
-flash_old: $(BUILD)/$(APP).bin
-	$(WLINK) flash --address $(FLASH_PROG_ADDR) $<
+ccj: $(BUILD)/$(APP).bin
+	@rm -fr $(CLANGD_CACHE_DIR)
+	python3 $(CCJ_HELPER_TOOL) --family $(FAMILY) --out-file $(CCJ_FILE) --base-dir $(PWD) --app-name $(APP) --bld-dir $(BUILD) --cc "$(CC) -c $(CFLAGS)"
 
 flash: $(BUILD)/$(APP).bin
 	python3 $(FLASH_HELPER_TOOL) --verbose --device $(DEVICE) --address $(FLASH_PROG_ADDR) --file $<
 
 clean:
-	@rm -rfv $(BUILD) .cache compile_commands.json
+	@rm -rfv $(BUILD) $(CCJ_FILE) $(CLANGD_CACHE_DIE)
 
-.PHONY: all clean size flash start-gdb
+.PHONY: all clean size flash start-gdb ccj
 
 # Include the dependency files.
 -include $(wildcard $(BUILD)/*.d)
