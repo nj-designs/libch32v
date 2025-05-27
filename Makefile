@@ -185,7 +185,7 @@ flash: $(BUILD)/$(APP).bin
 	python3 $(FLASH_HELPER_TOOL) --verbose --device $(DEVICE) --address $(FLASH_PROG_ADDR) --file $<
 
 clean:
-	@rm -rfv $(BUILD) compile_commands.json
+	@rm -rfv $(BUILD) .cache compile_commands.json
 
 .PHONY: all clean size flash start-gdb
 
