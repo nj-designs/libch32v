@@ -9,6 +9,7 @@
  *
  */
 
+#include "libch32v-config.h"
 #if defined(LIBCH32_HAS_CAN1)
 
 #include <stdint.h>
@@ -20,54 +21,54 @@
 #include "rcc.h"
 
 struct CANRegMap {
-  volatile uint32_t ctlr;  // 0x00
-  volatile uint32_t statr; // 0x04
+  volatile uint32_t ctlr;   // 0x00
+  volatile uint32_t statr;  // 0x04
   volatile union {
     struct {
-      uint32_t rqcp0    :1; // 0
-      uint32_t txok0    :1; // 1
-      uint32_t alst0    :1; // 2
-      uint32_t terr0    :1; // 3
-      uint32_t res6_4   :3; // 6:4
-      uint32_t abrq0    :1; // 7
-      uint32_t rqcp1    :1; // 8
-      uint32_t txok1    :1; // 9
-      uint32_t alst1    :1; // 10
-      uint32_t terr1    :1; // 11
-      uint32_t res14_12 :3; // 14:12
-      uint32_t abrq1    :1; // 15
-      uint32_t rqcp2    :1; // 16
-      uint32_t tkok2    :1; // 17
-      uint32_t alst2    :1; // 18
-      uint32_t terr2    :1; // 19
-      uint32_t res22_20 :3; // 22:20
-      uint32_t abrq2    :1; // 23
-      uint32_t code     :2; // 25:24
-      uint32_t tme0     :1; // 26
-      uint32_t tme1     :1; // 27
-      uint32_t tme2     :1; // 28
-      uint32_t low0     :1; // 29
-      uint32_t low1     :1; // 30
-      uint32_t low2     :1; // 31
+      uint32_t rqcp0    : 1;  // 0
+      uint32_t txok0    : 1;  // 1
+      uint32_t alst0    : 1;  // 2
+      uint32_t terr0    : 1;  // 3
+      uint32_t res6_4   : 3;  // 6:4
+      uint32_t abrq0    : 1;  // 7
+      uint32_t rqcp1    : 1;  // 8
+      uint32_t txok1    : 1;  // 9
+      uint32_t alst1    : 1;  // 10
+      uint32_t terr1    : 1;  // 11
+      uint32_t res14_12 : 3;  // 14:12
+      uint32_t abrq1    : 1;  // 15
+      uint32_t rqcp2    : 1;  // 16
+      uint32_t tkok2    : 1;  // 17
+      uint32_t alst2    : 1;  // 18
+      uint32_t terr2    : 1;  // 19
+      uint32_t res22_20 : 3;  // 22:20
+      uint32_t abrq2    : 1;  // 23
+      uint32_t code     : 2;  // 25:24
+      uint32_t tme0     : 1;  // 26
+      uint32_t tme1     : 1;  // 27
+      uint32_t tme2     : 1;  // 28
+      uint32_t low0     : 1;  // 29
+      uint32_t low1     : 1;  // 30
+      uint32_t low2     : 1;  // 31
     };
     uint32_t dword;
   } tstatr;
-  volatile uint32_t rfifo0; // 0x0C
-  volatile uint32_t rfifo1; // 0x10
-  volatile uint32_t intenr; // 0x14
-  volatile uint32_t errsr;  // 0x18
-  volatile uint32_t btimr;  // 0x1C
-  volatile uint32_t ttctlr; // 0x20
-  volatile uint32_t ttcnt;  // 0x24
+  volatile uint32_t rfifo0;  // 0x0C
+  volatile uint32_t rfifo1;  // 0x10
+  volatile uint32_t intenr;  // 0x14
+  volatile uint32_t errsr;   // 0x18
+  volatile uint32_t btimr;   // 0x1C
+  volatile uint32_t ttctlr;  // 0x20
+  volatile uint32_t ttcnt;   // 0x24
 };
 
 union CANMailboxTxMirRegBits {
   struct {
-    uint32_t txrq :1;  // 0
-    uint32_t rtr  :1;  // 1
-    uint32_t ide  :1;  // 2
-    uint32_t exid :18; // 20:3
-    uint32_t stid :11; // 31:21
+    uint32_t txrq : 1;   // 0
+    uint32_t rtr  : 1;   // 1
+    uint32_t ide  : 1;   // 2
+    uint32_t exid : 18;  // 20:3
+    uint32_t stid : 11;  // 31:21
   };
   uint32_t dword;
 };
@@ -75,15 +76,15 @@ union CANMailboxTxMirRegBits {
 struct CANMailboxRegMap {
   volatile struct {
     union CANMailboxTxMirRegBits mir;
-    uint32_t                     mdtr;
-    uint32_t                     mdlr;
-    uint32_t                     mdhr;
+    uint32_t mdtr;
+    uint32_t mdlr;
+    uint32_t mdhr;
   } tx[3];
   volatile struct {
     union CANMailboxTxMirRegBits mir;
-    uint32_t                     mdtr;
-    uint32_t                     mdlr;
-    uint32_t                     mdhr;
+    uint32_t mdtr;
+    uint32_t mdlr;
+    uint32_t mdhr;
   } rx[2];
 };
 static const uint8_t CAN_TX_MB_INVALID_IDX = 0xFF;
@@ -91,28 +92,28 @@ static const uint8_t CAN_TX_MB_INVALID_IDX = 0xFF;
 struct CANFilterRegMap {
   volatile union {
     struct {
-      uint32_t finit     :1;  // 0
-      uint32_t resv7_1   :7;  // 7:1
-      uint32_t can2sb    :6;  // 13:8
-      uint32_t resv31_14 :18; // 31:14
+      uint32_t finit     : 1;   // 0
+      uint32_t resv7_1   : 7;   // 7:1
+      uint32_t can2sb    : 6;   // 13:8
+      uint32_t resv31_14 : 18;  // 31:14
     };
     uint32_t dword;
-  } fctlr;                           // 0x40006600
-  volatile uint32_t fmcfgr;          // 0x40006604
-  uint32_t          resv_0x40006608; // 0x40006608
-  volatile uint32_t fscfgr;          // 0x4000660C
-  uint32_t          resv_0x40006610; // 0x40006610
-  volatile uint32_t fafifor;         // 0x40006614
-  uint32_t          resv_0x40006618; // 0x40006618
-  volatile uint32_t fwr;             // 0x4000661C
-  uint32_t          resv_0x40006620; // 0x40006620
-  uint32_t          resv_0x40006624; // 0x40006624
-  uint32_t          resv_0x40006628; // 0x40006628
-  uint32_t          resv_0x4000662C; // 0x4000662C
-  uint32_t          resv_0x40006630; // 0x40006630
-  uint32_t          resv_0x40006634; // 0x40006634
-  uint32_t          resv_0x40006638; // 0x40006638
-  uint32_t          resv_0x4000663C; // 0x4000663C
+  } fctlr;                    // 0x40006600
+  volatile uint32_t fmcfgr;   // 0x40006604
+  uint32_t resv_0x40006608;   // 0x40006608
+  volatile uint32_t fscfgr;   // 0x4000660C
+  uint32_t resv_0x40006610;   // 0x40006610
+  volatile uint32_t fafifor;  // 0x40006614
+  uint32_t resv_0x40006618;   // 0x40006618
+  volatile uint32_t fwr;      // 0x4000661C
+  uint32_t resv_0x40006620;   // 0x40006620
+  uint32_t resv_0x40006624;   // 0x40006624
+  uint32_t resv_0x40006628;   // 0x40006628
+  uint32_t resv_0x4000662C;   // 0x4000662C
+  uint32_t resv_0x40006630;   // 0x40006630
+  uint32_t resv_0x40006634;   // 0x40006634
+  uint32_t resv_0x40006638;   // 0x40006638
+  uint32_t resv_0x4000663C;   // 0x4000663C
   volatile struct {
     uint32_t fr1;
     uint32_t fr2;
@@ -138,9 +139,9 @@ static const uint32_t CAN_STATR_INAK = (1 << 0);
 // CODE[25:24]
 // static const uint32_t CAN_TSTATR_CODE_SHIFT = 24;
 
-static const uint32_t CAN_TSTATR_RQCP = (1 << 0);
-static const uint32_t CAN_TSTATR_TXOK = (1 << 1);
-static const uint32_t CAN_TSTATR_ALST = (1 << 2);
+static const uint32_t CAN_TSTATR_RQCP  = (1 << 0);
+static const uint32_t CAN_TSTATR_TXOK  = (1 << 1);
+static const uint32_t CAN_TSTATR_ALST  = (1 << 2);
 static const uint32_t CAN_TSTATR_TERRO = (1 << 3);
 
 // RFIFO0
@@ -176,18 +177,18 @@ static const uint32_t CAN_BTIMR_BRP_MASK = (0x3FF);
 static can_rx_cb _registered_can_rx_cb;
 
 #ifdef LIBCH32_HAS_CAN1
-static struct CANRegMap __attribute__((section(".can1")))              can1;
-static struct CANMailboxRegMap __attribute__((section(".can1_mb")))    can1_mb;
+static struct CANRegMap __attribute__((section(".can1"))) can1;
+static struct CANMailboxRegMap __attribute__((section(".can1_mb"))) can1_mb;
 static struct CANFilterRegMap __attribute__((section(".can1_filter"))) can1_filter;
 #endif
 
 #ifdef LIBCH32_HAS_CAN2
-static struct CANRegMap __attribute__((section(".can2")))           can2;
+static struct CANRegMap __attribute__((section(".can2"))) can2;
 static struct CANMailboxRegMap __attribute__((section(".can2_mb"))) can2_mb;
 #endif
 
-static struct CANRegMap *_get_ctrl_reg_ptr(enum CanCtrlId ctrl_id) {
-  struct CANRegMap *ptr = nullptr;
+static struct CANRegMap* _get_ctrl_reg_ptr(enum CanCtrlId ctrl_id) {
+  struct CANRegMap* ptr = nullptr;
   switch (ctrl_id) {
     case CAN_CTRL_ID_1: {
       ptr = &can1;
@@ -206,8 +207,8 @@ static struct CANRegMap *_get_ctrl_reg_ptr(enum CanCtrlId ctrl_id) {
   return ptr;
 }
 
-static struct CANMailboxRegMap *_get_mb_ptr(enum CanCtrlId ctrl_id) {
-  struct CANMailboxRegMap *ptr = nullptr;
+static struct CANMailboxRegMap* _get_mb_ptr(enum CanCtrlId ctrl_id) {
+  struct CANMailboxRegMap* ptr = nullptr;
   switch (ctrl_id) {
     case CAN_CTRL_ID_1: {
       ptr = &can1_mb;
@@ -226,7 +227,7 @@ static struct CANMailboxRegMap *_get_mb_ptr(enum CanCtrlId ctrl_id) {
   return ptr;
 }
 
-static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {
+static void enbable_ctrl(struct CANRegMap* reg_ptr, uint32_t on) {
   if (reg_ptr == &can1) {
     rcc_set_peripheral_clk(RCCCan1Id, on);
     rcc_reset_peripherial(RCCCan1Id);
@@ -241,10 +242,10 @@ static void enbable_ctrl(struct CANRegMap *reg_ptr, uint32_t on) {
 #endif
 }
 
-static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32_t bus_speed) {
+static void __attribute__((noinline)) set_brp(struct CANRegMap* can_ctrl, uint32_t bus_speed) {
   volatile uint32_t tmp32;
   volatile uint32_t btr;
-  const uint32_t    ts_val = 3 + 2 + 3; // Assuming ->btimr default values
+  const uint32_t ts_val = 3 + 2 + 3;  // Assuming ->btimr default values
 
   volatile uint32_t clk_freq = rcc_get_clk_freq(RCC_CLOCK_ID_PCLK1);
 
@@ -257,8 +258,7 @@ static void __attribute__((noinline)) set_brp(struct CANRegMap *can_ctrl, uint32
 }
 
 void can_init(enum CanCtrlId ctrl_id, uint32_t bus_speed, bool silent, bool loopback, can_rx_cb rx_cb) {
-
-  struct CANRegMap *can_ctrl = _get_ctrl_reg_ptr(ctrl_id);
+  struct CANRegMap* can_ctrl = _get_ctrl_reg_ptr(ctrl_id);
   if (can_ctrl) {
     _registered_can_rx_cb = rx_cb;
 
@@ -266,7 +266,8 @@ void can_init(enum CanCtrlId ctrl_id, uint32_t bus_speed, bool silent, bool loop
     // Can controller enters SLEEP_MODE after reset, need to transition to
     // INIT_MODE
     can_ctrl->ctlr = CAN_CTRL_INRQ;
-    while ((can_ctrl->statr & CAN_STATR_INAK) == 0) {};
+    while ((can_ctrl->statr & CAN_STATR_INAK) == 0) {
+    };
     set_brp(can_ctrl, bus_speed);
 
     if (silent) {
@@ -287,14 +288,13 @@ void can_init(enum CanCtrlId ctrl_id, uint32_t bus_speed, bool silent, bool loop
 }
 
 void can_deinit(enum CanCtrlId ctrl_id) {
-  struct CANRegMap *can_ctrl = _get_ctrl_reg_ptr(ctrl_id);
+  struct CANRegMap* can_ctrl = _get_ctrl_reg_ptr(ctrl_id);
   if (can_ctrl) {
     enbable_ctrl(can_ctrl, 0);
   }
 }
 
 void can_filter_init(void) {
-
   for (int i = 0; i < 28; i++) {
     can1_filter.fb[i].fr1 = 0;
     can1_filter.fb[i].fr2 = 0;
@@ -313,12 +313,11 @@ void can_filter_init(void) {
 }
 
 union CANIdFilter {
-  uint8_t  bytes[4];
+  uint8_t bytes[4];
   uint32_t dword;
 };
 
-void can_filter_init_ex(enum CanCtrlId ctrl_id, const uint32_t *ids, uint32_t id_cnt) {
-
+void can_filter_init_ex(enum CanCtrlId ctrl_id, const uint32_t* ids, uint32_t id_cnt) {
   uint32_t mb_start_idx;
   if (ctrl_id != CAN_CTRL_ID_1) {
     mb_start_idx = can1_filter.fctlr.can2sb;
@@ -336,9 +335,9 @@ void can_filter_init_ex(enum CanCtrlId ctrl_id, const uint32_t *ids, uint32_t id
   can1_filter.fctlr.finit = 1;
 
   for (uint32_t id_idx = 0; id_idx < id_cnt; id_idx++) {
-    volatile uint32_t          id = ids[id_idx];
+    volatile uint32_t id          = ids[id_idx];
     volatile union CANIdFilter fr = {.dword = 0};
-    volatile uint32_t          mb_idx = mb_start_idx + (id_idx / 2);
+    volatile uint32_t mb_idx      = mb_start_idx + (id_idx / 2);
 
     if (id & CAN_EXT_BIT) {
       id &= 0x1fffffff;
@@ -353,23 +352,22 @@ void can_filter_init_ex(enum CanCtrlId ctrl_id, const uint32_t *ids, uint32_t id
     }
 
     if (id_idx & 1) {
-      can1_filter.fafifor |= (1 << mb_idx); // FOFO 1
+      can1_filter.fafifor |= (1 << mb_idx);  // FOFO 1
       can1_filter.fb[mb_idx].fr2 = fr.dword;
     } else {
       can1_filter.fb[mb_idx].fr1 = fr.dword;
     }
 
-    can1_filter.fmcfgr |= (1 << mb_idx); // Id list mode
-    can1_filter.fscfgr |= (1 << mb_idx); // Is single 32 bit
-    can1_filter.fwr |= (1 << mb_idx);    // Is active
+    can1_filter.fmcfgr |= (1 << mb_idx);  // Id list mode
+    can1_filter.fscfgr |= (1 << mb_idx);  // Is single 32 bit
+    can1_filter.fwr |= (1 << mb_idx);     // Is active
   }
   // Back to normal mode
   can1_filter.fctlr.finit = 0;
 }
 
-bool can_tx_req(struct CANTxReq *req, uint32_t max_wait_ms) {
-
-  struct CANRegMap *reg_ptr = _get_ctrl_reg_ptr(req->ctrl_id);
+bool can_tx_req(struct CANTxReq* req, uint32_t max_wait_ms) {
+  struct CANRegMap* reg_ptr = _get_ctrl_reg_ptr(req->ctrl_id);
   // Find free mb
   req->_mb_idx = CAN_TX_MB_INVALID_IDX;
 retry:
@@ -389,12 +387,12 @@ retry:
   } while (req->_mb_idx == CAN_TX_MB_INVALID_IDX);
 
   // Get mb for this controller
-  struct CANMailboxRegMap *mb = _get_mb_ptr(req->ctrl_id);
+  struct CANMailboxRegMap* mb = _get_mb_ptr(req->ctrl_id);
 
   union CANMailboxTxMirRegBits mir = {.dword = 0};
 
   if (req->id & CAN_EXT_BIT) {
-    mir.ide = 1;
+    mir.ide  = 1;
     mir.exid = req->id & 0x3ffff;
     mir.stid = (req->id >> 18);
   } else {
@@ -414,9 +412,8 @@ retry:
   return true;
 }
 
-enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
-
-  struct CANRegMap *reg_ptr = _get_ctrl_reg_ptr(req->ctrl_id);
+enum CanTxStatus can_check_tx_complete(const struct CANTxReq* req) {
+  struct CANRegMap* reg_ptr = _get_ctrl_reg_ptr(req->ctrl_id);
 
   const uint32_t tstatr = reg_ptr->tstatr.dword >> req->_mb_idx * 8;
 
@@ -433,7 +430,7 @@ enum CanTxStatus can_check_tx_complete(const struct CANTxReq *req) {
 }
 
 #ifdef LIBCH32_HAS_CAN1
-static void _handle_can_rx(struct CANMailboxRegMap *mb, uint32_t rx_id) {
+static void _handle_can_rx(struct CANMailboxRegMap* mb, uint32_t rx_id) {
   CanRxMsg msg;
   union {
     struct {
