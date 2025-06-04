@@ -19,7 +19,7 @@
 
 	.section	.text.handle_reset,"ax",@progbits
     .global	handle_reset
-	.align	1
+	.align	2
 handle_reset:
 .option push
 .option	norelax

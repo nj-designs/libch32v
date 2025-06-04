@@ -181,7 +181,7 @@ $(LIBCH32V_CONFIG_FILE): $(DEVICE_CFG_FILE) $(APP_CFG_FILE)
 start-gdb: $(BUILD)/$(APP).elf
 	$(GDB) --command run/gdb-init $<
 
-ccj: $(BUILD)/$(APP).bin
+ccj: $(LIBCH32V_CONFIG_FILE)
 	@rm -fr $(CLANGD_CACHE_DIR)
 	python3 $(CCJ_HELPER_TOOL) --family $(FAMILY) --out-file $(CCJ_FILE) --base-dir $(PWD) --app-name $(APP) --bld-dir $(BUILD) --cc "$(CC) -c $(CFLAGS)"
 

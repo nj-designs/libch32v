@@ -12,6 +12,8 @@
 
 #include <stdint.h>
 
+#include "libch32v-config.h"
+
 #define CREATE_RCC_PERIPHERAL_ID(RCC_IDX, PIN_IDX) ((RCC_IDX) << 16 | PIN_IDX)
 
 typedef enum {
@@ -20,6 +22,7 @@ typedef enum {
   RCC_PB2_IDX,
 } RCCPeripheralBlockIdx;
 
+#if defined(LIBCH32_V203_FAMILY) || defined(LIBCH32_V307)
 /**
  * @brief Define RCCperipherals for HB, PB2 & PB1
  *        Used in both clk & reset context but not all
@@ -74,7 +77,7 @@ enum RCCPeripheralId {
   RCCAdc1Id = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 9),
   RCCIoPortEId = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 6),
   RCC_IOPD_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 5),
-  RCC_IOPC_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 5),
+  RCC_IOPC_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 4),
   RCC_IOPB_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 3),
   RCC_IOPA_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 2),
   RCC_AFIO_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 0),
@@ -95,6 +98,53 @@ enum RCCClockId {
   RCC_CLOCK_ID_PCLK1,
   RCC_CLOCK_ID_PCLK2,
 };
+#elif defined(LIBCH32_V003_FAMILY)
+
+/**
+ * @brief Define RCCperipherals for HB, PB2 & PB1
+ *        Used in both clk & reset context but not all
+ *        entries are valid for both use cases
+ */
+enum RCCPeripheralId {
+  // HB
+  RCC_SRAM_ID = CREATE_RCC_PERIPHERAL_ID(RCC_AHB_IDX, 2),
+  RCC_DMA1_ID = CREATE_RCC_PERIPHERAL_ID(RCC_AHB_IDX, 0),
+
+  // PB1
+  RCC_PWR_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB1_IDX, 28),
+  RCC_I2C1_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB1_IDX, 21),
+  RCC_WWDG_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB1_IDX, 11),
+  RCC_TMR2_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB1_IDX, 0),
+
+  // PB2
+  RCC_USART1_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 14),
+  RCC_SPI1_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 12),
+  RCC_TMR1_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 11),
+  RCC_ADC1_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 9),
+  RCC_IOPD_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 5),
+  RCC_IOPC_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 4),
+  RCC_IOPA_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 2),
+  RCC_AFIO_ID = CREATE_RCC_PERIPHERAL_ID(RCC_PB2_IDX, 0),
+
+};
+
+/**
+ * @brief Enumerate possible clocks
+ *
+ */
+enum RCCClockId {
+  RCC_CLOCK_ID_HSE,
+  RCC_CLOCK_ID_HSI,
+  RCC_CLOCK_ID_PLL,
+  RCC_CLOCK_ID_SYSCLK,
+  RCC_CLOCK_ID_HCLK,
+  RCC_CLOCK_ID_ADCPRE,
+
+  RCC_CLOCK_ID_UNKOWN,
+};
+#else
+#error port me
+#endif
 
 /**
  * @brief Set RCC block to a safe init values
@@ -124,3 +174,5 @@ void rcc_reset_peripherial(enum RCCPeripheralId id);
  *
  */
 uint32_t rcc_get_clk_freq(enum RCCClockId clock_id);
+
+enum RCCClockId rcc_get_clk_src(enum RCCPeripheralId id);

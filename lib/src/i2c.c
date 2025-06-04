@@ -15,49 +15,141 @@
 
 #include "printf.h"
 
+struct I2CRegMap {
+  volatile uint16_t ctlr1;
+  uint16_t rsvd1;
+  volatile uint16_t ctlr2;
+  uint16_t rsvd12;
+  volatile uint16_t oaddr1;
+  uint16_t rsvd3;
+  volatile uint16_t oaddr2;
+  uint16_t rsvd4;
+  volatile uint16_t datar;
+  uint16_t rsvd5;
+  volatile uint16_t star1;
+  uint16_t rsvd6;
+  volatile uint16_t star2;
+  uint16_t rsvd7;
+  volatile uint16_t ckcfgr;
+  uint16_t rsvd8;
+  volatile uint16_t rtr;
+};
+
+// CTLR1
+//------
+// ACK[10]
+static const uint16_t I2C_CTLR1_ACK = (1 << 10);
+// STOP[9]
+static const uint16_t I2C_CTLR1_STOP = (1 << 9);
+// START[8]
+static const uint16_t I2C_CTLR1_START = (1 << 8);
+// PE[0]
+static const uint16_t I2C_CTLR1_PE = (1 << 0);
+
+// CTRL2
+//------
+// FREQ[5:0]
+static const uint16_t I2C_CTRL2_FREQ_MASK = (0b111111 << 0);
+
+// STAR1
+//------
+// TxE[7]
+static const uint16_t I2C_STAR1_TxE = (1 << 7);
+// RxNE[6]
+static const uint16_t I2C_STAR1_RxNE = (1 << 6);
+// ADDR[1]
+static const uint16_t I2C_STAR1_ADDR = (1 << 1);
+// SB[0]
+static const uint16_t I2C_STAR1_SB = (1 << 0);
+
+// STAR2
+//-------
+// BUSY[1]
+static const uint16_t I2C_STAR2_BUSY = (1 << 1);
+// MSL[0]
+static const uint16_t I2C_STAR2_MSL = (1 << 0);
+
+// CKCFGR
+//-------
+// FnS[15]
+static const uint16_t I2C_CKCFGR_FnS = (1 << 15);
+// CCR[11:0]
+static const uint16_t I2C_CKCFGR_CCR_MASK = (0x0FFF << 0);
+
 #ifdef LIBCH32_HAS_I2C1
-struct I2CRegMap __attribute__((section(".i2c1"))) i2c1;
+static struct I2CRegMap __attribute__((section(".i2c1"))) i2c1;
 #endif
 
 #ifdef LIBCH32_HAS_I2C2
-struct I2CRegMap __attribute__((section(".i2c2"))) i2c2;
+static struct I2CRegMap __attribute__((section(".i2c2"))) i2c2;
 #endif
 
-#if defined(LIBCH32_V307_FAMILY)
-static struct I2CRegMap *const i2c_reg_lookup[] = {
-    &i2c1, // I2C_ID_1
-    &i2c2, // I2C_ID_2
-};
-#elif LIBCH32_DEVICE_ID == WCH_CH32V203G6U6
-static struct I2CRegMap *const i2c_reg_lookup[] = {
-    &i2c1, // I2C_ID_1
-    NULL,  // I2C_ID_2
-};
-#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
-static struct I2CRegMap *const i2c_reg_lookup[] = {
-    &i2c1, // I2C_ID_1
-    NULL,  // I2C_ID_2
-};
-#elif LIBCH32_DEVICE_ID == WCH_CH32V203C8T6
-static struct I2CRegMap *const i2c_reg_lookup[] = {
-    &i2c1, // I2C_ID_1
-    &i2c2, // I2C_ID_2
-};
-#else
-#erorr "unsupported device"
-#endif
+static struct I2CRegMap* _i2c_get_reg_map(enum I2CId id) {
+  struct I2CRegMap* reg = nullptr;
 
-void i2c_cfg(enum I2CId id, const struct I2CCfgValues *cfg) {
-  struct I2CRegMap *reg = i2c_reg_lookup[(uint32_t)id];
+  switch (id) {
+    case I2C_ID_1: {
+      reg = &i2c1;
+      break;
+    }
+#if defined(LIBCH32_HAS_I2C2)
+    case I2C_ID_2: {
+      reg = &i2c2;
+      break;
+    }
+#endif
+    default: {
+      break;
+    }
+  }
+  return reg;
+}
+
+static void _i2c_reset_peripheral(enum I2CId id) {
+  switch (id) {
+#if defined(LIBCH32_HAS_I2C2)
+    case I2C_ID_2: {
+      rcc_reset_peripherial(RCC_I2C2_ID);
+      break;
+    }
+
+#endif
+    default: {
+      rcc_reset_peripherial(RCC_I2C1_ID);
+      break;
+    }
+  }
+}
+
+static uint32_t _i2c_get_clk_freq(enum I2CId id) {
+  enum RCCPeripheralId rcc_id;
+  switch (id) {
+#if defined(LIBCH32_HAS_I2C2)
+    case IC2_ID_2: {
+      rcc_id = RCC_I2C_ID;
+      break;
+    }
+
+#endif
+    default: {
+      rcc_id = RCC_I2C1_ID;
+      break;
+    }
+  }
+  return rcc_get_clk_freq(rcc_get_clk_src(rcc_id));
+}
+
+void i2c_cfg(enum I2CId id, const struct I2CCfgValues* cfg) {
+  struct I2CRegMap* reg = _i2c_get_reg_map(id);
   if (reg != nullptr) {
     uint16_t tmpreg, freq, result;
 
-    rcc_reset_peripherial(id == I2C_ID_1 ? RCC_I2C1_ID : RCC_I2C2_ID);
+    _i2c_reset_peripheral(id);
 
-    const uint32_t pclk1_freq = rcc_get_clk_freq(RCC_CLOCK_ID_PCLK1);
-    tmpreg = reg->ctlr2 & ~I2C_CTRL2_FREQ_MASK;
-    freq = (uint16_t)(pclk1_freq / 1000000);
-    reg->ctlr2 = tmpreg | (freq & I2C_CTRL2_FREQ_MASK);
+    const uint32_t clk_freq = _i2c_get_clk_freq(id);
+    tmpreg                  = reg->ctlr2 & ~I2C_CTRL2_FREQ_MASK;
+    freq                    = (uint16_t)(clk_freq / 1000000);
+    reg->ctlr2              = tmpreg | (freq & I2C_CTRL2_FREQ_MASK);
     if (freq >= 60) {
       freq = 60;
     }
@@ -65,38 +157,37 @@ void i2c_cfg(enum I2CId id, const struct I2CCfgValues *cfg) {
     tmpreg = 0;
 
     if (cfg->bus_speed <= 100'000) {
-      result = (uint16_t)(pclk1_freq / (cfg->bus_speed << 1));
+      result = (uint16_t)(clk_freq / (cfg->bus_speed << 1));
       if (result < 4) {
-      result = 4;
+        result = 4;
       }
       tmpreg |= result;
       reg->rtr = freq + 1;
-  } else {
-    if (cfg->duty_cycle == I2C_DUTY_CYCLE_2) {
-      result = (uint16_t)(pclk1_freq / (cfg->bus_speed * 3));
     } else {
-      result = (uint16_t)(pclk1_freq / (cfg->bus_speed * 25));
-      result |= I2C_DUTY_CYCLE_16_9;
+      if (cfg->duty_cycle == I2C_DUTY_CYCLE_2) {
+        result = (uint16_t)(clk_freq / (cfg->bus_speed * 3));
+      } else {
+        result = (uint16_t)(clk_freq / (cfg->bus_speed * 25));
+        result |= I2C_DUTY_CYCLE_16_9;
+      }
+
+      if ((result & I2C_CKCFGR_CCR_MASK) == 0) {
+        result |= (uint16_t)0x0001;
+      }
+      tmpreg |= (uint16_t)(result | I2C_CKCFGR_FnS);
+      reg->rtr = (uint16_t)(((freq * (uint16_t)300) / (uint16_t)1000) + (uint16_t)1);
     }
 
-    if ((result & I2C_CKCFGR_CCR_MASK) == 0) {
-      result |= (uint16_t)0x0001;
+    reg->ckcfgr = tmpreg;
+
+    if (cfg->ack) {
+      reg->ctlr1 |= I2C_CTLR1_ACK;
     }
-    tmpreg |= (uint16_t)(result | I2C_CKCFGR_FnS);
-    reg->rtr = (uint16_t)(((freq * (uint16_t)300) / (uint16_t)1000) + (uint16_t)1);
   }
-
-  reg->ckcfgr = tmpreg;
-
-  if (cfg->ack) {
-    reg->ctlr1 |= I2C_CTLR1_ACK;
-  }
-}
-}
-;
+};
 
 void i2c_enable(enum I2CId id, uint32_t en) {
-  struct I2CRegMap *reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+  struct I2CRegMap* reg = _i2c_get_reg_map(id);
   if (reg != nullptr) {
     if (en) {
       reg->ctlr1 |= I2C_CTLR1_PE;
@@ -106,7 +197,7 @@ void i2c_enable(enum I2CId id, uint32_t en) {
   }
 }
 
-static bool check_status_flags(struct I2CRegMap *reg, uint16_t star1, uint16_t star2) {
+static bool check_status_flags(struct I2CRegMap* reg, uint16_t star1, uint16_t star2) {
   bool match1 = (reg->star1 & star1) == star1;
   bool match2 = (reg->star2 & star2) == star2;
   return match1 && match2;
@@ -114,9 +205,9 @@ static bool check_status_flags(struct I2CRegMap *reg, uint16_t star1, uint16_t s
 
 static const uint32_t MAX_LOOP = 10'000;
 
-    int32_t
-    i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfer_type) {
-  struct I2CRegMap *reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+int32_t
+i2c_connect(enum I2CId id, uint16_t target_address, enum I2CXferType xfer_type) {
+  struct I2CRegMap* reg = _i2c_get_reg_map(id);
   if (reg != nullptr) {
     uint32_t cnt;
 
@@ -169,13 +260,14 @@ static const uint32_t MAX_LOOP = 10'000;
   return -__LINE__;
 }
 
-int32_t i2c_read(enum I2CId id, uint8_t *buffer, uint16_t max_read_len) {
-  struct I2CRegMap *reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+int32_t i2c_read(enum I2CId id, uint8_t* buffer, uint16_t max_read_len) {
+  struct I2CRegMap* reg = _i2c_get_reg_map(id);
   if (reg != nullptr) {
     reg->ctlr1 |= I2C_CTLR1_ACK;
     uint16_t cnt;
     for (cnt = 0; cnt < max_read_len; cnt++) {
-      while (check_status_flags(reg, I2C_STAR1_RxNE, 0) == 0) {}
+      while (check_status_flags(reg, I2C_STAR1_RxNE, 0) == 0) {
+      }
       buffer[cnt] = (uint8_t)reg->datar;
     }
     return cnt;
@@ -183,11 +275,12 @@ int32_t i2c_read(enum I2CId id, uint8_t *buffer, uint16_t max_read_len) {
   return -__LINE__;
 }
 
-int32_t i2c_write(enum I2CId id, const uint8_t *buffer, uint16_t wr_len) {
-  struct I2CRegMap *reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+int32_t i2c_write(enum I2CId id, const uint8_t* buffer, uint16_t wr_len) {
+  struct I2CRegMap* reg = _i2c_get_reg_map(id);
   if (reg != nullptr) {
     for (uint16_t cnt = 0; cnt < wr_len; cnt++) {
-      while (check_status_flags(reg, I2C_STAR1_TxE, 0) == 0) {}
+      while (check_status_flags(reg, I2C_STAR1_TxE, 0) == 0) {
+      }
       reg->datar = buffer[cnt];
     }
   }
@@ -195,7 +288,7 @@ int32_t i2c_write(enum I2CId id, const uint8_t *buffer, uint16_t wr_len) {
 }
 
 void i2c_disconnect(enum I2CId id) {
-  struct I2CRegMap *reg = id < I2C_ID_MAX ? i2c_reg_lookup[(uint32_t)id] : nullptr;
+  struct I2CRegMap* reg = _i2c_get_reg_map(id);
   if (reg != nullptr) {
     reg->ctlr1 |= I2C_CTLR1_STOP;
   }

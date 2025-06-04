@@ -16,26 +16,6 @@
 
 #define NJD_IRQ_ATTRIBUTE __attribute__((interrupt))
 
-/**
- * @brief System Tick Register Map
- *
- */
-struct SysTickRegMap {
-  volatile uint32_t ctrl;
-  volatile uint32_t sr;
-#if LIBCH32_SYS_TICK_WIDTH == 32
-  volatile uint32_t cnt;
-  volatile uint32_t rsvd_0c;
-  volatile uint32_t cmp;
-  volatile uint32_t rsvd_14;
-#else
-  volatile uint64_t cnt;
-  volatile uint64_t cmp;
-#endif
-};
-
-extern struct SysTickRegMap systick;
-
 // STK_CTLR
 //---------
 // SWIE[31]

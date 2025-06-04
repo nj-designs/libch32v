@@ -36,6 +36,8 @@ static const uint32_t AFIO_PCFR1_TIM1_RM_DEFAULT = 0b00;
 static const uint32_t AFIO_PCFR1_TIM1_RM_PARTIAL_01 = 0b01;
 static const uint32_t AFIO_PCFR1_TIM1_RM_PARTIAL_10 = 0b10;
 static const uint32_t AFIO_PCFR1_TIM1_RM_FULLY = 0b11;
+#elif defined(LIBCH32_V003_FAMILY)
+static const uint32_t AFIO_PCFR1_SPI1_RM = 1;
 #else
 #error unsupported
 #endif

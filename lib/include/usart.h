@@ -24,23 +24,6 @@ struct USARTRegMap {
   volatile uint32_t gpr;
 };
 
-// typedef struct {
-//   volatile uint16_t statr;
-//   volatile uint16_t rsvd0;
-//   volatile uint16_t datar;
-//   volatile uint16_t rsvd1;
-//   volatile uint16_t brr;
-//   volatile uint16_t rsvd2;
-//   volatile uint16_t ctlr1;
-//   volatile uint16_t rsvd3;
-//   volatile uint16_t ctlr2;
-//   volatile uint16_t rsvd4;
-//   volatile uint16_t ctlr3;
-//   volatile uint16_t rsvd5;
-//   volatile uint16_t gpr;
-//   volatile uint16_t rsvd6;
-// } USARTRegMap;
-
 // STATR
 //------
 // TXE[7]
@@ -82,11 +65,35 @@ static const uint32_t RCC_CTRL3_DMAT = (1 << 7);
 static const uint32_t RCC_CTRL3_DMAR = (1 << 6);
 
 #ifdef LIBCH32_HAS_USART1
-extern struct USARTRegMap usart1;
+extern struct USARTRegMap __attribute__((section(".usart1"))) usart1;
 #endif
 
 #ifdef LIBCH32_HAS_USART2
-extern struct USARTRegMap usart2;
+extern struct USARTRegMap __attribute__((section(".usart2"))) usart2;
+#endif
+
+#ifdef LIBCH32_HAS_USART3
+extern struct USARTRegMap __attribute__((section(".usart3"))) usart3;
+#endif
+
+#ifdef LIBCH32_HAS_USART4
+extern struct USARTRegMap __attribute__((section(".usart4"))) usart4;
+#endif
+
+#ifdef LIBCH32_HAS_USART5
+extern struct USARTRegMap __attribute__((section(".usart5"))) usart5;
+#endif
+
+#ifdef LIBCH32_HAS_USART6
+extern struct USARTRegMap __attribute__((section(".usart6"))) usart6;
+#endif
+
+#ifdef LIBCH32_HAS_USART7
+extern struct USARTRegMap __attribute__((section(".usart7"))) usart7;
+#endif
+
+#ifdef LIBCH32_HAS_USART8
+extern struct USARTRegMap __attribute__((section(".usart8"))) usart8;
 #endif
 
 /**
@@ -96,14 +103,30 @@ extern struct USARTRegMap usart2;
  *
  */
 typedef enum {
+#if defined(LIBCH32_HAS_USART1)
   USART1_ID,
+#endif
+#if defined(LIBCH32_HAS_USART2)
   USART2_ID,
+#endif
+#if defined(LIBCH32_HAS_USART3)
   USART3_ID,
+#endif
+#if defined(LIBCH32_HAS_USART4)
   USART4_ID,
+#endif
+#if defined(LIBCH32_HAS_USART5)
   USART5_ID,
+#endif
+#if defined(LIBCH32_HAS_USART4)
   USART6_ID,
+#endif
+#if defined(LIBCH32_HAS_USART7)
   USART7_ID,
+#endif
+#if defined(LIBCH32_HAS_USART8)
   USART8_ID,
+#endif
 } UsartId;
 
 typedef enum {

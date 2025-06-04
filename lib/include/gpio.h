@@ -14,43 +14,25 @@
 
 #include "libch32v-config.h"
 
-struct GPIORegMap {
-  volatile uint32_t cfglr;
-  volatile uint32_t cfghr;
-  volatile uint32_t indr;
-  volatile uint32_t outdr;
-  volatile uint32_t bshr;
-  volatile uint32_t bcr;
-  volatile uint32_t lckr;
-};
-
-#ifdef LIBCH32_HAS_GPIOA
-extern struct GPIORegMap gpio_a;
-#endif
-
-#ifdef LIBCH32_HAS_GPIOB
-extern struct GPIORegMap gpio_b;
-#endif
-
-#ifdef LIBCH32_HAS_GPIOC
-extern struct GPIORegMap gpio_c;
-#endif
-
-#ifdef LIBCH32_HAS_GPIOD
-extern struct GPIORegMap gpio_d;
-#endif
-
-#ifdef LIBCH32_HAS_GPIOE
-extern struct GPIORegMap gpio_e;
-#endif
-
 #define CREATE_PIN_NUMBER(GPIO_IDX, PIN_IDX) ((GPIO_IDX) << 16 | PIN_IDX)
 
-#define GPIO_A_IDX 0
-#define GPIO_B_IDX 1
-#define GPIO_C_IDX 2
-#define GPIO_D_IDX 3
-#define GPIO_E_IDX 4
+enum GPIOBlockId : uint8_t {
+#if defined(LIBCH32_HAS_GPIOA)
+  GPIO_A_IDX,
+#endif
+#if defined(LIBCH32_HAS_GPIOB)
+  GPIO_B_IDX,
+#endif
+#if defined(LIBCH32_HAS_GPIOC)
+  GPIO_C_IDX,
+#endif
+#if defined(LIBCH32_HAS_GPIOD)
+  GPIO_D_IDX,
+#endif
+#if defined(LIBCH32_HAS_GPIOE)
+  GPIO_E_IDX,
+#endif
+};
 
 #if LIBCH32_DEVICE_ID == WCH_CH32V307VCT6
 enum GPIOPinId {
@@ -117,7 +99,7 @@ enum GPIOPinId {
   PIN_PD1 = CREATE_PIN_NUMBER(GPIO_D_IDX, 1),
 
 };
-#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4
+#elif LIBCH32_DEVICE_ID == WCH_CH32V003F4P6
 /**
  * @brief Enumerate all valid port pins.
  *
@@ -126,6 +108,8 @@ enum GPIOPinId {
 enum GPIOPinId {
   PIN_PA1 = CREATE_PIN_NUMBER(GPIO_A_IDX, 1),
   PIN_PA2 = CREATE_PIN_NUMBER(GPIO_A_IDX, 2),
+
+  PIN_PC0 = CREATE_PIN_NUMBER(GPIO_C_IDX, 0),
   PIN_PC1 = CREATE_PIN_NUMBER(GPIO_C_IDX, 1),
   PIN_PC2 = CREATE_PIN_NUMBER(GPIO_C_IDX, 2),
   PIN_PC3 = CREATE_PIN_NUMBER(GPIO_C_IDX, 3),
@@ -133,6 +117,7 @@ enum GPIOPinId {
   PIN_PC5 = CREATE_PIN_NUMBER(GPIO_C_IDX, 5),
   PIN_PC6 = CREATE_PIN_NUMBER(GPIO_C_IDX, 6),
   PIN_PC7 = CREATE_PIN_NUMBER(GPIO_C_IDX, 7),
+
   PIN_PD0 = CREATE_PIN_NUMBER(GPIO_D_IDX, 0),
   PIN_PD1 = CREATE_PIN_NUMBER(GPIO_D_IDX, 1),
   PIN_PD2 = CREATE_PIN_NUMBER(GPIO_D_IDX, 2),

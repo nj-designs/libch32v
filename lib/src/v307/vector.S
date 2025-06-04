@@ -11,13 +11,13 @@
 
 	.section	.init,"ax",@progbits
 	.global	_start
-	.align	1
+	.align	2
 _start:
 	j	handle_reset
 
     .section    .vector,"ax",@progbits
     .global _vector_base
-    .align  1
+    .align  2
 /* See Table 9-2 of CH32FV2x_V3xRM.PDF*/
 _vector_base:
     .option norvc;                     // We don't want compressed instructions here (Don't think needed!!)

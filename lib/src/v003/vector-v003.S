@@ -12,7 +12,7 @@
     .section    .init,"ax",@progbits
     .global _vector_base
     .global _start
-    .align  1
+    .align  2
 _start:
 _vector_base:
     .option norvc;                   // We don't want compressed instructions here (Don't think needed!!)
@@ -20,16 +20,16 @@ _vector_base:
     .word   0x00000004               // 0x00000004 #1  Not used
     .word   int_handler_nmi          // 0x00000008 #2  NMI
     .word   int_handler_hard_fault   // 0x0000000C #3  HardFault
-    .word   0x00000010               // 0x00000010 #4  
-    .word   0x00000014               // 0x00000014 #5 
-    .word   0x00000018               // 0x00000018 #6 
-    .word   0x0000001C               // 0x0000001C #7 
-    .word   0x00000020               // 0x00000020 #8 
-    .word   0x00000024               // 0x00000024 #9 
+    .word   0x00000010               // 0x00000010 #4
+    .word   0x00000014               // 0x00000014 #5
+    .word   0x00000018               // 0x00000018 #6
+    .word   0x0000001C               // 0x0000001C #7
+    .word   0x00000020               // 0x00000020 #8
+    .word   0x00000024               // 0x00000024 #9
     .word   0x00000028               // 0x00000028 #10
     .word   0x0000002C               // 0x0000002C #11
     .word   int_handler_sys_tick     // 0x00000030 #12 System timer
-    .word   0x00000034               // 0x00000034 #13 
+    .word   0x00000034               // 0x00000034 #13
     .word   int_handler_sw           // 0x00000038 #14 Sofware
     .word   0x0000003C               // 0x0000003C #15
     /* External Interrupts */
@@ -59,14 +59,14 @@ _vector_base:
 
     .option rvc;                        // Enable ompressed instructions
     .section    .text.vector_handler, "ax", @progbits
-    .weak   int_handler_nmi               
-    .weak   int_handler_hard_fault       
-    .weak   int_handler_sys_tick           
-    .weak   int_handler_sw        
-    .weak   int_handler_wwdg     
-    .weak   int_handler_pvd     
-    .weak   int_handler_flash   
-    .weak   int_handler_rcc       
+    .weak   int_handler_nmi
+    .weak   int_handler_hard_fault
+    .weak   int_handler_sys_tick
+    .weak   int_handler_sw
+    .weak   int_handler_wwdg
+    .weak   int_handler_pvd
+    .weak   int_handler_flash
+    .weak   int_handler_rcc
     .weak   int_handler_exti7_0
     .weak   int_handler_awu
     .weak   int_handler_dma1_chan1
@@ -76,16 +76,16 @@ _vector_base:
     .weak   int_handler_dma1_chan5
     .weak   int_handler_dma1_chan6
     .weak   int_handler_dma1_chan7
-    .weak   int_handler_adc       
+    .weak   int_handler_adc
     .weak   int_handler_i2c1_ev
     .weak   int_handler_i2c1_er
     .weak   int_handler_usart1
     .weak   int_handler_spi1
-    .weak   int_handler_tim1_brk  
-    .weak   int_handler_tim1_up  
-    .weak   int_handler_tim1_trg 
-    .weak   int_handler_tim1_cc  
-    .weak   int_handler_tim2    
+    .weak   int_handler_tim1_brk
+    .weak   int_handler_tim1_up
+    .weak   int_handler_tim1_trg
+    .weak   int_handler_tim1_cc
+    .weak   int_handler_tim2
 
 int_handler_nmi:
 int_handler_hard_fault:
