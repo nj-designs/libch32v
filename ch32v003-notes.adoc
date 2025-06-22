@@ -9,4 +9,4 @@ grep -v "\-Wp" compile_commands.json > temp && mv temp compile_commands.json
 ----
 
 
-https://github.com/riscv-non-isa/riscv-asm-manual/blob/main/riscv-asm.md
+https://github.com/riscv-non-isa/riscv-asm-manual/blob/main/src/asm-manual.adoc

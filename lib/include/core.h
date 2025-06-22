@@ -37,34 +37,35 @@ static const uint32_t STK_SR_CNTIF = (1 << 0);
  *
  */
 struct PFICRegMap {
-  volatile uint32_t isr[4];      // 0xE000E000
-  volatile uint32_t rsvd1[4];    // 0xE000E010
-  volatile uint32_t ipr[4];      // 0xE000E020
-  volatile uint32_t rsvd2[4];    // 0xE000E030
-  volatile uint32_t ithresdr;    // 0xE000E040
-  volatile uint32_t rsvd3;       // 0xE000E044
-  volatile uint32_t cfgr;        // 0xE000E048
-  volatile uint32_t gisr;        // 0xE000E04C
-  volatile uint32_t vtfidr;      // 0xE000E050
-  volatile uint32_t rsvd4[3];    // 0xE000E054
-  volatile uint32_t vtfaddrr[4]; // 0xE000E060
-  volatile uint32_t rsvd5[36];   // 0xE000E070
-  volatile uint32_t ienr[4];     // 0xE000E100
-  volatile uint32_t rsvd6[28];   // 0xE000E110
-  volatile uint32_t irer[4];     // 0xE000E180
-  volatile uint32_t rsvd7[28];   // 0xE000E190
-  volatile uint32_t ipsr[4];     // 0xE000E200
-  volatile uint32_t rsvd8[28];   // 0xE000E210
-  volatile uint32_t iprr[4];     // 0xE000E280
-  volatile uint32_t rsvd9[28];   // 0xE000E290
-  volatile uint32_t iactr[4];    // 0xE000E300
-  volatile uint32_t rsvd10[60];  // 0xE000E310
-  volatile uint32_t iprior[64];  // 0xE000E400
-  volatile uint32_t rsvd11[516]; // 0xE000E500
-  volatile uint32_t sctlr;       // 0xE000ED10
+  volatile uint32_t isr[4];       // 0xE000E000
+  volatile uint32_t rsvd1[4];     // 0xE000E010
+  volatile uint32_t ipr[4];       // 0xE000E020
+  volatile uint32_t rsvd2[4];     // 0xE000E030
+  volatile uint32_t ithresdr;     // 0xE000E040
+  volatile uint32_t rsvd3;        // 0xE000E044
+  volatile uint32_t cfgr;         // 0xE000E048
+  volatile uint32_t gisr;         // 0xE000E04C
+  volatile uint32_t vtfidr;       // 0xE000E050
+  volatile uint32_t rsvd4[3];     // 0xE000E054
+  volatile uint32_t vtfaddrr[4];  // 0xE000E060
+  volatile uint32_t rsvd5[36];    // 0xE000E070
+  volatile uint32_t ienr[4];      // 0xE000E100
+  volatile uint32_t rsvd6[28];    // 0xE000E110
+  volatile uint32_t irer[4];      // 0xE000E180
+  volatile uint32_t rsvd7[28];    // 0xE000E190
+  volatile uint32_t ipsr[4];      // 0xE000E200
+  volatile uint32_t rsvd8[28];    // 0xE000E210
+  volatile uint32_t iprr[4];      // 0xE000E280
+  volatile uint32_t rsvd9[28];    // 0xE000E290
+  volatile uint32_t iactr[4];     // 0xE000E300
+  volatile uint32_t rsvd10[60];   // 0xE000E310
+  volatile uint32_t iprior[64];   // 0xE000E400
+  volatile uint32_t rsvd11[516];  // 0xE000E500
+  volatile uint32_t sctlr;        // 0xE000ED10
 };
 extern struct PFICRegMap pfic;
 
+#if defined(LIBCH32_V203_FAMILY) || defined(LIBCH32_V307_FAMILY)
 enum PFICIntPriority : uint8_t {
   PFIC_INT_PRIORITY_0 = 0b111,
   PFIC_INT_PRIORITY_1 = 0b110,
@@ -75,21 +76,26 @@ enum PFICIntPriority : uint8_t {
   PFIC_INT_PRIORITY_6 = 0b001,
   PFIC_INT_PRIORITY_7 = 0b000,
 
-  PFIC_INT_PRIORITY_LOWEST = PFIC_INT_PRIORITY_0,
+  PFIC_INT_PRIORITY_LOWEST  = PFIC_INT_PRIORITY_0,
   PFIC_INT_PRIORITY_HIGHEST = PFIC_INT_PRIORITY_7,
 };
-
-#if defined(LIBCH32_V203_FAMILY) || defined(LIBCH32_V307_FAMILY)
 enum PFICIntNum : uint8_t {
-  PFIC_DMA1_CH1_INT_NUM = 27, // Addr: 0x0000006C
-  PFIC_DMA1_CH4_INT_NUM = 30, // Addr: 0x00000078
+  PFIC_DMA1_CH1_INT_NUM = 27,  // Addr: 0x0000006C
+  PFIC_DMA1_CH4_INT_NUM = 30,  // Addr: 0x00000078
   PFIC_CAN1_RX0_INT_NUM = 36,
   PFIC_CAN1_RX1_INT_NUM = 37,
-  PFIC_USART1_INT_NUM = 53, // Addr: 0x000000D4
+  PFIC_USART1_INT_NUM   = 53,  // Addr: 0x000000D4
 };
 #elif defined(LIBCH32_V003_FAMILY)
+enum PFICIntPriority : uint8_t {
+  PFIC_INT_PRIORITY_0 = 0b1,
+  PFIC_INT_PRIORITY_1 = 0b0,
+
+  PFIC_INT_PRIORITY_LOWEST  = PFIC_INT_PRIORITY_0,
+  PFIC_INT_PRIORITY_HIGHEST = PFIC_INT_PRIORITY_1,
+};
 enum PFICIntNum {
-  PFIC_DMA1_CH4_INT_NUM = 25, // Addr: 0x00000064
+  PFIC_DMA1_CH4_INT_NUM = 25,  // Addr: 0x00000064
 };
 #else
 #error "unsupported device"

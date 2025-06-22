@@ -102,8 +102,8 @@ static void drain_buffer(uint32_t count) {
 
 void _putchar(char ch) {
   bool flush = ch == '\n' ? true : false;
-  // DMA CHAN 4 is 7 (highest) so continue to allow its interrupts else dma_in_progress will never complete
-  enum PFICIntPriority old_prio                    = core_pfic_set_int_priority_threshold(PFIC_INT_PRIORITY_6);
+  // DMA CHAN 4 is highest level so continue to allow its interrupts else dma_in_progress will never complete
+  enum PFICIntPriority old_prio                    = core_pfic_set_int_priority_threshold(PFIC_INT_PRIORITY_HIGHEST);
   op_buffer[wr_idx & (APP_STDOUT_BUFFER_SIZE - 1)] = (uint8_t)ch;
   wr_idx++;
   if (dma_in_progress) {

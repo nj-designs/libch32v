@@ -1,6 +1,14 @@
 #include <stdint.h>
 
+volatile uint32_t last_dividend;
+volatile uint32_t last_divisor;
+volatile uint32_t last_result;
+volatile char* last_op;
+
 uint32_t __umodsi3(uint32_t dividend, uint32_t divisor) {
+  last_op       = "__umodsi3";
+  last_dividend = dividend;
+  last_divisor  = divisor;
   while (dividend >= divisor) {
     volatile uint32_t tmp      = divisor;
     volatile uint32_t quotient = 1;
@@ -10,11 +18,15 @@ uint32_t __umodsi3(uint32_t dividend, uint32_t divisor) {
     }
     dividend -= tmp >> 1;
   }
+  last_result = dividend;
   return dividend;
 }
 
 uint32_t __udivsi3(uint32_t dividend, uint32_t divisor) {
-  uint32_t ans = 0;
+  last_op       = "__udivsi3";
+  last_dividend = dividend;
+  last_divisor  = divisor;
+  uint32_t ans  = 0;
 
   while (dividend >= divisor) {
     uint32_t tmp      = divisor;
@@ -26,10 +38,12 @@ uint32_t __udivsi3(uint32_t dividend, uint32_t divisor) {
     ans += quotient >> 1;
     dividend -= tmp >> 1;
   }
+  last_result = ans;
   return ans;
 }
 
 int32_t __mulsi3(int32_t a, int32_t b) {
+  last_op        = "__mulsi3";
   int32_t result = 0;
   int negative   = 0;
 

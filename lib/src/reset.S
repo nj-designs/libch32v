@@ -9,7 +9,7 @@
 #elif LIBCH32_INT_NEST_DEPTH == 4
 #define INTSYSCR_PMTCFG (0b10 << 2)
 #elif LIBCH32_INT_NEST_DEPTH == 2
-#define INTSYSCR_PMTCFG (0b01 << 2)
+#define INTSYSCR_PMTCFG (0)
 #else
 #define INTSYSCR_PMTCFG (0)
 #endif

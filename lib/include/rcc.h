@@ -97,6 +97,8 @@ enum RCCClockId {
   RCC_CLOCK_ID_TIM2,
   RCC_CLOCK_ID_PCLK1,
   RCC_CLOCK_ID_PCLK2,
+
+  RCC_CLOCK_ID_UNKOWN,
 };
 #elif defined(LIBCH32_V003_FAMILY)
 
@@ -145,6 +147,15 @@ enum RCCClockId {
 #else
 #error port me
 #endif
+
+static const uint32_t RCC_NUM_CLOCKS = (uint32_t)RCC_CLOCK_ID_UNKOWN;
+
+struct RCCClkNameMap {
+  const char *name;
+  enum RCCClockId id;
+};
+
+extern const struct RCCClkNameMap rcc_all_clks[];
 
 /**
  * @brief Set RCC block to a safe init values

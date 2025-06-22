@@ -14,6 +14,34 @@
 #include "gpio.h"
 #include "rcc.h"
 
+const struct RCCClkNameMap rcc_all_clks[] = {
+    {
+        "RCC_CLOCK_ID_HSE",
+        RCC_CLOCK_ID_HSE,
+    },
+    {
+        "RCC_CLOCK_ID_HSI",
+        RCC_CLOCK_ID_HSI,
+    },
+    {
+        "RCC_CLOCK_ID_PLL",
+        RCC_CLOCK_ID_PLL,
+    },
+    {
+        "RCC_CLOCK_ID_SYSCLK",
+        RCC_CLOCK_ID_SYSCLK,
+    },
+    {
+        "RCC_CLOCK_ID_HCLK",
+        RCC_CLOCK_ID_HCLK,
+    },
+    {
+        "RCC_CLOCK_ID_ADCPRE",
+        RCC_CLOCK_ID_ADCPRE,
+    }
+
+};
+
 /**
  * @brief
  *

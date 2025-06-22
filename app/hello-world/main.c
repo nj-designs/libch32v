@@ -22,54 +22,16 @@
 
 static struct GPIOPinSetCache ledCache;
 
-/* static void print_clocks(void) {
-  static const struct {
-    const char* str;
-    enum RCCClockId id;
-  } clocks[] = {
-
-      {
-          "HSE: %d\n",
-          RCC_CLOCK_ID_HSE,
-      },
-      {
-          "HSI: %d\n",
-          RCC_CLOCK_ID_HSI,
-      },
-      {
-          "SYSCLK: %d\n",
-          RCC_CLOCK_ID_SYSCLK,
-      },
-      {
-          "HCLK: %d\n",
-          RCC_CLOCK_ID_HCLK,
-      },
-#if defined(LIBCH32_V203_FAMILY) || defined(LIBCH32_V307)
-      {
-          "TIM1: %d\n",
-          RCC_CLOCK_ID_TIM1,
-      },
-      {
-          "TIM2: %d\n",
-          RCC_CLOCK_ID_TIM2,
-      },
-      {
-          "PCLK1: %d\n",
-          RCC_CLOCK_ID_PCLK1,
-      },
-      {
-          "PCLK2: %d\n",
-          RCC_CLOCK_ID_PCLK2,
-      },
-#endif
-
-  };
-  const uint32_t clk_count = sizeof(clocks) / sizeof(clocks[0]);
-  for (uint32_t idx = 0; idx < clk_count; idx++) {
-    volatile uint32_t freq = rcc_get_clk_freq(clocks[idx].id);
-    printf(clocks[idx].str, freq);
+static void print_clocks(void) {
+  for (uint32_t idx = 0; idx < RCC_NUM_CLOCKS; idx++) {
+    volatile uint32_t freq = rcc_get_clk_freq(rcc_all_clks[idx].id);
+    if (freq < 10'000'000) {
+      while (true) {
+      }
+    }
+    printf("%s: %d\n", rcc_all_clks[idx].name, freq);
   }
-} */
+}
 
 static void setup_led(void) {
   // Setup LED
@@ -89,27 +51,27 @@ static void setup_led(void) {
   gpio_pin_cache(LED_PIN, &ledCache);
 }
 
-volatile uint32_t A = 48'000'000;
-volatile uint32_t B = 757;
+/* volatile uint32_t A = 48'000'000;
+volatile uint32_t B = 757; */
 
 void main(void) {
-  volatile uint32_t mod = A % B;
-  // stdout_init();
+  // volatile uint32_t mod = A % B;
+  stdout_init();
 
-  // printf("Hello world!!\n");
+  printf("Hello world!!\n");
 
-  // print_clocks();
+  print_clocks();
 
   setup_led();
 
   while (1) {
-    // printf("On\n");
+    printf("On ");
     gpio_pin_set_fast(&ledCache, 1);
-    core_delay_ms(1000);
-    // printf("Off\n");
+    core_delay_ms(500);
+    printf("Off ");
     gpio_pin_set_fast(&ledCache, 0);
-    core_delay_ms(1000);
-    mod++;
+    core_delay_ms(500);
+    // mod++;
   }
 }
 
