@@ -1,6 +1,7 @@
 ENTRY( _start )
 
-__stack_size = 2048;
+/* TODO(njohn): Make this device dependant*/
+__stack_size = 512;
 
 PROVIDE( _stack_size = __stack_size );
 
