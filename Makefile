@@ -152,6 +152,10 @@ size: $(BUILD)/$(APP).elf
 	$(SIZE) -A -x $<
 	$(SIZE) $<
 
+sections: $(BUILD)/$(APP).elf
+	@echo
+	$(OBJDUMP) -h -w $<
+
 %.sym: %.elf
 	@echo
 	$(NM) -n $< > $@
@@ -189,9 +193,9 @@ flash: $(BUILD)/$(APP).bin
 	python3 $(FLASH_HELPER_TOOL) --verbose --device $(DEVICE) --address $(FLASH_PROG_ADDR) --file $<
 
 clean:
-	@rm -rfv $(BUILD) $(CCJ_FILE) $(CLANGD_CACHE_DIE)
+	@rm -rfv $(BUILD) $(CCJ_FILE) $(CLANGD_CACHE_DIR)
 
-.PHONY: all clean size flash start-gdb ccj
+.PHONY: all clean size sections flash start-gdb ccj
 
 # Include the dependency files.
 -include $(wildcard $(BUILD)/*.d)
